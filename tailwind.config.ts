@@ -1,6 +1,6 @@
 import type { Config } from "tailwindcss";
 
-export default {
+const config: Config = {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -56,13 +56,13 @@ export default {
         "on-primary-fixed-variant": "#474747",
         "primary": "#000000",
         "on-tertiary": "#ffffff",
-        "secondary-container": "#e1dfdf"
+        "secondary-container": "#e1dfdf",
       },
       borderRadius: {
-        "DEFAULT": "0.25rem",
-        "lg": "0.5rem",
-        "xl": "0.75rem",
-        "full": "9999px"
+        DEFAULT: "0.25rem",
+        lg: "0.5rem",
+        xl: "0.75rem",
+        full: "9999px",
       },
       spacing: {
         "stack-md": "24px",
@@ -72,28 +72,24 @@ export default {
         "margin-desktop": "80px",
         "gutter-desktop": "32px",
         "stack-lg": "48px",
-        "stack-xl": "80px"
+        "stack-xl": "80px",
       },
       fontFamily: {
-        "display-xl": ["Manrope", "sans-serif"],
-        "body-md": ["Manrope", "sans-serif"],
-        "headline-md": ["Manrope", "sans-serif"],
-        "display-lg": ["Manrope", "sans-serif"],
-        "body-lg": ["Manrope", "sans-serif"],
-        "label-md": ["Manrope", "sans-serif"],
-        "label-sm": ["Manrope", "sans-serif"],
-        "headline-lg": ["Manrope", "sans-serif"]
+        sans: ["Manrope", "sans-serif"],
       },
       fontSize: {
-        "display-xl": ["80px", {"lineHeight": "88px", "letterSpacing": "-0.04em", "fontWeight": "800"}],
-        "body-md": ["16px", {"lineHeight": "24px", "letterSpacing": "0", "fontWeight": "400"}],
-        "headline-md": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
-        "display-lg": ["64px", {"lineHeight": "72px", "letterSpacing": "-0.03em", "fontWeight": "700"}],
-        "body-lg": ["20px", {"lineHeight": "32px", "letterSpacing": "0", "fontWeight": "400"}],
-        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
-        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}],
-        "headline-lg": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
-      }
-    }
-  }
-} satisfies Config;
+        "display-xl": ["80px", { lineHeight: "88px", letterSpacing: "-0.04em", fontWeight: "800" }],
+        "body-md": ["16px", { lineHeight: "24px", letterSpacing: "0", fontWeight: "400" }],
+        "headline-md": ["32px", { lineHeight: "40px", letterSpacing: "-0.01em", fontWeight: "600" }],
+        "display-lg": ["64px", { lineHeight: "72px", letterSpacing: "-0.03em", fontWeight: "700" }],
+        "body-lg": ["20px", { lineHeight: "32px", letterSpacing: "0", fontWeight: "400" }],
+        "label-md": ["14px", { lineHeight: "20px", letterSpacing: "0.05em", fontWeight: "600" }],
+        "label-sm": ["12px", { lineHeight: "16px", letterSpacing: "0.02em", fontWeight: "500" }],
+        "headline-lg": ["40px", { lineHeight: "48px", letterSpacing: "-0.02em", fontWeight: "700" }],
+      },
+    },
+  },
+  plugins: [],
+};
+
+export default config;
