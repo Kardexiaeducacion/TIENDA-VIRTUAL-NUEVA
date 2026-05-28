@@ -1,6 +1,50 @@
+"use client";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 
 export default function AccountPage() {
+  const supabase = createClient();
+  const router = useRouter();
+  const [profile, setProfile] = useState<Record<string, unknown> | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchProfile() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+        
+        // If profile doesn't exist yet but user is logged in, use user meta data fallback
+        if (data) {
+          setProfile({ ...data, email: user.email });
+        } else {
+          setProfile({ 
+            full_name: user.user_metadata.full_name || "Usuario",
+            email: user.email,
+            created_at: user.created_at
+          });
+        }
+      }
+      setLoading(false);
+    }
+    fetchProfile();
+  }, [supabase]);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.push("/login");
+    router.refresh();
+  };
+
+  if (loading) return <div className="min-h-screen bg-background flex items-center justify-center">Cargando perfil...</div>;
+  if (!profile) return null;
+
   return (
     <div className="bg-background text-on-background font-sans min-h-screen">
       <header className="fixed top-0 w-full h-20 bg-surface border-b border-outline-variant z-50">
@@ -31,15 +75,15 @@ export default function AccountPage() {
             <div className="sticky top-28 flex flex-col space-y-4">
               <div className="mb-8">
                 <h2 className="text-3xl font-bold text-primary">Account</h2>
-                <p className="text-base text-secondary">Manage your preferences</p>
+                <p className="text-base text-secondary">Gestiona tus preferencias</p>
               </div>
               <nav className="flex flex-col space-y-1">
                 {[
-                  { label: "Profile Details", icon: "person", href: "/account", active: true },
-                  { label: "My Orders", icon: "shopping_bag", href: "/account/orders" },
-                  { label: "Wishlist", icon: "favorite", href: "/account/favorites" },
-                  { label: "Addresses", icon: "location_on", href: "#" },
-                  { label: "Settings", icon: "settings", href: "#" },
+                  { label: "Detalles del Perfil", icon: "person", href: "/account", active: true },
+                  { label: "Mis Compras", icon: "shopping_bag", href: "/account/orders" },
+                  { label: "Favoritos", icon: "favorite", href: "/account/favorites" },
+                  { label: "Direcciones", icon: "location_on", href: "#" },
+                  { label: "Configuración", icon: "settings", href: "#" },
                 ].map((item) => (
                   <Link key={item.label} href={item.href}
                     className={`flex items-center space-x-3 p-3 text-sm font-semibold transition-all rounded-lg ${
@@ -52,9 +96,9 @@ export default function AccountPage() {
                 ))}
               </nav>
               <div className="pt-6">
-                <button className="flex items-center space-x-3 p-3 text-error text-sm font-semibold hover:bg-error-container/10 transition-colors w-full rounded-lg">
+                <button onClick={handleSignOut} className="flex items-center space-x-3 p-3 text-error text-sm font-semibold hover:bg-error-container/10 transition-colors w-full rounded-lg">
                   <span className="material-symbols-outlined">logout</span>
-                  <span>Sign Out</span>
+                  <span>Cerrar Sesión</span>
                 </button>
               </div>
             </div>
@@ -62,7 +106,7 @@ export default function AccountPage() {
 
           {/* MAIN CONTENT */}
           <section className="col-span-9">
-            <h1 className="text-4xl font-bold text-primary mb-8">Profile Details</h1>
+            <h1 className="text-4xl font-bold text-primary mb-8">Detalles del Perfil</h1>
 
             <div className="grid grid-cols-12 gap-8">
               {/* PROFILE SUMMARY CARD */}
@@ -70,20 +114,17 @@ export default function AccountPage() {
                 <div className="w-24 h-24 rounded-full bg-surface-container flex items-center justify-center mb-4">
                   <span className="material-symbols-outlined text-5xl text-secondary">person</span>
                 </div>
-                <h3 className="text-xl font-bold mb-1">Isabella Marqués</h3>
-                <p className="text-sm text-secondary mb-6">Member since October 2021</p>
+                <h3 className="text-xl font-bold mb-1">{profile.full_name}</h3>
+                <p className="text-sm text-secondary mb-1">{profile.role === 'admin' ? "👑 Administrador" : "Cliente"}</p>
+                <p className="text-xs text-secondary mb-6">Miembro desde {new Date(profile.created_at).getFullYear()}</p>
                 <div className="w-full space-y-3">
                   <div className="flex justify-between border-b border-outline-variant pb-2">
-                    <span className="text-xs text-secondary uppercase tracking-wide">Total Orders</span>
-                    <span className="text-sm font-bold">24</span>
+                    <span className="text-xs text-secondary uppercase tracking-wide">Compras</span>
+                    <span className="text-sm font-bold">0</span>
                   </div>
                   <div className="flex justify-between border-b border-outline-variant pb-2">
-                    <span className="text-xs text-secondary uppercase tracking-wide">Wishlist</span>
-                    <span className="text-sm font-bold">7</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-xs text-secondary uppercase tracking-wide">Reviews</span>
-                    <span className="text-sm font-bold">12</span>
+                    <span className="text-xs text-secondary uppercase tracking-wide">Favoritos</span>
+                    <span className="text-sm font-bold">0</span>
                   </div>
                 </div>
               </div>
@@ -91,29 +132,33 @@ export default function AccountPage() {
               {/* FORM */}
               <div className="col-span-8">
                 <div className="bg-surface-container-lowest border border-outline-variant p-8">
-                  <h3 className="text-sm font-bold uppercase tracking-widest text-on-surface-variant mb-6">Personal Information</h3>
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-sm font-bold uppercase tracking-widest text-on-surface-variant">Información Personal</h3>
+                    {profile.role === 'admin' && (
+                      <Link href="/editor" className="bg-primary text-on-primary px-4 py-2 text-xs font-bold uppercase tracking-wider hover:bg-primary-container transition-all flex items-center gap-2">
+                        Panel de Administración <span className="material-symbols-outlined text-[16px]">admin_panel_settings</span>
+                      </Link>
+                    )}
+                  </div>
+                  
                   <div className="space-y-6">
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs font-bold text-on-surface-variant">Nombre Completo</label>
+                      <input disabled defaultValue={profile.full_name} className="border border-outline-variant bg-surface p-3 text-base text-secondary cursor-not-allowed" type="text" />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs font-bold text-on-surface-variant">Correo Electrónico</label>
+                      <input disabled defaultValue={profile.email} className="border border-outline-variant bg-surface p-3 text-base text-secondary cursor-not-allowed" type="email" />
+                    </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="flex flex-col gap-2">
-                        <label className="text-xs font-bold text-on-surface-variant">First Name</label>
-                        <input defaultValue="Isabella" className="border border-outline-variant bg-surface p-3 focus:outline-none focus:border-primary text-base" type="text" />
+                        <label className="text-xs font-bold text-on-surface-variant">Fecha de Nacimiento</label>
+                        <input disabled defaultValue={profile.dob || ""} className="border border-outline-variant bg-surface p-3 text-base text-secondary cursor-not-allowed" type="date" />
                       </div>
                       <div className="flex flex-col gap-2">
-                        <label className="text-xs font-bold text-on-surface-variant">Last Name</label>
-                        <input defaultValue="Marqués" className="border border-outline-variant bg-surface p-3 focus:outline-none focus:border-primary text-base" type="text" />
+                        <label className="text-xs font-bold text-on-surface-variant">Género</label>
+                        <input disabled defaultValue={profile.gender || ""} className="border border-outline-variant bg-surface p-3 text-base text-secondary cursor-not-allowed" type="text" />
                       </div>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <label className="text-xs font-bold text-on-surface-variant">Email Address</label>
-                      <input defaultValue="isabella@example.com" className="border border-outline-variant bg-surface p-3 focus:outline-none focus:border-primary text-base" type="email" />
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <label className="text-xs font-bold text-on-surface-variant">Phone Number</label>
-                      <input defaultValue="+52 55 1234 5678" className="border border-outline-variant bg-surface p-3 focus:outline-none focus:border-primary text-base" type="tel" />
-                    </div>
-                    <div className="pt-4 flex justify-end gap-3">
-                      <button className="px-6 py-2 border border-outline text-sm font-semibold text-secondary hover:bg-surface-container transition-colors">Cancel</button>
-                      <button className="px-6 py-2 bg-primary text-on-primary text-sm font-semibold hover:bg-primary-container transition-colors">Save Changes</button>
                     </div>
                   </div>
                 </div>
@@ -123,16 +168,16 @@ export default function AccountPage() {
                   <Link href="/account/orders" className="flex items-center gap-4 p-6 border border-outline-variant hover:border-primary bg-surface-container-lowest transition-colors group">
                     <span className="material-symbols-outlined text-3xl text-primary">shopping_bag</span>
                     <div>
-                      <p className="text-sm font-bold group-hover:underline">My Orders</p>
-                      <p className="text-xs text-secondary">24 orders total</p>
+                      <p className="text-sm font-bold group-hover:underline">Mis Compras</p>
+                      <p className="text-xs text-secondary">Ver historial</p>
                     </div>
                     <span className="material-symbols-outlined ml-auto text-secondary">chevron_right</span>
                   </Link>
                   <Link href="/account/favorites" className="flex items-center gap-4 p-6 border border-outline-variant hover:border-primary bg-surface-container-lowest transition-colors group">
                     <span className="material-symbols-outlined text-3xl text-primary">favorite</span>
                     <div>
-                      <p className="text-sm font-bold group-hover:underline">Wishlist</p>
-                      <p className="text-xs text-secondary">7 saved items</p>
+                      <p className="text-sm font-bold group-hover:underline">Favoritos</p>
+                      <p className="text-xs text-secondary">Ver wishlist</p>
                     </div>
                     <span className="material-symbols-outlined ml-auto text-secondary">chevron_right</span>
                   </Link>
