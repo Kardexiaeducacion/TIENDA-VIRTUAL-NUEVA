@@ -10,7 +10,7 @@ export default function AdminSidebar({ profile, email }: { profile: Record<strin
   const router = useRouter();
 
   const menuItems = [
-    { label: "Dashboard", icon: "dashboard", href: "/editor" },
+    { label: "Resumen", icon: "dashboard", href: "/editor" },
     { label: "Productos", icon: "inventory_2", href: "/editor/products" },
     { label: "Ventas", icon: "point_of_sale", href: "/editor/orders" },
     { label: "Envíos", icon: "local_shipping", href: "/editor/shipping" },
