@@ -21,7 +21,7 @@ export default function ProductPage() {
   const id = params?.id as string;
   const supabase = createClient();
   
-  const [product, setProduct] = useState<any>(null);
+  const [product, setProduct] = useState<Record<string, unknown> | null>(null);
   const [activeImg, setActiveImg] = useState(0);
   const [detailsOpen, setDetailsOpen] = useState(true);
   const [shippingOpen, setShippingOpen] = useState(false);
@@ -34,6 +34,7 @@ export default function ProductPage() {
       }
     }
     fetchProduct();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   if (!product) {

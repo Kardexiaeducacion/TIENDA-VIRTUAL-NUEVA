@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 
 export default function HandbagsPage() {
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Record<string, unknown>[]>([]);
   const supabase = createClient();
 
   useEffect(() => {
@@ -14,6 +14,7 @@ export default function HandbagsPage() {
       if (data) setProducts(data);
     }
     fetchProducts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
