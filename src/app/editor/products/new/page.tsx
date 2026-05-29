@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function NewProductPage() {
   const router = useRouter();
@@ -13,7 +14,6 @@ export default function NewProductPage() {
     price: "",
     description: "",
     shipping_cost: "0",
-    images: "",
   });
 
   const [features, setFeatures] = useState<{ key: string; value: string }[]>([
@@ -21,12 +21,30 @@ export default function NewProductPage() {
     { key: "Material", value: "" },
   ]);
 
+  const [files, setFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
+
   const addFeature = () => setFeatures([...features, { key: "", value: "" }]);
   const removeFeature = (index: number) => setFeatures(features.filter((_, i) => i !== index));
   const updateFeature = (index: number, field: "key" | "value", val: string) => {
     const newFeatures = [...features];
     newFeatures[index][field] = val;
     setFeatures(newFeatures);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const selectedFiles = Array.from(e.target.files);
+      setFiles(prev => [...prev, ...selectedFiles]);
+      
+      const newPreviews = selectedFiles.map(file => URL.createObjectURL(file));
+      setPreviews(prev => [...prev, ...newPreviews]);
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setFiles(files.filter((_, i) => i !== index));
+    setPreviews(previews.filter((_, i) => i !== index));
   };
 
   const productPrice = Number(formData.price) || 0;
@@ -37,34 +55,52 @@ export default function NewProductPage() {
     e.preventDefault();
     setLoading(true);
 
-    const featureObj = features.reduce((acc, curr) => {
-      if (curr.key) acc[curr.key] = curr.value;
-      return acc;
-    }, {} as Record<string, string>);
+    try {
+      const featureObj = features.reduce((acc, curr) => {
+        if (curr.key) acc[curr.key] = curr.value;
+        return acc;
+      }, {} as Record<string, string>);
 
-    const imageUrls = formData.images.split(",").map(url => url.trim()).filter(url => url);
+      const imageUrls: string[] = [];
 
-    const { error } = await supabase.from("products").insert({
-      name: formData.name,
-      price: productPrice,
-      description: formData.description,
-      shipping_cost: shippingCost,
-      images: imageUrls,
-      features: featureObj,
-    });
+      // 1. Upload images to Supabase Storage
+      for (const file of files) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+        const filePath = `${fileName}`;
 
-    setLoading(false);
+        const { error: uploadError } = await supabase.storage.from("products").upload(filePath, file);
+        
+        if (uploadError) {
+          throw new Error(`Error subiendo imagen: ${uploadError.message}`);
+        }
 
-    if (error) {
-      alert("Error al guardar el producto: " + error.message);
-    } else {
+        const { data: { publicUrl } } = supabase.storage.from("products").getPublicUrl(filePath);
+        imageUrls.push(publicUrl);
+      }
+
+      // 2. Insert product data into DB
+      const { error: dbError } = await supabase.from("products").insert({
+        name: formData.name,
+        price: productPrice,
+        description: formData.description,
+        shipping_cost: shippingCost,
+        images: imageUrls,
+        features: featureObj,
+      });
+
+      if (dbError) throw dbError;
+
       router.push("/editor/products");
       router.refresh();
+    } catch (error: unknown) {
+      alert((error as Error).message);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500">
+    <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500 pb-12">
       <div>
         <h1 className="text-3xl font-bold text-black mb-2">Nuevo Producto</h1>
         <p className="text-gray-500 text-sm">Completa los detalles para publicar un nuevo artículo en la tienda.</p>
@@ -72,6 +108,44 @@ export default function NewProductPage() {
 
       <form onSubmit={handleSubmit} className="space-y-8">
         
+        {/* IMAGES */}
+        <div className="bg-white p-8 rounded-lg border border-[#EAEAEA] shadow-sm space-y-6">
+          <div className="flex items-center justify-between border-b border-[#EAEAEA] pb-4">
+            <h2 className="text-lg font-bold text-black">Fotografías</h2>
+          </div>
+          
+          <div className="space-y-4">
+            <div className="flex items-center justify-center w-full">
+              <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-40 border-2 border-[#EAEAEA] border-dashed rounded-lg cursor-pointer bg-[#F9F9F9] hover:bg-gray-50 transition-colors">
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <span className="material-symbols-outlined text-4xl text-gray-400 mb-2">cloud_upload</span>
+                  <p className="mb-2 text-sm text-gray-500 font-bold">Haz clic para subir o arrastra tus imágenes aquí</p>
+                  <p className="text-xs text-gray-400">PNG, JPG o WEBP (MAX. 5MB)</p>
+                </div>
+                <input id="dropzone-file" type="file" className="hidden" multiple accept="image/*" onChange={handleFileChange} />
+              </label>
+            </div>
+
+            {previews.length > 0 && (
+              <div className="flex gap-4 overflow-x-auto py-2">
+                {previews.map((src, idx) => (
+                  <div key={idx} className="relative w-24 h-24 flex-shrink-0 rounded-md overflow-hidden border border-[#EAEAEA]">
+                    <Image src={src} alt="Preview" fill className="object-cover" />
+                    <button type="button" onClick={() => removeFile(idx)} className="absolute top-1 right-1 bg-white rounded-full w-6 h-6 flex items-center justify-center text-red-500 shadow-sm hover:bg-red-50 transition-colors">
+                      <span className="material-symbols-outlined text-[14px]">close</span>
+                    </button>
+                    {idx === 0 && (
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[9px] text-center font-bold py-1 uppercase tracking-wider">
+                        Principal
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* BASIC INFO */}
         <div className="bg-white p-8 rounded-lg border border-[#EAEAEA] shadow-sm space-y-6">
           <h2 className="text-lg font-bold text-black border-b border-[#EAEAEA] pb-4">Información Básica</h2>
@@ -93,13 +167,6 @@ export default function NewProductPage() {
             <label className="text-xs font-bold text-gray-700 uppercase">Descripción</label>
             <textarea required rows={4} className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none resize-none" 
               value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Describe el producto detalladamente..." />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-gray-700 uppercase">Imágenes (URLs separadas por comas)</label>
-            <input type="text" className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none" 
-              value={formData.images} onChange={e => setFormData({...formData, images: e.target.value})} placeholder="https://ejemplo.com/foto1.jpg, https://ejemplo.com/foto2.jpg" />
-            <p className="text-xs text-gray-500">Pega enlaces directos a las imágenes. La primera será la imagen principal.</p>
           </div>
         </div>
 
@@ -158,8 +225,13 @@ export default function NewProductPage() {
           <button type="button" onClick={() => router.back()} className="px-6 py-3 border border-[#EAEAEA] rounded-md text-sm font-bold text-gray-600 hover:bg-gray-50 transition-colors">
             Cancelar
           </button>
-          <button type="submit" disabled={loading} className="px-8 py-3 bg-[#1C1C1C] text-white rounded-md text-sm font-bold uppercase tracking-wider hover:bg-black transition-colors disabled:opacity-50">
-            {loading ? "Publicando..." : "Publicar Producto"}
+          <button type="submit" disabled={loading} className="px-8 py-3 bg-[#1C1C1C] text-white rounded-md text-sm font-bold uppercase tracking-wider hover:bg-black transition-colors disabled:opacity-50 flex items-center justify-center gap-2 min-w-[200px]">
+            {loading ? (
+              <>
+                <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+                Publicando...
+              </>
+            ) : "Publicar Producto"}
           </button>
         </div>
 
