@@ -181,5 +181,3 @@ export default function HandbagsPage() {
     </div>
   );
 }
-
-export { AdminNav };
