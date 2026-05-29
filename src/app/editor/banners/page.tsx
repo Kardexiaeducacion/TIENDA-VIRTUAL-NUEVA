@@ -89,8 +89,12 @@ export default function BannersPage() {
       
       setEditingBanner(null);
       fetchBanners();
-    } catch (error: any) {
-      alert(error.message || "Ocurrió un error al guardar.");
+    } catch (error) {
+      if (error instanceof Error) {
+        alert(error.message || "Ocurrió un error al guardar.");
+      } else {
+        alert("Ocurrió un error al guardar.");
+      }
     } finally {
       setSaving(false);
     }
