@@ -1,13 +1,12 @@
 "use client";
-import { useState } from "react";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { createClient } from "@/utils/supabase/client";
 
-const images = [
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuBwuwdLU9Mn8_f6mHsetfz5yTO6VEfQQxgGfU_I97BQPEURNHKD6rNlEKyAIrnZPH_H8W1OiNUDe2pgRm8NnrYJ6Mhc75l4E4njZfzocK4OBxwVV-f1wYgzds5GJbbQR-qjCALOgoO0mPfFO3DKyYnoDvmEJfiyIX0bb23Mng_AYKD99O708bS3_hU0I2fCqUzKbBSx43pTnEnjJNVHjyrbazMriIhq_GB0vR6t3nzfby6zyJHQevxYGALoDH6UPPDKhO3v2P53swJ7",
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuAwdNVmUevUpx1H38UMtVNlkLPpTl68thEyqrQBS8zrObKWGjqZEb6cY5ZyMFhIro0mybVK77h4V1RaXTCN9M_aEHcSItsT3Eg0xej2Hw9CoPKNdyZgJm3BKarfOdeYikYpxrxR_TrVk-DHY6jVEGkU7TnwV1kSMbXHDNXrLnh737K96PVifL_aB90cGVHp564_auN9f_NCbPjXCoWw4HzN8R-RVfJkUWu0ABfT8xF094HUl5HFJW6T0ZNpJS8SyxileZ0z7KHuOlh_",
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuBY5rcoqm8j05I3MvI8Cw7tpO0xS0k5Lld6ghW5Wx6Rty4RRqAOWus7bUS1O1RTLQA_zrPbp1rqZsxsoToMvyaMOO63sHje8UEUiy64ae_FFmt9Ls4J0fLocHjS8uCbCVNE0eCaP1Q_O6xI5Mspb6lJmAgbqRd3_3H6Ace55xnttFvsUumWElcZnEgsnsbIj4kTYkySGABRPg9gepQ7GzV-DerhwZtOclqkrrxXgPPWQz8l2iCvMaDuqSpHA2PKxv0c-XXtZFC0Y_k9",
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuBPKIH6B6TCbgfD_zATMZA7JkvAKSffSncehXRxfJDRiDOBOTE8pX8wmNzrFKfNqxPmjYggt4CK6eOLc4pt8fSNr-jI3KsH_uzAT9VahvAdo_QLpraRzFlpgrKWFqM9sM2PAx84kx9rxU2J6AMvBnWkneg_4Zgb6Gs2OaYz0yFH6Foft2rp88ei-F2eGNsmemdsqfGBMy0dIIHC3imKs-Wr_XjA3D2LfbPgYDkeMzy3Ig4PLI3724Y6d8-fc_BMWSzsG0EKQ1_72jyz",
+const defaultImages = [
+  "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800",
 ];
 
 const related = [
@@ -18,16 +17,30 @@ const related = [
 ];
 
 export default function ProductPage() {
+  const params = useParams();
+  const id = params?.id as string;
+  const supabase = createClient();
+  
+  const [product, setProduct] = useState<any>(null);
   const [activeImg, setActiveImg] = useState(0);
-  const [selectedColor, setSelectedColor] = useState("Negro");
   const [detailsOpen, setDetailsOpen] = useState(true);
   const [shippingOpen, setShippingOpen] = useState(false);
 
-  const colors = [
-    { name: "Blanco", bg: "bg-white", border: "border-outline-variant" },
-    { name: "Negro", bg: "bg-black", border: "border-primary" },
-    { name: "Rojo", bg: "bg-[#B00020]", border: "border-outline-variant" },
-  ];
+  useEffect(() => {
+    async function fetchProduct() {
+      if (id) {
+        const { data } = await supabase.from("products").select("*").eq("id", id).single();
+        if (data) setProduct(data);
+      }
+    }
+    fetchProduct();
+  }, [id]);
+
+  if (!product) {
+    return <div className="min-h-screen flex justify-center items-center">Cargando producto...</div>;
+  }
+
+  const productImages = product.images?.length > 0 ? product.images : defaultImages;
 
   return (
     <div className="bg-background text-on-background font-sans">
@@ -63,13 +76,10 @@ export default function ProductPage() {
             <div className="col-span-12 lg:col-span-7">
               <div className="flex flex-col gap-6">
                 <div className="aspect-[4/5] bg-surface-container-low overflow-hidden border border-outline-variant relative group">
-                  <Image alt="Product" src={images[activeImg]} fill className="object-cover transition-transform duration-700 group-hover:scale-105" unoptimized />
-                  <div className="absolute top-6 left-6 bg-primary text-on-primary px-4 py-1 text-xs font-semibold uppercase tracking-widest">
-                    New Arrival
-                  </div>
+                  <Image alt={product.name} src={productImages[activeImg]} fill className="object-cover transition-transform duration-700 group-hover:scale-105" unoptimized />
                 </div>
                 <div className="grid grid-cols-4 gap-4">
-                  {images.map((img, i) => (
+                  {productImages.map((img: string, i: number) => (
                     <button
                       key={i}
                       onClick={() => setActiveImg(i)}
@@ -87,25 +97,8 @@ export default function ProductPage() {
               <div className="lg:sticky lg:top-28 flex flex-col gap-6">
                 <div className="border-b border-outline-variant pb-6">
                   <span className="text-xs font-semibold text-secondary uppercase tracking-widest mb-2 block">Cloe Exclusive</span>
-                  <h1 className="text-3xl font-bold text-primary mb-2 leading-tight">Handbag Cloe Betty Boop Crossbody</h1>
-                  <div className="inline-block px-3 py-1 bg-surface-container-high border border-outline-variant rounded-full text-xs font-semibold uppercase tracking-tight mb-4">
-                    Limited Edition
-                  </div>
-                  <p className="text-3xl font-bold text-primary">$2,890.00</p>
-                </div>
-
-                {/* COLORS */}
-                <div className="flex flex-col gap-4">
-                  <span className="text-sm font-bold uppercase">Color: <span className="text-secondary font-normal">{selectedColor}</span></span>
-                  <div className="flex gap-4">
-                    {colors.map((c) => (
-                      <button
-                        key={c.name}
-                        onClick={() => setSelectedColor(c.name)}
-                        className={`w-10 h-10 rounded-full border-2 ring-offset-2 transition-all ${c.bg} ${c.border} ${selectedColor === c.name ? "ring-2 ring-primary" : "hover:ring-2 hover:ring-primary"}`}
-                      />
-                    ))}
-                  </div>
+                  <h1 className="text-3xl font-bold text-primary mb-2 leading-tight">{product.name}</h1>
+                  <p className="text-3xl font-bold text-primary">${Number(product.price).toFixed(2)}</p>
                 </div>
 
                 {/* CTA */}
@@ -139,13 +132,14 @@ export default function ProductPage() {
                     </button>
                     {detailsOpen && (
                       <div className="pb-4 text-secondary text-base leading-relaxed">
-                        <p>The Betty Boop Crossbody is a masterpiece of modern design. Crafted from premium vegan leather with a unique embossed texture, it features a structured silhouette and polished hardware.</p>
-                        <ul className="mt-4 space-y-2 list-disc list-inside text-sm">
-                          <li>Dimensions: 22cm x 15cm x 8cm</li>
-                          <li>Adjustable and removable chain strap</li>
-                          <li>Secure magnetic closure</li>
-                          <li>Gold-tone hardware accents</li>
-                        </ul>
+                        <p>{product.description}</p>
+                        {product.features && (
+                          <ul className="mt-4 space-y-2 list-disc list-inside text-sm">
+                            {Object.entries(product.features).map(([key, value]) => (
+                              <li key={key}><strong>{key}:</strong> {value as string}</li>
+                            ))}
+                          </ul>
+                        )}
                       </div>
                     )}
                   </div>

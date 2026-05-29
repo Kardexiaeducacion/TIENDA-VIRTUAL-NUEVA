@@ -1,15 +1,21 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-
-const products = [
-  { id: 1, name: "Cloe Signature Satchel", price: "$185.00", colors: ["#000000", "#8B4513", "#E5E4E2"], img: "https://lh3.googleusercontent.com/aida/ADBb0uhhBPrdBT2O2iizwUAa-mlv4nZU_lCBVNZYH0z6XG8OKWOocpGH8pU2vvdn6Kzy2vgQwhlxMNvC57BmntSTweGWild2BGgRD6iWqp4a1d-19Q3JXEWfsUKzTvqDesIUhq6GAbTmXzNPsF60Ff_zYxfqGpK62EwMVKrtIMi5hSpPMa6tdUSQXihWCgsKRxfWa491rpJ82sgILAjWXxsNc6oOnC9iKE_Jc-2h4_A-TKmkwG14SkGyvHFEqmwx" },
-  { id: 2, name: "Modern Travel Wallet", price: "$75.00", colors: ["#000000", "#ba1a1a"], img: "https://lh3.googleusercontent.com/aida/ADBb0uj_ck_ZUU1s7oN0Bp2V2rI4p5nmHJGpvyMNq-G4deimTcSooW2nSuCCz4zSEdr5wLOJ3F2nynmXlj5yZqfhfN6F_NpANdo2wVpc0LVxeCGUpn2oHscmfGc1dwzkrjUJiGz0lYa5F4kQF4DvYeQkx_rUNqtC6OD_hYJMKXt0nAe-f3QqgHNiLU1FmrTQHus8g20ioIfiK2hMFP0D2b6R7PyeW_yKL13K9lsBZEVx7E19vW-YywPPpoMeaCzv" },
-  { id: 3, name: "Luxe Charm Keyring", price: "$45.00", colors: ["#c6c6c6"], img: "https://lh3.googleusercontent.com/aida/ADBb0uj_fTD_OOrWfu1JL-xzC26MivraWGMoUPCYuSORArNGFjvViUz6re7pFhmmIjWLsC3Gbsdvd5y7zCChkLy0ZPh5iVJrDAH6zLxTC57wV-SDKXslLLUy3-91RxZAm3cjXfL00Q-2UqbxvwIb_QvVuD1UzVV7Tt8zyPn6dLLBPreVTDrNpeYb_e-n8-fVZpR-zL7FVndZT-DwbIaFcCll-YAEVm5vBZ8vEkXPUBFiuoja3Ra0G643SiPTvW4" },
-  { id: 4, name: "Executive Carry-On", price: "$295.00", colors: ["#000000", "#838484"], img: "https://lh3.googleusercontent.com/aida/ADBb0uhc8GHbds5co_BPboOA41MvSYlGWiz3-S2jDikp7i9ez_pr9LacPUzeNv_pGP_CK8l3btrH8Ow1zffApzbqQhjjkHVIbLU4Qv9Y8pxmRHc4-nXN0pbmXzUx9yiJi4mCBuc3F9Aw5MpMNsk9VYV175Hney7iq__3VQxdr_z_6CK6UJ2AIc_tOOcE18fewEPciyKER-Al4UuBvThkX-i6rHgTyns-fcs7YqA-DxzENeE2IXPar3ZXIBPb4N0" },
-];
+import { useEffect, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
 
 export default function HomePage() {
+  const [products, setProducts] = useState<any[]>([]);
+  const supabase = createClient();
+
+  useEffect(() => {
+    async function fetchProducts() {
+      const { data } = await supabase.from("products").select("*").order("created_at", { ascending: false }).limit(4);
+      if (data) setProducts(data);
+    }
+    fetchProducts();
+  }, []);
+
   return (
     <div className="bg-background text-on-background font-sans">
       {/* NAV */}
@@ -168,7 +174,7 @@ export default function HomePage() {
                 <div className="aspect-[3/4] relative overflow-hidden bg-surface-container-low mb-3">
                   <Image
                     alt={product.name}
-                    src={product.img}
+                    src={product.images?.[0] || "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800"}
                     fill className="object-cover transition-transform duration-500 group-hover:scale-105" unoptimized
                   />
                   <button className="absolute bottom-0 left-0 right-0 bg-primary/90 text-white py-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 text-xs font-semibold tracking-widest">
@@ -176,12 +182,7 @@ export default function HomePage() {
                   </button>
                 </div>
                 <h4 className="text-sm font-semibold text-primary mb-1">{product.name}</h4>
-                <p className="text-base text-secondary mb-2">{product.price}</p>
-                <div className="flex gap-1">
-                  {product.colors.map((color, i) => (
-                    <span key={i} className="w-3 h-3 rounded-full border border-outline-variant" style={{ backgroundColor: color }} />
-                  ))}
-                </div>
+                <p className="text-base text-secondary mb-2">${Number(product.price).toFixed(2)}</p>
               </Link>
             ))}
           </div>

@@ -1,57 +1,21 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-
-const products = [
-  { id: 1, name: "Cloe x Betty White Satchel", price: "$895.00", badge: "New", badgeColor: "bg-primary text-on-primary", img: "https://lh3.googleusercontent.com/aida/ADBb0ugnY6c6sM1iHryqO0UA7CrazbWiclbZ-RlI_YnhIKor2qSsgiImvaE01NM0IL3dm0AoQKBOF9ZDh62DPldKSPRlRk9SrGkDCSPzz7NONd_KXompPTaH5Pt0aLxjqYpsbPgEMv6izweYzBrac74Mj-YAWFDM9qCyQK_Bc_noyx5uATDz2H5Cds8SQ6GUPK4rSgTxoB3wdOU6FgbIZx0r4GgqD8KryaLo3xitmEY6Me8VBfG_Y_mT2gKljD4W" },
-  { id: 2, name: "Cloe x Betty Black Tote", price: "$1,120.00", badge: null, badgeColor: "", img: "https://lh3.googleusercontent.com/aida/ADBb0uhhBPrdBT2O2iizwUAa-mlv4nZU_lCBVNZYH0z6XG8OKWOocpGH8pU2vvdn6Kzy2vgQwhlxMNvC57BmntSTweGWild2BGgRD6iWqp4a1d-19Q3JXEWfsUKzTvqDesIUhq6GAbTmXzNPsF60Ff_zYxfqGpK62EwMVKrtIMi5hSpPMa6tdUSQXihWCgsKRxfWa491rpJ82sgILAjWXxsNc6oOnC9iKE_Jc-2h4_A-TKmkwG14SkGyvHFEqmwx" },
-  { id: 3, name: "Essential Leather Tote", price: "$550.00", badge: null, badgeColor: "", img: "https://lh3.googleusercontent.com/aida/ADBb0uhwvYLdyI49qUO8v-0AlxU2gTSrRFuqaiwkTPimFq_PHGIf8eLuq0BqdYsvASD9WOCXFu438saspVResTgu-FAA_nJk0vhRWd2HeTAR0puSHKH3iaOItlz7u8GJdlP_Fq5sa4D4uIjiYXzOK-Y1ezJTgcyII2wqJZvGKrBLMHWUQtcXH380l9CMwslQNFyLsR5JgZv5DOZxk4YxT1sMk9loHtETPR-rqWsXZTj1dHUA2xhy8tZ3uCf2CDuy" },
-  { id: 4, name: "Modern Top Handle Bag", price: "$495.00", originalPrice: "$720.00", badge: "Sale", badgeColor: "bg-error text-on-error", img: "https://lh3.googleusercontent.com/aida/ADBb0uis7azS51WqBjstzhX5o_oLcUldqe_P2_q1GwipjIsmJl3JhP8z76yoGpuJiW1Yp9zNxHaFBW6WdS_EsUvPi5aoOEW1O3-jtdoUQTpO0mJnq13qxcfUj7DsmGfPWw7mizExI8UPOCGwRAkYRQMF2UoP37xqzfISXQoJkuqkzcZqwbo0nmtjy3ZhnjcuDYV4T-ADrESc6jQRgUtkKvxUP8O3Nv52fXFJ9ahezhnegr55uiUKjs85RoDXonlN" },
-];
-
-const AdminNav = ({ active }: { active: string }) => (
-  <aside className="fixed left-0 top-0 h-full w-64 bg-surface border-r border-outline-variant flex flex-col z-50">
-    <div className="px-4 py-6 border-b border-outline-variant mb-4">
-      <h1 className="text-2xl font-extrabold text-primary">Admin Center</h1>
-      <p className="text-xs text-secondary mt-1">Manage Cloe Store</p>
-    </div>
-    <nav className="flex-1 space-y-1 px-2">
-      {[
-        { label: "Dashboard", icon: "dashboard", href: "/editor" },
-        { label: "Products", icon: "inventory_2", href: "/editor/products/new" },
-        { label: "Orders", icon: "shopping_bag", href: "/editor/orders" },
-        { label: "Q&A", icon: "forum", href: "/editor/qa" },
-        { label: "Settings", icon: "settings", href: "/editor/settings" },
-      ].map((item) => (
-        <Link
-          key={item.label}
-          href={item.href}
-          className={`flex items-center gap-3 px-4 py-3 rounded transition-all text-sm font-semibold ${
-            active === item.label
-              ? "bg-primary text-on-primary"
-              : "text-on-surface-variant hover:bg-surface-container-high"
-          }`}
-        >
-          <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
-          <span>{item.label}</span>
-        </Link>
-      ))}
-    </nav>
-    <div className="p-4 border-t border-outline-variant">
-      <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center">
-          <span className="material-symbols-outlined text-on-secondary-container" style={{ fontSize: "20px" }}>person</span>
-        </div>
-        <div>
-          <p className="text-sm font-bold">Alex Thorne</p>
-          <p className="text-xs text-secondary">Senior Editor</p>
-        </div>
-      </div>
-    </div>
-  </aside>
-);
+import { useEffect, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
 
 export default function HandbagsPage() {
+  const [products, setProducts] = useState<any[]>([]);
+  const supabase = createClient();
+
+  useEffect(() => {
+    async function fetchProducts() {
+      const { data } = await supabase.from("products").select("*").order("created_at", { ascending: false });
+      if (data) setProducts(data);
+    }
+    fetchProducts();
+  }, []);
+
   return (
     <div className="bg-background text-on-background font-sans min-h-screen">
       {/* NAV */}
@@ -145,18 +109,14 @@ export default function HandbagsPage() {
               {products.map((product) => (
                 <Link href={`/product/${product.id}`} key={product.id} className="group cursor-pointer">
                   <div className="relative aspect-[3/4] overflow-hidden bg-surface-container mb-3">
-                    {product.badge && (
-                      <span className={`absolute top-4 left-4 z-10 ${product.badgeColor} text-xs font-semibold px-3 py-1 uppercase tracking-tight`}>{product.badge}</span>
-                    )}
-                    <Image alt={product.name} src={product.img} fill className="object-cover transition-transform duration-700 group-hover:scale-105" unoptimized />
+                    <Image alt={product.name} src={product.images?.[0] || "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800"} fill className="object-cover transition-transform duration-700 group-hover:scale-105" unoptimized />
                     <div className="absolute bottom-0 left-0 w-full bg-white/90 backdrop-blur-sm py-4 text-center text-sm font-semibold uppercase tracking-widest translate-y-full group-hover:translate-y-0 transition-transform duration-300 hover:bg-primary hover:text-on-primary">
                       Quick View
                     </div>
                   </div>
                   <h4 className="text-lg font-semibold text-primary mb-1">{product.name}</h4>
                   <div className="flex items-center gap-2">
-                    {product.originalPrice && <span className="text-sm text-secondary line-through">{product.originalPrice}</span>}
-                    <span className={`text-sm font-semibold ${product.originalPrice ? "text-error" : "text-secondary"}`}>{product.price}</span>
+                    <span className="text-sm font-semibold text-secondary">${Number(product.price).toFixed(2)}</span>
                   </div>
                 </Link>
               ))}
