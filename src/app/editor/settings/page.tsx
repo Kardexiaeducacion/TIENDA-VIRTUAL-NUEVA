@@ -1,55 +1,17 @@
-import Link from "next/link";
 
-const AdminNav = ({ active }: { active: string }) => (
-  <aside className="fixed left-0 top-0 h-full w-64 bg-surface border-r border-outline-variant flex flex-col z-50">
-    <div className="px-4 py-6 border-b border-outline-variant mb-4">
-      <h1 className="text-2xl font-extrabold text-primary">Admin Center</h1>
-      <p className="text-xs text-secondary mt-1">Manage Cloe Store</p>
-    </div>
-    <nav className="flex-1 space-y-1 px-2">
-      {[
-        { label: "Dashboard", icon: "dashboard", href: "/editor" },
-        { label: "Products", icon: "inventory_2", href: "/editor/products/new" },
-        { label: "Orders", icon: "shopping_bag", href: "/editor/orders" },
-        { label: "Q&A", icon: "question_answer", href: "/editor/qa" },
-        { label: "Settings", icon: "settings", href: "/editor/settings" },
-      ].map((item) => (
-        <Link key={item.label} href={item.href}
-          className={`flex items-center gap-3 px-4 py-3 rounded text-sm font-semibold transition-all ${
-            active === item.label ? "bg-primary text-on-primary font-bold" : "text-on-surface-variant hover:bg-surface-container-high"
-          }`}
-        >
-          <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
-          <span>{item.label}</span>
-        </Link>
-      ))}
-    </nav>
-    <div className="p-4 border-t border-outline-variant">
-      <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center">
-          <span className="material-symbols-outlined text-on-secondary-container" style={{ fontSize: "20px" }}>person</span>
-        </div>
-        <div>
-          <p className="text-sm font-bold">Alex Chen</p>
-          <p className="text-xs text-secondary">Store Manager</p>
-        </div>
-      </div>
-    </div>
-  </aside>
-);
 
 export default function EditorSettingsPage() {
   return (
-    <div className="bg-background text-on-background min-h-screen flex font-sans">
-      <AdminNav active="Settings" />
-      <main className="ml-64 flex-1 min-h-screen bg-surface">
-        {/* HEADER */}
-        <header className="h-20 border-b border-outline-variant bg-surface sticky top-0 z-30 px-20 flex items-center justify-between">
-          <h2 className="text-2xl font-semibold">Settings</h2>
-          <button className="px-6 py-2 bg-primary text-on-primary text-sm font-semibold hover:bg-primary-container transition-all">Save Changes</button>
-        </header>
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-black mb-2">Configuración</h1>
+          <p className="text-gray-500 text-sm">Administra la información de tu tienda y preferencias.</p>
+        </div>
+        <button className="px-6 py-2 bg-[#1C1C1C] text-white text-sm font-bold uppercase tracking-wider rounded-md hover:bg-black transition-all">Guardar Cambios</button>
+      </div>
 
-        <div className="max-w-[1000px] mx-auto py-20 px-8 space-y-8">
+      <div className="max-w-[1000px] space-y-8">
           {/* STORE INFO */}
           <section className="bg-surface-container-lowest p-8 border border-outline-variant">
             <h3 className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-6">Store Information</h3>
@@ -138,8 +100,7 @@ export default function EditorSettingsPage() {
               </div>
             </div>
           </section>
-        </div>
-      </main>
+      </div>
     </div>
   );
 }
