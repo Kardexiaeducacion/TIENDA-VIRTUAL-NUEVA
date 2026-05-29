@@ -6,14 +6,24 @@ import { createClient } from "@/utils/supabase/client";
 
 export default function HomePage() {
   const [products, setProducts] = useState<Record<string, unknown>[]>([]);
+  const [banners, setBanners] = useState<Record<string, Record<string, unknown>>>({});
   const supabase = createClient();
 
   useEffect(() => {
-    async function fetchProducts() {
-      const { data } = await supabase.from("products").select("*").order("created_at", { ascending: false }).limit(4);
-      if (data) setProducts(data);
+    async function fetchData() {
+      const { data: prodData } = await supabase.from("products").select("*").order("created_at", { ascending: false }).limit(4);
+      if (prodData) setProducts(prodData);
+
+      const { data: banData } = await supabase.from("banners").select("*");
+      if (banData) {
+        const banObj = banData.reduce((acc: Record<string, Record<string, unknown>>, curr: Record<string, unknown>) => {
+          acc[curr.section as string] = curr;
+          return acc;
+        }, {});
+        setBanners(banObj);
+      }
     }
-    fetchProducts();
+    fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -49,22 +59,22 @@ export default function HomePage() {
         <section className="relative w-full h-[90vh] overflow-hidden bg-surface-container">
           <div className="absolute inset-0">
             <Image
-              alt="Last Chance Campaign Hero"
-              src="https://lh3.googleusercontent.com/aida/ADBb0ui2sG7W4QW_Ljn_heyx-0-p7qNeJm6B-6JnxUbYdWEdkY7Zskp4lA4lsye2Vzeb6I-JyvyxEOkcY8Bpht9cRqNipnV0JSE8UnV45g7Prlm6ENDG8UWeD9tTaOsdmcX_N1_UfKMQ__ybTxv8wW7QuTN10axNgkD1A11zw_jtGdEEybg3V_aYRzCPZ2sR5qoUSTdvvTmuF1kUf7j5OvdZScqPbipqF4aau9kgQOtH1LoRijE1mPM3jU9Qzuwh"
+              alt={banners['hero']?.title as string || "Campaign Hero"}
+              src={banners['hero']?.image_url as string || "https://lh3.googleusercontent.com/aida/ADBb0ui2sG7W4QW_Ljn_heyx-0-p7qNeJm6B-6JnxUbYdWEdkY7Zskp4lA4lsye2Vzeb6I-JyvyxEOkcY8Bpht9cRqNipnV0JSE8UnV45g7Prlm6ENDG8UWeD9tTaOsdmcX_N1_UfKMQ__ybTxv8wW7QuTN10axNgkD1A11zw_jtGdEEybg3V_aYRzCPZ2sR5qoUSTdvvTmuF1kUf7j5OvdZScqPbipqF4aau9kgQOtH1LoRijE1mPM3jU9Qzuwh"}
               fill className="object-cover object-center" unoptimized priority
             />
             <div className="absolute inset-0 bg-gradient-to-r from-white/40 via-transparent to-transparent" />
           </div>
           <div className="relative h-full max-w-[1440px] mx-auto px-20 flex flex-col justify-center items-start">
             <div className="max-w-2xl">
-              <span className="text-sm font-semibold text-primary tracking-[0.2em] uppercase mb-4 block">Summer Clearance</span>
-              <h1 className="text-7xl lg:text-8xl font-extrabold text-error leading-none mb-6 tracking-tighter">LAST CHANCE</h1>
+              <span className="text-sm font-semibold text-primary tracking-[0.2em] uppercase mb-4 block">{banners['hero']?.subtitle as string || "Summer Clearance"}</span>
+              <h1 className="text-7xl lg:text-8xl font-extrabold text-error leading-none mb-6 tracking-tighter">{banners['hero']?.title as string || "LAST CHANCE"}</h1>
               <p className="text-xl text-on-surface mb-12 max-w-md leading-relaxed">
                 Final reductions on our most coveted collections. Once they&apos;re gone, they&apos;re gone forever.
               </p>
-              <button className="bg-primary text-white px-10 py-4 text-sm font-semibold hover:bg-primary-container transition-colors uppercase tracking-widest">
-                SHOP NOW
-              </button>
+              <Link href={(banners['hero']?.link_url as string) || "/handbags"} className="inline-block bg-primary text-white px-10 py-4 text-sm font-semibold hover:bg-primary-container transition-colors uppercase tracking-widest">
+                {banners['hero']?.link_text as string || "SHOP NOW"}
+              </Link>
             </div>
           </div>
         </section>
@@ -86,13 +96,13 @@ export default function HomePage() {
               <div className="relative h-[600px] overflow-hidden">
                 <Image
                   alt="Premium Handbags Collection"
-                  src="https://lh3.googleusercontent.com/aida/ADBb0ugjbPyixeRauJe0OfGwmJdqgCnX56IqvPi5JiTtdLvDvexhkoOfZ36Xr42zEkMIAU4jgLHboIyk3jFUTizTaeptdsTj2a4CI9mmF7x5UNj4JBcqQE83GZo6eyuX4YFr6Tfk0D9Y1HaK9JvvRPZ5AwhPpR5FdGiNYrmX08ZCvPb_IzZfR-TDZ0DgvRMMUWncPgH1AlXpFE9hjMrqgjCqZTmNPACcpaNo0eaD9GBC7tqy94iYRV8SfGjigmM9"
+                  src={banners['category_handbags']?.image_url as string || "https://lh3.googleusercontent.com/aida/ADBb0ugjbPyixeRauJe0OfGwmJdqgCnX56IqvPi5JiTtdLvDvexhkoOfZ36Xr42zEkMIAU4jgLHboIyk3jFUTizTaeptdsTj2a4CI9mmF7x5UNj4JBcqQE83GZo6eyuX4YFr6Tfk0D9Y1HaK9JvvRPZ5AwhPpR5FdGiNYrmX08ZCvPb_IzZfR-TDZ0DgvRMMUWncPgH1AlXpFE9hjMrqgjCqZTmNPACcpaNo0eaD9GBC7tqy94iYRV8SfGjigmM9"}
                   fill className="object-cover transition-transform duration-700 group-hover:scale-105" unoptimized
                 />
                 <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-colors duration-300" />
                 <div className="absolute bottom-10 left-10 text-white">
-                  <h3 className="text-3xl font-semibold mb-2">Handbags</h3>
-                  <p className="text-sm font-semibold opacity-80 group-hover:opacity-100 transition-opacity">Discover Iconic Silhouettes</p>
+                  <h3 className="text-3xl font-semibold mb-2">{banners['category_handbags']?.title as string || "Handbags"}</h3>
+                  <p className="text-sm font-semibold opacity-80 group-hover:opacity-100 transition-opacity">{banners['category_handbags']?.subtitle as string || "Discover Iconic Silhouettes"}</p>
                 </div>
               </div>
             </Link>
@@ -102,13 +112,13 @@ export default function HomePage() {
                 <div className="relative h-[284px] overflow-hidden">
                   <Image
                     alt="Durable Designer Luggage"
-                    src="https://lh3.googleusercontent.com/aida/ADBb0uhc8GHbds5co_BPboOA41MvSYlGWiz3-S2jDikp7i9ez_pr9LacPUzeNv_pGP_CK8l3btrH8Ow1zffApzbqQhjjkHVIbLU4Qv9Y8pxmRHc4-nXN0pbmXzUx9yiJi4mCBuc3F9Aw5MpMNsk9VYV175Hney7iq__3VQxdr_z_6CK6UJ2AIc_tOOcE18fewEPciyKER-Al4UuBvThkX-i6rHgTyns-fcs7YqA-DxzENeE2IXPar3ZXIBPb4N0"
+                    src={banners['category_luggage']?.image_url as string || "https://lh3.googleusercontent.com/aida/ADBb0uhc8GHbds5co_BPboOA41MvSYlGWiz3-S2jDikp7i9ez_pr9LacPUzeNv_pGP_CK8l3btrH8Ow1zffApzbqQhjjkHVIbLU4Qv9Y8pxmRHc4-nXN0pbmXzUx9yiJi4mCBuc3F9Aw5MpMNsk9VYV175Hney7iq__3VQxdr_z_6CK6UJ2AIc_tOOcE18fewEPciyKER-Al4UuBvThkX-i6rHgTyns-fcs7YqA-DxzENeE2IXPar3ZXIBPb4N0"}
                     fill className="object-cover transition-transform duration-700 group-hover:scale-105" unoptimized
                   />
                   <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
                   <div className="absolute bottom-6 left-6">
-                    <h3 className="text-2xl font-semibold text-white mb-1">Luggage</h3>
-                    <span className="text-xs font-semibold text-white/80 uppercase">Travel in Style</span>
+                    <h3 className="text-2xl font-semibold text-white mb-1">{banners['category_luggage']?.title as string || "Luggage"}</h3>
+                    <span className="text-xs font-semibold text-white/80 uppercase">{banners['category_luggage']?.subtitle as string || "Travel in Style"}</span>
                   </div>
                 </div>
               </div>
@@ -117,14 +127,14 @@ export default function HomePage() {
                   <div className="w-full h-full absolute inset-0 opacity-20">
                     <Image
                       alt="Luxury Accessories"
-                      src="https://lh3.googleusercontent.com/aida/ADBb0uj_fTD_OOrWfu1JL-xzC26MivraWGMoUPCYuSORArNGFjvViUz6re7pFhmmIjWLsC3Gbsdvd5y7zCChkLy0ZPh5iVJrDAH6zLxTC57wV-SDKXslLLUy3-91RxZAm3cjXfL00Q-2UqbxvwIb_QvVuD1UzVV7Tt8zyPn6dLLBPreVTDrNpeYb_e-n8-fVZpR-zL7FVndZT-DwbIaFcCll-YAEVm5vBZ8vEkXPUBFiuoja3Ra0G643SiPTvW4"
+                      src={banners['category_accessories']?.image_url as string || "https://lh3.googleusercontent.com/aida/ADBb0uj_fTD_OOrWfu1JL-xzC26MivraWGMoUPCYuSORArNGFjvViUz6re7pFhmmIjWLsC3Gbsdvd5y7zCChkLy0ZPh5iVJrDAH6zLxTC57wV-SDKXslLLUy3-91RxZAm3cjXfL00Q-2UqbxvwIb_QvVuD1UzVV7Tt8zyPn6dLLBPreVTDrNpeYb_e-n8-fVZpR-zL7FVndZT-DwbIaFcCll-YAEVm5vBZ8vEkXPUBFiuoja3Ra0G643SiPTvW4"}
                       fill className="object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-110" unoptimized
                     />
                   </div>
                   <div className="relative z-10">
-                    <h3 className="text-2xl font-semibold text-primary mb-2">Accessories</h3>
-                    <p className="text-base text-secondary mb-4">The finishing touch for every look.</p>
-                    <span className="inline-block px-4 py-2 border border-primary text-xs font-semibold hover:bg-primary hover:text-white transition-colors">EXPLORE</span>
+                    <h3 className="text-2xl font-semibold text-primary mb-2">{banners['category_accessories']?.title as string || "Accessories"}</h3>
+                    <p className="text-base text-secondary mb-4">{banners['category_accessories']?.subtitle as string || "The finishing touch for every look."}</p>
+                    <span className="inline-block px-4 py-2 border border-primary text-xs font-semibold hover:bg-primary hover:text-white transition-colors">{banners['category_accessories']?.link_text as string || "EXPLORE"}</span>
                   </div>
                 </div>
               </div>
@@ -136,20 +146,20 @@ export default function HomePage() {
         <section className="relative w-full min-h-[600px] flex items-center bg-surface-container overflow-hidden">
           <div className="absolute inset-0 z-0">
             <Image
-              alt="Cloe x Olive Oyl Whimsical Limited Edition"
-              src="https://lh3.googleusercontent.com/aida/ADBb0ugCvuL3sSd2ER-Tf66oGRNrOBGuaInCYGxlud7suG51GxsXeCoCxAgExKoXXVLhwB9CVQ7rtnkdjrmCgMZvbm8Z37RSuQEwSmrPaj99rToyyPTYrjnMi8QijNgqtH0KgKb6G_GOtg4TTFO8nP03HlB2Paq0VmrFKqFr2iW6vWMuTw5ZnRGCpGV-Ou1x5P8ZvR7yez3-0aojdQ84ck_aR3C41LcvLCtoTL09P4-H5-Q2Ci9c3PaNZUiXyWKD"
+              alt="Whimsical Limited Edition"
+              src={banners['limited_edition']?.image_url as string || "https://lh3.googleusercontent.com/aida/ADBb0ugCvuL3sSd2ER-Tf66oGRNrOBGuaInCYGxlud7suG51GxsXeCoCxAgExKoXXVLhwB9CVQ7rtnkdjrmCgMZvbm8Z37RSuQEwSmrPaj99rToyyPTYrjnMi8QijNgqtH0KgKb6G_GOtg4TTFO8nP03HlB2Paq0VmrFKqFr2iW6vWMuTw5ZnRGCpGV-Ou1x5P8ZvR7yez3-0aojdQ84ck_aR3C41LcvLCtoTL09P4-H5-Q2Ci9c3PaNZUiXyWKD"}
               fill className="object-cover" unoptimized
             />
             <div className="absolute inset-0 bg-gradient-to-l from-white/60 via-transparent to-transparent" />
           </div>
           <div className="relative z-10 max-w-[1440px] mx-auto px-20 flex justify-end w-full">
             <div className="max-w-xl bg-white/80 backdrop-blur-md p-20 border border-outline-variant shadow-lg">
-              <h2 className="text-5xl font-bold leading-tight mb-4">Whimsical<br />Limited Edition</h2>
+              <h2 className="text-5xl font-bold leading-tight mb-4">{banners['limited_edition']?.title as string || "Whimsical Limited Edition"}</h2>
               <p className="text-xl text-secondary mb-8 leading-relaxed">
-                Experience our latest collaboration featuring playful icons and timeless artistry. A fusion of nostalgic charm and modern luxury craft.
+                {banners['limited_edition']?.subtitle as string || "Experience our latest collaboration featuring playful icons and timeless artistry. A fusion of nostalgic charm and modern luxury craft."}
               </p>
               <div className="flex gap-4">
-                <button className="bg-primary text-white px-8 py-4 text-sm font-semibold hover:bg-primary-container transition-all uppercase tracking-widest">Shop Collection</button>
+                <Link href={(banners['limited_edition']?.link_url as string) || "/handbags"} className="bg-primary text-white px-8 py-4 text-sm font-semibold hover:bg-primary-container transition-all uppercase tracking-widest">{banners['limited_edition']?.link_text as string || "Shop Collection"}</Link>
                 <button className="border border-primary text-primary px-8 py-4 text-sm font-semibold hover:bg-primary hover:text-white transition-all uppercase tracking-widest">Learn More</button>
               </div>
             </div>
