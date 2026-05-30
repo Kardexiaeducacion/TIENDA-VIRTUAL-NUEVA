@@ -7,6 +7,8 @@ export const metadata: Metadata = {
   description: "High-end accessories and luggage for the modern world. Precision craft meets timeless elegance.",
 };
 
+import { CartProvider } from "@/context/CartContext";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -21,8 +23,10 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet" />
       </head>
       <body className="bg-background text-on-background">
-        <Navbar />
-        {children}
+        <CartProvider>
+          <Navbar />
+          {children}
+        </CartProvider>
       </body>
     </html>
   );

@@ -4,11 +4,13 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import FavoriteButton from "@/components/FavoriteButton";
+import { useCart } from "@/context/CartContext";
 
 export default function HomePage() {
   const [products, setProducts] = useState<Record<string, unknown>[]>([]);
   const [banners, setBanners] = useState<Record<string, Record<string, unknown>>>({});
   const supabase = createClient();
+  const { addToCart } = useCart();
 
   useEffect(() => {
     async function fetchData() {
@@ -167,8 +169,15 @@ export default function HomePage() {
                     fill className="object-cover transition-transform duration-500 group-hover:scale-105" unoptimized
                   />
                   <FavoriteButton productId={product.id as string} />
-                  <button className="absolute bottom-0 left-0 right-0 bg-primary/90 text-white py-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 text-xs font-semibold tracking-widest">
-                    VISTA RÁPIDA
+                  <button 
+                    onClick={(e) => {
+                      e.preventDefault(); // Prevent navigating to product page
+                      addToCart(product);
+                      alert("Producto añadido al carrito");
+                    }}
+                    className="absolute bottom-0 left-0 right-0 bg-primary/90 text-white py-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 text-xs font-semibold tracking-widest"
+                  >
+                    VISTA RÁPIDA / AGREGAR
                   </button>
                 </div>
                 <h4 className="text-sm font-semibold text-primary mb-1">{product.name}</h4>

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import Navbar from "@/components/Navbar";
 import FavoriteTextButton from "@/components/FavoriteTextButton";
+import { useCart } from "@/context/CartContext";
 
 const defaultImages = [
   "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800",
@@ -22,6 +23,7 @@ export default function ProductPage() {
   const params = useParams();
   const id = params?.id as string;
   const supabase = createClient();
+  const { addToCart } = useCart();
   
   const [product, setProduct] = useState<Record<string, unknown> | null>(null);
   const [activeImg, setActiveImg] = useState(0);
@@ -84,7 +86,13 @@ export default function ProductPage() {
 
                 {/* CTA */}
                 <div className="flex flex-col gap-4 pt-4">
-                  <button className="w-full py-5 bg-primary text-on-primary text-sm font-semibold uppercase tracking-widest hover:bg-primary-container transition-all duration-300">
+                  <button 
+                    onClick={() => {
+                      addToCart(product);
+                      alert("Producto añadido al carrito"); // A simple feedback for now
+                    }}
+                    className="w-full py-5 bg-primary text-on-primary text-sm font-semibold uppercase tracking-widest hover:bg-primary-container transition-all duration-300"
+                  >
                     Añadir al Carrito
                   </button>
                   <FavoriteTextButton productId={product.id as string} />

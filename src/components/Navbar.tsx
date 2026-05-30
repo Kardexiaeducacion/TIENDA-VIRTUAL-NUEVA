@@ -7,9 +7,12 @@ import { createClient } from "@/utils/supabase/client";
 type Category = { id: string; name: string; slug: string };
 type Subcategory = { id: string; category_id: string; name: string; slug: string };
 
+import { useCart } from "@/context/CartContext";
+
 export default function Navbar() {
   const pathname = usePathname();
   const supabase = createClient();
+  const { totalItems } = useCart();
   
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
@@ -65,10 +68,14 @@ export default function Navbar() {
           <button className="material-symbols-outlined text-primary hover:text-secondary transition-colors">search</button>
           <Link href="/account" className="material-symbols-outlined text-primary hover:text-secondary transition-colors">person</Link>
           <Link href="/account/favorites" className="material-symbols-outlined text-primary hover:text-secondary transition-colors">favorite</Link>
-          <div className="relative">
+          <Link href="/cart" className="relative">
             <button className="material-symbols-outlined text-primary hover:text-secondary transition-colors">shopping_cart</button>
-            <span className="absolute -top-2 -right-2 bg-primary text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full">0</span>
-          </div>
+            {totalItems > 0 && (
+              <span className="absolute -top-2 -right-2 bg-primary text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full">
+                {totalItems}
+              </span>
+            )}
+          </Link>
         </div>
       </div>
     </nav>
