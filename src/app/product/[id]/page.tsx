@@ -23,7 +23,7 @@ export default function ProductPage() {
   const params = useParams();
   const id = params?.id as string;
   const supabase = createClient();
-  const { addToCart } = useCart();
+  const { items, addToCart, removeFromCart } = useCart();
   
   const [product, setProduct] = useState<Record<string, unknown> | null>(null);
   const [activeImg, setActiveImg] = useState(0);
@@ -88,12 +88,20 @@ export default function ProductPage() {
                 <div className="flex flex-col gap-4 pt-4">
                   <button 
                     onClick={() => {
-                      addToCart(product);
-                      alert("Producto añadido al carrito"); // A simple feedback for now
+                      const isInCart = items.some((i: any) => i.id === product.id);
+                      if (isInCart) {
+                        removeFromCart(product.id as string);
+                      } else {
+                        addToCart(product);
+                      }
                     }}
-                    className="w-full py-5 bg-primary text-on-primary text-sm font-semibold uppercase tracking-widest hover:bg-primary-container transition-all duration-300"
+                    className={`w-full py-5 text-sm font-semibold uppercase tracking-widest transition-all duration-300 border border-primary ${
+                      items.some((i: any) => i.id === product.id)
+                        ? "bg-primary text-white hover:bg-black"
+                        : "bg-transparent text-primary hover:bg-surface-container-low"
+                    }`}
                   >
-                    Añadir al Carrito
+                    {items.some((i: any) => i.id === product.id) ? "Quitar del Carrito" : "Añadir al Carrito"}
                   </button>
                   <FavoriteTextButton productId={product.id as string} />
                 </div>

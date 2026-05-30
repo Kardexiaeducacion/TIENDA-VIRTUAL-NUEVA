@@ -10,7 +10,7 @@ export default function HomePage() {
   const [products, setProducts] = useState<Record<string, unknown>[]>([]);
   const [banners, setBanners] = useState<Record<string, Record<string, unknown>>>({});
   const supabase = createClient();
-  const { addToCart } = useCart();
+  const { items, addToCart, removeFromCart } = useCart();
 
   useEffect(() => {
     async function fetchData() {
@@ -172,12 +172,20 @@ export default function HomePage() {
                   <button 
                     onClick={(e) => {
                       e.preventDefault(); // Prevent navigating to product page
-                      addToCart(product);
-                      alert("Producto añadido al carrito");
+                      const isInCart = items.some((i: any) => i.id === product.id);
+                      if (isInCart) {
+                        removeFromCart(product.id as string);
+                      } else {
+                        addToCart(product);
+                      }
                     }}
-                    className="absolute bottom-0 left-0 right-0 bg-primary/90 text-white py-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 text-xs font-semibold tracking-widest"
+                    className={`absolute bottom-0 left-0 right-0 py-4 translate-y-full group-hover:translate-y-0 transition-all duration-300 text-xs font-semibold tracking-widest ${
+                      items.some((i: any) => i.id === product.id)
+                        ? "bg-primary text-white"
+                        : "bg-white/90 text-primary hover:bg-primary/90 hover:text-white"
+                    }`}
                   >
-                    VISTA RÁPIDA / AGREGAR
+                    {items.some((i: any) => i.id === product.id) ? "EN CARRITO (QUITAR)" : "VISTA RÁPIDA / AGREGAR"}
                   </button>
                 </div>
                 <h4 className="text-sm font-semibold text-primary mb-1">{product.name}</h4>

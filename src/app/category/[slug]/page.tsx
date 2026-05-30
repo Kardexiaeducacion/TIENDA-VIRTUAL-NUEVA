@@ -22,7 +22,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
-  const { addToCart } = useCart();
+  const { items, addToCart, removeFromCart } = useCart();
 
   useEffect(() => {
     async function fetchData() {
@@ -159,12 +159,20 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                         <button 
                           onClick={(e) => {
                             e.preventDefault();
-                            addToCart(product);
-                            alert("Producto añadido al carrito");
+                            const isInCart = items.some((i: any) => i.id === product.id);
+                            if (isInCart) {
+                              removeFromCart(product.id as string);
+                            } else {
+                              addToCart(product);
+                            }
                           }}
-                          className="absolute bottom-0 left-0 w-full bg-white/90 backdrop-blur-sm py-4 text-center text-sm font-semibold uppercase tracking-widest translate-y-full group-hover:translate-y-0 transition-transform duration-300 hover:bg-primary hover:text-on-primary"
+                          className={`absolute bottom-0 left-0 w-full py-4 text-center text-sm font-semibold uppercase tracking-widest translate-y-full group-hover:translate-y-0 transition-all duration-300 ${
+                            items.some((i: any) => i.id === product.id)
+                              ? "bg-primary text-white"
+                              : "bg-white/90 backdrop-blur-sm hover:bg-primary hover:text-on-primary"
+                          }`}
                         >
-                          AGREGAR AL CARRITO
+                          {items.some((i: any) => i.id === product.id) ? "EN CARRITO" : "AGREGAR AL CARRITO"}
                         </button>
                       </div>
                       <h4 className="text-lg font-semibold text-primary mb-1">{product.name as string}</h4>
