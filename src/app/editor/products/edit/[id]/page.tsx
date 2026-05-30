@@ -14,6 +14,7 @@ export default function EditProductPage() {
   
   const [formData, setFormData] = useState({
     name: "",
+    sku: "",
     price: "",
     description: "",
     shipping_cost: "0",
@@ -42,6 +43,7 @@ export default function EditProductPage() {
       if (product) {
         setFormData({
           name: product.name || "",
+          sku: product.sku || "",
           price: product.price?.toString() || "",
           description: product.description || "",
           shipping_cost: product.shipping_cost?.toString() || "0",
@@ -124,6 +126,7 @@ export default function EditProductPage() {
       // Update product data in DB
       const { error: dbError } = await supabase.from("products").update({
         name: formData.name,
+        sku: formData.sku,
         price: productPrice,
         description: formData.description,
         shipping_cost: shippingCost,
@@ -205,6 +208,11 @@ export default function EditProductPage() {
               <label className="text-xs font-bold text-gray-700 uppercase">Nombre del Producto</label>
               <input required type="text" className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none" 
                 value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Ej. Bolso Tote Clásico" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-700 uppercase">SKU (ID del Producto)</label>
+              <input required type="text" className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none" 
+                value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value})} placeholder="Ej. PRD-001" />
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-gray-700 uppercase">Precio (MXN)</label>

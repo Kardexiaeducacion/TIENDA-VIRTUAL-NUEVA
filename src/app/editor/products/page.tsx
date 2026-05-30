@@ -47,7 +47,8 @@ export default async function AdminProductsPage() {
                         </div>
                         <div>
                           <p className="text-sm font-bold text-black line-clamp-1">{product.name}</p>
-                          <p className="text-xs text-gray-500 line-clamp-1">{product.description}</p>
+                          <p className="text-xs font-mono text-gray-500 mb-1">{product.sku || "Sin SKU"}</p>
+                          <p className="text-[10px] text-gray-400 line-clamp-1">{product.description}</p>
                         </div>
                       </div>
                     </td>

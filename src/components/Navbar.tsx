@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState, useRef } from "react";
 import { createClient } from "@/utils/supabase/client";
 
 type Category = { id: string; name: string; slug: string };
@@ -11,8 +11,13 @@ import { useCart } from "@/context/CartContext";
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const supabase = createClient();
   const { totalItems } = useCart();
+  
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
   
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
@@ -31,6 +36,15 @@ export default function Navbar() {
   if (pathname.startsWith("/editor") || pathname === "/login" || pathname === "/register") {
     return null;
   }
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setIsSearchOpen(false);
+      setSearchQuery("");
+    }
+  };
 
   return (
     <nav className="fixed top-0 w-full h-20 bg-surface border-b border-outline-variant z-50 transition-all duration-200">
@@ -65,7 +79,26 @@ export default function Navbar() {
           </div>
         </div>
         <div className="flex items-center gap-5">
-          <button className="material-symbols-outlined text-primary hover:text-secondary transition-colors">search</button>
+          {isSearchOpen ? (
+            <form onSubmit={handleSearchSubmit} className="flex items-center bg-surface-container rounded-full px-4 py-1 animate-in fade-in slide-in-from-right-4 duration-300">
+              <input 
+                ref={searchInputRef}
+                type="text" 
+                placeholder="Buscar productos, ID, categorías..." 
+                className="bg-transparent text-sm outline-none w-48 lg:w-64"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                autoFocus
+                onBlur={() => {
+                  // Pequeño delay para permitir el click en el botón de buscar
+                  setTimeout(() => setIsSearchOpen(false), 200);
+                }}
+              />
+              <button type="submit" className="material-symbols-outlined text-primary text-sm hover:text-secondary">search</button>
+            </form>
+          ) : (
+            <button onClick={() => { setIsSearchOpen(true); setTimeout(() => searchInputRef.current?.focus(), 100); }} className="material-symbols-outlined text-primary hover:text-secondary transition-colors">search</button>
+          )}
           <Link href="/account" className="material-symbols-outlined text-primary hover:text-secondary transition-colors">person</Link>
           <Link href="/account/favorites" className="material-symbols-outlined text-primary hover:text-secondary transition-colors">favorite</Link>
           <Link href="/cart" className="relative">

@@ -6,6 +6,7 @@ export default function AdminOrdersPage() {
   const supabase = createClient();
   const [orders, setOrders] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     async function fetchOrders() {
@@ -43,6 +44,17 @@ export default function AdminOrdersPage() {
         <p className="text-gray-500 text-sm">Gestiona los pedidos de tus clientes y cambia su estado.</p>
       </div>
 
+      <div className="flex items-center bg-white border border-[#EAEAEA] rounded-md px-4 py-2 w-full max-w-md shadow-sm">
+        <span className="material-symbols-outlined text-gray-400 mr-2">search</span>
+        <input 
+          type="text"
+          placeholder="Buscar por ID de Pedido o Cliente..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full text-sm outline-none bg-transparent placeholder-gray-400"
+        />
+      </div>
+
       <div className="bg-white rounded-lg border border-[#EAEAEA] shadow-sm overflow-hidden mt-8">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
@@ -59,12 +71,22 @@ export default function AdminOrdersPage() {
             <tbody className="divide-y divide-[#EAEAEA]">
               {loading ? (
                 <tr><td colSpan={6} className="p-8 text-center text-gray-500">Cargando ventas...</td></tr>
-              ) : orders.length > 0 ? (
-                orders.map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="p-4 pl-6 font-mono text-xs text-gray-600">{order.id.split("-")[0].toUpperCase()}</td>
-                    <td className="p-4 text-sm font-bold text-black">{order.profiles?.full_name || "Cliente Eliminado"}</td>
-                    <td className="p-4 text-sm text-gray-600">{new Date(order.created_at).toLocaleDateString()}</td>
+              ) : orders.filter(order => {
+                  const idStr = (order.id as string).split("-")[0].toUpperCase();
+                  const nameStr = ((order.profiles as any)?.full_name || "").toLowerCase();
+                  const q = searchQuery.toLowerCase();
+                  return idStr.toLowerCase().includes(q) || nameStr.includes(q);
+                }).length > 0 ? (
+                orders.filter(order => {
+                  const idStr = (order.id as string).split("-")[0].toUpperCase();
+                  const nameStr = ((order.profiles as any)?.full_name || "").toLowerCase();
+                  const q = searchQuery.toLowerCase();
+                  return idStr.toLowerCase().includes(q) || nameStr.includes(q);
+                }).map((order) => (
+                  <tr key={order.id as string} className="hover:bg-gray-50 transition-colors">
+                    <td className="p-4 pl-6 font-mono text-xs text-gray-600">{(order.id as string).split("-")[0].toUpperCase()}</td>
+                    <td className="p-4 text-sm font-bold text-black">{(order.profiles as any)?.full_name || "Cliente Eliminado"}</td>
+                    <td className="p-4 text-sm text-gray-600">{new Date(order.created_at as string).toLocaleDateString()}</td>
                     <td className="p-4 text-sm font-bold text-black">${Number(order.total_amount).toLocaleString()}</td>
                     <td className="p-4">
                       <select 
