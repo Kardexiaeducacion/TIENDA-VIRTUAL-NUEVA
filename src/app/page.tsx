@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
+import FavoriteButton from "@/components/FavoriteButton";
 
 export default function HomePage() {
   const [products, setProducts] = useState<Record<string, unknown>[]>([]);
@@ -161,10 +162,11 @@ export default function HomePage() {
               <Link href={`/product/${product.id}`} key={product.id} className="group">
                 <div className="aspect-[3/4] relative overflow-hidden bg-surface-container-low mb-3">
                   <Image
-                    alt={product.name}
-                    src={product.images?.[0] || "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800"}
+                    alt={product.name as string}
+                    src={(product.images as string[])?.[0] || "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800"}
                     fill className="object-cover transition-transform duration-500 group-hover:scale-105" unoptimized
                   />
+                  <FavoriteButton productId={product.id as string} />
                   <button className="absolute bottom-0 left-0 right-0 bg-primary/90 text-white py-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 text-xs font-semibold tracking-widest">
                     QUICK ADD
                   </button>

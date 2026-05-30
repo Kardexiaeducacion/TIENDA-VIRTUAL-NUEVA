@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useState, use } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
+import FavoriteButton from "@/components/FavoriteButton";
 
 type Category = { id: string; name: string; slug: string };
 type Subcategory = { id: string; category_id: string; name: string; slug: string };
@@ -150,8 +151,9 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                   const firstImage = productImages?.[0] || "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800";
                   return (
                     <Link href={`/product/${product.id}`} key={product.id as string} className="group cursor-pointer">
-                      <div className="relative aspect-[3/4] overflow-hidden bg-surface-container mb-3">
+                      <div className="relative aspect-[3/4] overflow-hidden bg-surface-container mb-3 rounded-xl">
                         <Image alt={product.name as string} src={firstImage} fill className="object-cover transition-transform duration-700 group-hover:scale-105" unoptimized />
+                        <FavoriteButton productId={product.id as string} />
                         <div className="absolute bottom-0 left-0 w-full bg-white/90 backdrop-blur-sm py-4 text-center text-sm font-semibold uppercase tracking-widest translate-y-full group-hover:translate-y-0 transition-transform duration-300 hover:bg-primary hover:text-on-primary">
                           Ver Detalles
                         </div>
