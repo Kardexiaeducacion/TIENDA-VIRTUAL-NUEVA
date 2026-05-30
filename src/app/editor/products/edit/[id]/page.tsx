@@ -1,13 +1,16 @@
 "use client";
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 
-export default function NewProductPage() {
+export default function EditProductPage() {
   const router = useRouter();
+  const params = useParams();
+  const id = params.id as string;
   const supabase = createClient();
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   
   const [formData, setFormData] = useState({
     name: "",
@@ -21,23 +24,46 @@ export default function NewProductPage() {
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
   const [subcategories, setSubcategories] = useState<{ id: string; category_id: string; name: string }[]>([]);
 
+  const [features, setFeatures] = useState<{ key: string; value: string }[]>([]);
+  const [files, setFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>([]);
+
   useEffect(() => {
-    async function fetchCats() {
+    async function fetchData() {
+      // Fetch categories
       const { data: cats } = await supabase.from("categories").select("*").order("name");
       const { data: subs } = await supabase.from("subcategories").select("*").order("name");
       if (cats) setCategories(cats);
       if (subs) setSubcategories(subs);
+
+      // Fetch product
+      const { data: product } = await supabase.from("products").select("*").eq("id", id).single();
+      if (product) {
+        setFormData({
+          name: product.name || "",
+          price: product.price?.toString() || "",
+          description: product.description || "",
+          shipping_cost: product.shipping_cost?.toString() || "0",
+          category_id: product.category_id || "",
+          subcategory_id: product.subcategory_id || "",
+        });
+
+        if (product.features) {
+          const feats = Object.entries(product.features).map(([key, value]) => ({ key, value: String(value) }));
+          setFeatures(feats.length > 0 ? feats : [{ key: "Marca", value: "Cloe" }, { key: "Material", value: "" }]);
+        } else {
+          setFeatures([{ key: "Marca", value: "Cloe" }, { key: "Material", value: "" }]);
+        }
+
+        if (product.images) {
+          setExistingImages(product.images);
+        }
+      }
+      setInitialLoading(false);
     }
-    fetchCats();
-  }, [supabase]);
-
-  const [features, setFeatures] = useState<{ key: string; value: string }[]>([
-    { key: "Marca", value: "Cloe" },
-    { key: "Material", value: "" },
-  ]);
-
-  const [files, setFiles] = useState<File[]>([]);
-  const [previews, setPreviews] = useState<string[]>([]);
+    fetchData();
+  }, [supabase, id]);
 
   const addFeature = () => setFeatures([...features, { key: "", value: "" }]);
   const removeFeature = (index: number) => setFeatures(features.filter((_, i) => i !== index));
@@ -57,9 +83,13 @@ export default function NewProductPage() {
     }
   };
 
-  const removeFile = (index: number) => {
+  const removeNewFile = (index: number) => {
     setFiles(files.filter((_, i) => i !== index));
     setPreviews(previews.filter((_, i) => i !== index));
+  };
+
+  const removeExistingImage = (index: number) => {
+    setExistingImages(existingImages.filter((_, i) => i !== index));
   };
 
   const productPrice = Number(formData.price) || 0;
@@ -76,26 +106,23 @@ export default function NewProductPage() {
         return acc;
       }, {} as Record<string, string>);
 
-      const imageUrls: string[] = [];
+      const imageUrls: string[] = [...existingImages];
 
-      // 1. Upload images to Supabase Storage
+      // Upload new images to Supabase Storage
       for (const file of files) {
         const fileExt = file.name.split('.').pop();
         const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
         const filePath = `${fileName}`;
 
         const { error: uploadError } = await supabase.storage.from("products").upload(filePath, file);
-        
-        if (uploadError) {
-          throw new Error(`Error subiendo imagen: ${uploadError.message}`);
-        }
+        if (uploadError) throw new Error(`Error subiendo imagen: ${uploadError.message}`);
 
         const { data: { publicUrl } } = supabase.storage.from("products").getPublicUrl(filePath);
         imageUrls.push(publicUrl);
       }
 
-      // 2. Insert product data into DB
-      const { error: dbError } = await supabase.from("products").insert({
+      // Update product data in DB
+      const { error: dbError } = await supabase.from("products").update({
         name: formData.name,
         price: productPrice,
         description: formData.description,
@@ -104,7 +131,7 @@ export default function NewProductPage() {
         features: featureObj,
         category_id: formData.category_id || null,
         subcategory_id: formData.subcategory_id || null,
-      });
+      }).eq("id", id);
 
       if (dbError) throw dbError;
 
@@ -116,11 +143,13 @@ export default function NewProductPage() {
     }
   };
 
+  if (initialLoading) return <div className="p-8">Cargando producto...</div>;
+
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500 pb-12">
       <div>
-        <h1 className="text-3xl font-bold text-black mb-2">Nuevo Producto</h1>
-        <p className="text-gray-500 text-sm">Completa los detalles para publicar un nuevo artículo en la tienda.</p>
+        <h1 className="text-3xl font-bold text-black mb-2">Editar Producto</h1>
+        <p className="text-gray-500 text-sm">Modifica los detalles de este producto.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
@@ -136,26 +165,30 @@ export default function NewProductPage() {
               <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-40 border-2 border-[#EAEAEA] border-dashed rounded-lg cursor-pointer bg-[#F9F9F9] hover:bg-gray-50 transition-colors">
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                   <span className="material-symbols-outlined text-4xl text-gray-400 mb-2">cloud_upload</span>
-                  <p className="mb-2 text-sm text-gray-500 font-bold">Haz clic para subir o arrastra tus imágenes aquí</p>
+                  <p className="mb-2 text-sm text-gray-500 font-bold">Haz clic para añadir más imágenes</p>
                   <p className="text-xs text-gray-400">PNG, JPG o WEBP (MAX. 5MB)</p>
                 </div>
                 <input id="dropzone-file" type="file" className="hidden" multiple accept="image/*" onChange={handleFileChange} />
               </label>
             </div>
 
-            {previews.length > 0 && (
+            {(existingImages.length > 0 || previews.length > 0) && (
               <div className="flex gap-4 overflow-x-auto py-2">
-                {previews.map((src, idx) => (
-                  <div key={idx} className="relative w-24 h-24 flex-shrink-0 rounded-md overflow-hidden border border-[#EAEAEA]">
-                    <Image src={src} alt="Preview" fill className="object-cover" />
-                    <button type="button" onClick={() => removeFile(idx)} className="absolute top-1 right-1 bg-white rounded-full w-6 h-6 flex items-center justify-center text-red-500 shadow-sm hover:bg-red-50 transition-colors">
+                {existingImages.map((src, idx) => (
+                  <div key={`exist-${idx}`} className="relative w-24 h-24 flex-shrink-0 rounded-md overflow-hidden border border-[#EAEAEA]">
+                    <Image src={src} alt="Existente" fill className="object-cover" unoptimized />
+                    <button type="button" onClick={() => removeExistingImage(idx)} className="absolute top-1 right-1 bg-white rounded-full w-6 h-6 flex items-center justify-center text-red-500 shadow-sm hover:bg-red-50 transition-colors">
                       <span className="material-symbols-outlined text-[14px]">close</span>
                     </button>
-                    {idx === 0 && (
-                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[9px] text-center font-bold py-1 uppercase tracking-wider">
-                        Principal
-                      </div>
-                    )}
+                  </div>
+                ))}
+                {previews.map((src, idx) => (
+                  <div key={`new-${idx}`} className="relative w-24 h-24 flex-shrink-0 rounded-md overflow-hidden border border-green-500">
+                    <Image src={src} alt="Preview" fill className="object-cover" unoptimized />
+                    <button type="button" onClick={() => removeNewFile(idx)} className="absolute top-1 right-1 bg-white rounded-full w-6 h-6 flex items-center justify-center text-red-500 shadow-sm hover:bg-red-50 transition-colors">
+                      <span className="material-symbols-outlined text-[14px]">close</span>
+                    </button>
+                    <div className="absolute bottom-0 left-0 right-0 bg-green-500 text-white text-[9px] text-center font-bold py-1 uppercase tracking-wider">Nuevo</div>
                   </div>
                 ))}
               </div>
@@ -267,9 +300,9 @@ export default function NewProductPage() {
             {loading ? (
               <>
                 <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
-                Publicando...
+                Guardando...
               </>
-            ) : "Publicar Producto"}
+            ) : "Guardar Cambios"}
           </button>
         </div>
 

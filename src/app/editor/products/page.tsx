@@ -63,9 +63,9 @@ export default async function AdminProductsPage() {
                     <td className="p-4 text-xs text-gray-500">{new Date(product.created_at).toLocaleDateString()}</td>
                     <td className="p-4 pr-6 text-right">
                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="w-8 h-8 rounded border border-[#EAEAEA] flex items-center justify-center text-gray-600 hover:text-black hover:border-black transition-all bg-white" title="Editar">
+                        <Link href={`/editor/products/edit/${product.id}`} className="w-8 h-8 rounded border border-[#EAEAEA] flex items-center justify-center text-gray-600 hover:text-black hover:border-black transition-all bg-white" title="Editar">
                           <span className="material-symbols-outlined text-[18px]">edit</span>
-                        </button>
+                        </Link>
                         <button className="w-8 h-8 rounded border border-[#EAEAEA] flex items-center justify-center text-red-500 hover:bg-red-50 hover:border-red-200 transition-all bg-white" title="Eliminar">
                           <span className="material-symbols-outlined text-[18px]">delete</span>
                         </button>

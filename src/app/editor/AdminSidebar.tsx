@@ -12,6 +12,7 @@ export default function AdminSidebar({ profile, email }: { profile: Record<strin
   const menuItems = [
     { label: "Resumen", icon: "dashboard", href: "/editor" },
     { label: "Productos", icon: "inventory_2", href: "/editor/products" },
+    { label: "Categorías", icon: "category", href: "/editor/categories" },
     { label: "Ventas", icon: "point_of_sale", href: "/editor/orders" },
     { label: "Envíos", icon: "local_shipping", href: "/editor/shipping" },
     { label: "Usuarios", icon: "group", href: "/editor/users" },
