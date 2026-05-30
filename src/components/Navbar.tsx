@@ -64,7 +64,7 @@ export default function Navbar() {
         <div className="flex items-center gap-5">
           <button className="material-symbols-outlined text-primary hover:text-secondary transition-colors">search</button>
           <Link href="/account" className="material-symbols-outlined text-primary hover:text-secondary transition-colors">person</Link>
-          <button className="material-symbols-outlined text-primary hover:text-secondary transition-colors">favorite</button>
+          <Link href="/account/favorites" className="material-symbols-outlined text-primary hover:text-secondary transition-colors">favorite</Link>
           <div className="relative">
             <button className="material-symbols-outlined text-primary hover:text-secondary transition-colors">shopping_cart</button>
             <span className="absolute -top-2 -right-2 bg-primary text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full">0</span>

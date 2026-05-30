@@ -45,13 +45,13 @@ export default function HomePage() {
           </div>
           <div className="relative h-full max-w-[1440px] mx-auto px-20 flex flex-col justify-center items-start">
             <div className="max-w-2xl">
-              <span className="text-sm font-semibold text-primary tracking-[0.2em] uppercase mb-4 block">{banners['hero']?.subtitle as string || "Summer Clearance"}</span>
-              <h1 className="text-7xl lg:text-8xl font-extrabold text-error leading-none mb-6 tracking-tighter">{banners['hero']?.title as string || "LAST CHANCE"}</h1>
+              <span className="text-sm font-semibold text-primary tracking-[0.2em] uppercase mb-4 block">{banners['hero']?.subtitle as string || "Liquidación de Verano"}</span>
+              <h1 className="text-7xl lg:text-8xl font-extrabold text-error leading-none mb-6 tracking-tighter">{banners['hero']?.title as string || "ÚLTIMA OPORTUNIDAD"}</h1>
               <p className="text-xl text-on-surface mb-12 max-w-md leading-relaxed">
-                Final reductions on our most coveted collections. Once they&apos;re gone, they&apos;re gone forever.
+                Descuentos finales en nuestras colecciones más codiciadas. Una vez que se van, se van para siempre.
               </p>
               <Link href={(banners['hero']?.link_url as string) || "/handbags"} className="inline-block bg-primary text-white px-10 py-4 text-sm font-semibold hover:bg-primary-container transition-colors uppercase tracking-widest">
-                {banners['hero']?.link_text as string || "SHOP NOW"}
+                {banners['hero']?.link_text as string || "COMPRAR AHORA"}
               </Link>
             </div>
           </div>
@@ -61,11 +61,11 @@ export default function HomePage() {
         <section className="max-w-[1440px] mx-auto px-20 py-20">
           <div className="flex items-end justify-between mb-12">
             <div>
-              <span className="text-sm font-semibold text-secondary uppercase tracking-widest block mb-2">Collections</span>
-              <h2 className="text-4xl font-bold tracking-tight">Shop by Category</h2>
+              <span className="text-sm font-semibold text-secondary uppercase tracking-widest block mb-2">Colecciones</span>
+              <h2 className="text-4xl font-bold tracking-tight">Comprar por Categoría</h2>
             </div>
             <Link href="/handbags" className="text-sm font-semibold border-b border-primary pb-1 hover:text-secondary hover:border-secondary transition-all">
-              View All Categories
+              Ver Todas las Categorías
             </Link>
           </div>
           <div className="grid grid-cols-12 gap-8">
@@ -79,8 +79,8 @@ export default function HomePage() {
                 />
                 <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-colors duration-300" />
                 <div className="absolute bottom-10 left-10 text-white">
-                  <h3 className="text-3xl font-semibold mb-2">{banners['category_handbags']?.title as string || "Handbags"}</h3>
-                  <p className="text-sm font-semibold opacity-80 group-hover:opacity-100 transition-opacity">{banners['category_handbags']?.subtitle as string || "Discover Iconic Silhouettes"}</p>
+                  <h3 className="text-3xl font-semibold mb-2">{banners['category_handbags']?.title as string || "Bolsas"}</h3>
+                  <p className="text-sm font-semibold opacity-80 group-hover:opacity-100 transition-opacity">{banners['category_handbags']?.subtitle as string || "Descubre Siluetas Icónicas"}</p>
                 </div>
               </div>
             </Link>
@@ -95,8 +95,8 @@ export default function HomePage() {
                   />
                   <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
                   <div className="absolute bottom-6 left-6">
-                    <h3 className="text-2xl font-semibold text-white mb-1">{banners['category_luggage']?.title as string || "Luggage"}</h3>
-                    <span className="text-xs font-semibold text-white/80 uppercase">{banners['category_luggage']?.subtitle as string || "Travel in Style"}</span>
+                    <h3 className="text-2xl font-semibold text-white mb-1">{banners['category_luggage']?.title as string || "Equipaje"}</h3>
+                    <span className="text-xs font-semibold text-white/80 uppercase">{banners['category_luggage']?.subtitle as string || "Viaja con Estilo"}</span>
                   </div>
                 </div>
               </div>
@@ -110,9 +110,9 @@ export default function HomePage() {
                     />
                   </div>
                   <div className="relative z-10">
-                    <h3 className="text-2xl font-semibold text-primary mb-2">{banners['category_accessories']?.title as string || "Accessories"}</h3>
-                    <p className="text-base text-secondary mb-4">{banners['category_accessories']?.subtitle as string || "The finishing touch for every look."}</p>
-                    <span className="inline-block px-4 py-2 border border-primary text-xs font-semibold hover:bg-primary hover:text-white transition-colors">{banners['category_accessories']?.link_text as string || "EXPLORE"}</span>
+                    <h3 className="text-2xl font-semibold text-primary mb-2">{banners['category_accessories']?.title as string || "Accesorios"}</h3>
+                    <p className="text-base text-secondary mb-4">{banners['category_accessories']?.subtitle as string || "El toque final para cada look."}</p>
+                    <span className="inline-block px-4 py-2 border border-primary text-xs font-semibold hover:bg-primary hover:text-white transition-colors">{banners['category_accessories']?.link_text as string || "EXPLORAR"}</span>
                   </div>
                 </div>
               </div>
@@ -132,13 +132,13 @@ export default function HomePage() {
           </div>
           <div className="relative z-10 max-w-[1440px] mx-auto px-20 flex justify-end w-full">
             <div className="max-w-xl bg-white/80 backdrop-blur-md p-20 border border-outline-variant shadow-lg">
-              <h2 className="text-5xl font-bold leading-tight mb-4">{banners['limited_edition']?.title as string || "Whimsical Limited Edition"}</h2>
+              <h2 className="text-5xl font-bold leading-tight mb-4">{banners['limited_edition']?.title as string || "Edición Limitada"}</h2>
               <p className="text-xl text-secondary mb-8 leading-relaxed">
-                {banners['limited_edition']?.subtitle as string || "Experience our latest collaboration featuring playful icons and timeless artistry. A fusion of nostalgic charm and modern luxury craft."}
+                {banners['limited_edition']?.subtitle as string || "Experimenta nuestra última colaboración. Una fusión de encanto nostálgico y artesanía de lujo moderna."}
               </p>
               <div className="flex gap-4">
-                <Link href={(banners['limited_edition']?.link_url as string) || "/handbags"} className="bg-primary text-white px-8 py-4 text-sm font-semibold hover:bg-primary-container transition-all uppercase tracking-widest">{banners['limited_edition']?.link_text as string || "Shop Collection"}</Link>
-                <button className="border border-primary text-primary px-8 py-4 text-sm font-semibold hover:bg-primary hover:text-white transition-all uppercase tracking-widest">Learn More</button>
+                <Link href={(banners['limited_edition']?.link_url as string) || "/handbags"} className="bg-primary text-white px-8 py-4 text-sm font-semibold hover:bg-primary-container transition-all uppercase tracking-widest">{banners['limited_edition']?.link_text as string || "Ver Colección"}</Link>
+                <button className="border border-primary text-primary px-8 py-4 text-sm font-semibold hover:bg-primary hover:text-white transition-all uppercase tracking-widest">Saber Más</button>
               </div>
             </div>
           </div>
@@ -147,7 +147,7 @@ export default function HomePage() {
         {/* TRENDING NOW */}
         <section className="max-w-[1440px] mx-auto px-20 py-20">
           <div className="flex items-center justify-between mb-12">
-            <h2 className="text-4xl font-bold tracking-tight">Trending Now</h2>
+            <h2 className="text-4xl font-bold tracking-tight">Tendencias</h2>
             <div className="flex gap-2">
               <button className="w-10 h-10 flex items-center justify-center border border-outline hover:bg-surface-container transition-colors">
                 <span className="material-symbols-outlined">chevron_left</span>
@@ -168,7 +168,7 @@ export default function HomePage() {
                   />
                   <FavoriteButton productId={product.id as string} />
                   <button className="absolute bottom-0 left-0 right-0 bg-primary/90 text-white py-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 text-xs font-semibold tracking-widest">
-                    QUICK ADD
+                    VISTA RÁPIDA
                   </button>
                 </div>
                 <h4 className="text-sm font-semibold text-primary mb-1">{product.name}</h4>
@@ -183,20 +183,20 @@ export default function HomePage() {
           <div className="max-w-[1440px] mx-auto px-20">
             <div className="grid grid-cols-12 items-center gap-8">
               <div className="col-span-12 lg:col-span-6">
-                <h2 className="text-4xl font-bold mb-4">Join the List</h2>
-                <p className="text-xl text-secondary leading-relaxed">Subscribe to receive exclusive access to new arrivals, private events, and editorial content.</p>
+                <h2 className="text-4xl font-bold mb-4">Únete a la Lista</h2>
+                <p className="text-xl text-secondary leading-relaxed">Suscríbete para recibir acceso exclusivo a novedades, eventos privados y contenido editorial.</p>
               </div>
               <div className="col-span-12 lg:col-span-6">
                 <form className="flex flex-col sm:flex-row gap-4" onSubmit={(e) => e.preventDefault()}>
                   <input
                     className="flex-grow bg-transparent border-b-2 border-primary py-4 px-2 outline-none text-base focus:border-secondary transition-colors"
-                    placeholder="Email Address" required type="email"
+                    placeholder="Correo Electrónico" required type="email"
                   />
                   <button className="bg-primary text-white px-10 py-4 text-sm font-semibold hover:bg-primary-container transition-colors uppercase tracking-widest whitespace-nowrap" type="submit">
-                    Subscribe
+                    Suscribirse
                   </button>
                 </form>
-                <p className="text-xs text-secondary mt-4">By signing up, you agree to our <a className="underline" href="#">Privacy Policy</a>.</p>
+                <p className="text-xs text-secondary mt-4">Al registrarte, aceptas nuestra <a className="underline" href="#">Política de Privacidad</a>.</p>
               </div>
             </div>
           </div>
@@ -208,7 +208,7 @@ export default function HomePage() {
         <div className="max-w-[1440px] mx-auto px-20 grid grid-cols-12 gap-8 mb-20">
           <div className="col-span-12 md:col-span-3">
             <Link href="/" className="text-2xl font-bold text-primary uppercase mb-6 block tracking-tighter">Cloe</Link>
-            <p className="text-base text-secondary mb-6 pr-4 leading-relaxed">High-end accessories and luggage for the modern world. Precision craft meets timeless elegance.</p>
+            <p className="text-base text-secondary mb-6 pr-4 leading-relaxed">Accesorios de alta gama y equipaje para el mundo moderno. Precisión artesanal se encuentra con la elegancia atemporal.</p>
             <div className="flex gap-3">
               {["public", "camera", "video_library"].map((icon) => (
                 <a key={icon} href="#" className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-outline-variant hover:border-primary transition-colors">
@@ -218,10 +218,10 @@ export default function HomePage() {
             </div>
           </div>
           {[
-            { title: "Shop", links: ["All Handbags", "Travel Gear", "Shoes", "Limited Edition", "Sale"] },
-            { title: "Company", links: ["Our Story", "Sustainability", "Store Locator", "Journal"] },
-            { title: "Support", links: ["Contact Us", "Shipping", "Returns", "FAQ"] },
-            { title: "Account", links: ["Login / Register", "Order Status", "Wishlist", "Gift Cards"] },
+            { title: "Tienda", links: ["Todas las Bolsas", "Equipaje", "Zapatos", "Edición Limitada", "Ofertas"] },
+            { title: "Compañía", links: ["Nuestra Historia", "Sustentabilidad", "Buscador de Tiendas", "Revista"] },
+            { title: "Soporte", links: ["Contáctanos", "Envíos", "Devoluciones", "Preguntas Frecuentes"] },
+            { title: "Cuenta", links: ["Iniciar Sesión / Registro", "Estado de Orden", "Lista de Deseos", "Tarjetas de Regalo"] },
           ].map((col) => (
             <div key={col.title} className="col-span-6 md:col-span-2">
               <h5 className="text-sm font-semibold text-primary mb-6 uppercase tracking-widest">{col.title}</h5>
@@ -234,9 +234,9 @@ export default function HomePage() {
           ))}
         </div>
         <div className="max-w-[1440px] mx-auto px-20 pt-8 border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-4">
-          <span className="text-sm text-secondary">© 2024 Cloe. All rights reserved.</span>
+          <span className="text-sm text-secondary">© 2024 Cloe. Todos los derechos reservados.</span>
           <div className="flex gap-8">
-            {["Privacy", "Terms", "Help", "Contact"].map((l) => (
+            {["Privacidad", "Términos", "Ayuda", "Contacto"].map((l) => (
               <a key={l} href="#" className="text-sm text-secondary hover:text-primary transition-colors">{l}</a>
             ))}
           </div>

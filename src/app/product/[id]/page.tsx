@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
+import Navbar from "@/components/Navbar";
+import FavoriteTextButton from "@/components/FavoriteTextButton";
 
 const defaultImages = [
   "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800",
@@ -46,29 +48,7 @@ export default function ProductPage() {
   return (
     <div className="bg-background text-on-background font-sans">
       {/* NAV */}
-      <nav className="fixed top-0 w-full h-20 bg-surface border-b border-outline-variant z-50">
-        <div className="max-w-[1440px] mx-auto px-20 h-full flex items-center justify-between">
-          <div className="flex items-center gap-10">
-            <Link href="/" className="text-3xl font-extrabold text-primary uppercase tracking-tighter">Cloe</Link>
-            <div className="hidden md:flex gap-8 ml-12">
-              <Link href="/" className="text-sm font-semibold text-secondary hover:text-primary transition-colors uppercase tracking-wider">New Arrivals</Link>
-              <Link href="/handbags" className="text-sm font-bold text-primary border-b-2 border-primary uppercase tracking-wider">Handbags</Link>
-              <Link href="/handbags" className="text-sm font-semibold text-secondary hover:text-primary transition-colors uppercase tracking-wider">Shoes</Link>
-              <Link href="/handbags" className="text-sm font-semibold text-secondary hover:text-primary transition-colors uppercase tracking-wider">Accessories</Link>
-              <Link href="/handbags" className="text-sm font-semibold text-secondary hover:text-primary transition-colors uppercase tracking-wider">Sale</Link>
-            </div>
-          </div>
-          <div className="flex items-center gap-6">
-            <div className="hidden lg:flex items-center border-b border-outline-variant py-1">
-              <span className="material-symbols-outlined text-secondary mr-2">search</span>
-              <input className="bg-transparent border-none outline-none text-sm w-40" placeholder="Search" type="text" />
-            </div>
-            <Link href="/account" className="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">person</Link>
-            <button className="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">favorite</button>
-            <button className="material-symbols-outlined cursor-pointer hover:text-primary transition-colors">shopping_cart</button>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       <main className="pt-20">
         <div className="max-w-[1440px] mx-auto px-20 py-20">
@@ -97,7 +77,7 @@ export default function ProductPage() {
             <div className="col-span-12 lg:col-span-5">
               <div className="lg:sticky lg:top-28 flex flex-col gap-6">
                 <div className="border-b border-outline-variant pb-6">
-                  <span className="text-xs font-semibold text-secondary uppercase tracking-widest mb-2 block">Cloe Exclusive</span>
+                  <span className="text-xs font-semibold text-secondary uppercase tracking-widest mb-2 block">Exclusivo Cloe</span>
                   <h1 className="text-3xl font-bold text-primary mb-2 leading-tight">{product.name}</h1>
                   <p className="text-3xl font-bold text-primary">${Number(product.price).toFixed(2)}</p>
                 </div>
@@ -105,16 +85,14 @@ export default function ProductPage() {
                 {/* CTA */}
                 <div className="flex flex-col gap-4 pt-4">
                   <button className="w-full py-5 bg-primary text-on-primary text-sm font-semibold uppercase tracking-widest hover:bg-primary-container transition-all duration-300">
-                    Add to Bag
+                    Añadir al Carrito
                   </button>
-                  <button className="w-full py-5 border border-primary text-primary text-sm font-semibold uppercase tracking-widest hover:bg-surface-container-low transition-all duration-300">
-                    Add to Wishlist
-                  </button>
+                  <FavoriteTextButton productId={product.id as string} />
                 </div>
 
                 {/* SHARE */}
                 <div className="flex items-center gap-4 pt-2">
-                  <span className="text-xs font-semibold text-secondary uppercase tracking-widest">Share:</span>
+                  <span className="text-xs font-semibold text-secondary uppercase tracking-widest">Compartir:</span>
                   <button className="material-symbols-outlined text-secondary hover:text-primary transition-colors text-xl">share</button>
                   <button className="text-secondary hover:text-primary transition-colors text-sm font-semibold">WhatsApp</button>
                   <button className="text-secondary hover:text-primary transition-colors text-sm font-semibold">Facebook</button>
@@ -128,7 +106,7 @@ export default function ProductPage() {
                       className="w-full flex items-center justify-between py-4 cursor-pointer"
                       onClick={() => setDetailsOpen(!detailsOpen)}
                     >
-                      <span className="text-sm font-bold uppercase">Product Details</span>
+                      <span className="text-sm font-bold uppercase">Detalles del Producto</span>
                       <span className={`material-symbols-outlined transition-transform ${detailsOpen ? "rotate-180" : ""}`}>expand_more</span>
                     </button>
                     {detailsOpen && (
@@ -150,13 +128,13 @@ export default function ProductPage() {
                       className="w-full flex items-center justify-between py-4 cursor-pointer"
                       onClick={() => setShippingOpen(!shippingOpen)}
                     >
-                      <span className="text-sm font-bold uppercase">Shipping &amp; Returns</span>
+                      <span className="text-sm font-bold uppercase">Envíos y Devoluciones</span>
                       <span className={`material-symbols-outlined transition-transform ${shippingOpen ? "rotate-180" : ""}`}>expand_more</span>
                     </button>
                     {shippingOpen && (
                       <div className="pb-4 text-secondary text-base leading-relaxed">
-                        <p>Complimentary standard shipping on all orders over $1,500. Standard delivery typically arrives within 3-5 business days.</p>
-                        <p className="mt-2">Returns are accepted within 30 days of purchase. Items must be in original condition with all tags attached.</p>
+                        <p>Envío estándar gratuito en todos los pedidos superiores a $1,500. La entrega estándar normalmente llega entre 3 a 5 días hábiles.</p>
+                        <p className="mt-2">Se aceptan devoluciones dentro de los 30 días posteriores a la compra. Los artículos deben estar en su condición original y con todas sus etiquetas.</p>
                       </div>
                     )}
                   </div>
@@ -167,14 +145,14 @@ export default function ProductPage() {
 
           {/* YOU MAY ALSO LIKE */}
           <section className="mt-20 pt-20 border-t border-outline-variant">
-            <h2 className="text-4xl font-bold text-primary mb-12 uppercase tracking-tight">You may also like</h2>
+            <h2 className="text-4xl font-bold text-primary mb-12 uppercase tracking-tight">También te podría gustar</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {related.map((item) => (
                 <Link href="/product/2" key={item.name} className="group cursor-pointer">
                   <div className="aspect-square bg-surface-container border border-outline-variant overflow-hidden mb-4 relative">
                     <Image alt={item.name} src={item.img} fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
                     <div className="absolute bottom-0 left-0 w-full p-4 translate-y-full group-hover:translate-y-0 bg-white/90 backdrop-blur-sm transition-transform duration-300 border-t border-outline-variant">
-                      <button className="w-full py-2 bg-primary text-on-primary text-xs font-semibold uppercase">Quick Add</button>
+                      <button className="w-full py-2 bg-primary text-on-primary text-xs font-semibold uppercase">Agregar</button>
                     </div>
                   </div>
                   <h3 className="text-sm font-bold uppercase group-hover:underline">{item.name}</h3>
@@ -191,7 +169,7 @@ export default function ProductPage() {
         <div className="max-w-[1440px] mx-auto px-20 grid grid-cols-12 gap-8">
           <div className="col-span-12 lg:col-span-4 mb-8 lg:mb-0">
             <Link href="/" className="text-2xl font-bold text-primary uppercase block mb-6 tracking-tighter">Cloe</Link>
-            <p className="text-base text-secondary max-w-xs mb-8 leading-relaxed">Elevating high-end fashion with authoritative editorial aesthetics since 1988.</p>
+            <p className="text-base text-secondary max-w-xs mb-8 leading-relaxed">Elevando la moda con estética editorial de autoridad desde 1988.</p>
             <div className="flex gap-6">
               {["public", "share", "alternate_email"].map((icon) => (
                 <span key={icon} className="material-symbols-outlined text-secondary cursor-pointer hover:text-primary transition-colors">{icon}</span>
@@ -199,8 +177,8 @@ export default function ProductPage() {
             </div>
           </div>
           {[
-            { title: "Shop", links: ["New Arrivals", "Handbags", "Shoes", "Accessories"] },
-            { title: "Support", links: ["Help Center", "Shipping Policy", "Returns", "Contact Us"] },
+            { title: "Tienda", links: ["Novedades", "Bolsas", "Zapatos", "Accesorios"] },
+            { title: "Soporte", links: ["Centro de Ayuda", "Política de Envíos", "Devoluciones", "Contáctanos"] },
           ].map((col) => (
             <div key={col.title} className="col-span-6 lg:col-span-2">
               <h5 className="text-sm font-semibold text-primary uppercase tracking-widest mb-6">{col.title}</h5>
@@ -210,17 +188,17 @@ export default function ProductPage() {
             </div>
           ))}
           <div className="col-span-12 lg:col-span-4 mt-8 lg:mt-0">
-            <h5 className="text-sm font-semibold text-primary uppercase tracking-widest mb-6">Stay Inspired</h5>
-            <p className="text-sm text-secondary mb-4">Sign up for early access and seasonal updates.</p>
+            <h5 className="text-sm font-semibold text-primary uppercase tracking-widest mb-6">Mantente Inspirado</h5>
+            <p className="text-sm text-secondary mb-4">Regístrate para recibir acceso anticipado y actualizaciones.</p>
             <div className="flex border-b border-primary py-2">
-              <input className="bg-transparent border-none outline-none text-sm w-full" placeholder="Email Address" type="email" />
-              <button className="text-sm font-bold uppercase tracking-widest px-4">Join</button>
+              <input className="bg-transparent border-none outline-none text-sm w-full" placeholder="Correo Electrónico" type="email" />
+              <button className="text-sm font-bold uppercase tracking-widest px-4">Unirme</button>
             </div>
           </div>
           <div className="col-span-12 pt-8 flex flex-col md:flex-row justify-between border-t border-outline-variant mt-8">
-            <p className="text-sm text-secondary mb-4 md:mb-0">© 2024 Cloe. All rights reserved.</p>
+            <p className="text-sm text-secondary mb-4 md:mb-0">© 2024 Cloe. Todos los derechos reservados.</p>
             <div className="flex gap-8">
-              {["Privacy", "Terms", "Accessibility"].map((l) => (<a key={l} href="#" className="text-sm text-secondary hover:text-primary transition-colors">{l}</a>))}
+              {["Privacidad", "Términos", "Accesibilidad"].map((l) => (<a key={l} href="#" className="text-sm text-secondary hover:text-primary transition-colors">{l}</a>))}
             </div>
           </div>
         </div>
