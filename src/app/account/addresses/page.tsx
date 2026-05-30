@@ -8,6 +8,7 @@ export default function AddressesPage() {
   const [addresses, setAddresses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
+  const [message, setMessage] = useState({ type: '', text: '' });
   
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
@@ -62,15 +63,25 @@ export default function AddressesPage() {
       .select()
       .single();
 
+    if (error) {
+      console.error("Error saving address:", error);
+      setMessage({ type: 'error', text: 'Error al guardar la dirección. Inténtalo de nuevo.' });
+      return;
+    }
+
     if (data) {
       // Re-fetch to sort correctly
       const { data: updated } = await supabase.from("addresses").select("*").eq("user_id", userId).order("is_default", { ascending: false });
       if (updated) setAddresses(updated);
       
       setShowForm(false);
+      setMessage({ type: 'success', text: '¡Dirección guardada con éxito!' });
       setFormData({
         full_name: "", street: "", city: "", state: "", zip_code: "", country: "México", phone: "", is_default: false
       });
+
+      // Clear success message after 3 seconds
+      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
     }
   };
 
@@ -96,13 +107,22 @@ export default function AddressesPage() {
                 <p className="text-secondary">Gestiona tus direcciones de envío.</p>
               </div>
               <button 
-                onClick={() => setShowForm(!showForm)}
+                onClick={() => {
+                  setShowForm(!showForm);
+                  setMessage({ type: '', text: '' });
+                }}
                 className="px-6 py-2 bg-primary text-white text-sm font-bold uppercase tracking-widest hover:bg-black transition-colors rounded-lg flex items-center gap-2"
               >
                 <span className="material-symbols-outlined text-[18px]">add</span>
                 Nueva Dirección
               </button>
             </div>
+
+            {message.text && (
+              <div className={`p-4 mb-8 rounded-lg text-sm font-bold ${message.type === 'success' ? 'bg-green-100 text-green-800 border border-green-200' : 'bg-red-100 text-red-800 border border-red-200'}`}>
+                {message.text}
+              </div>
+            )}
 
             {showForm && (
               <form onSubmit={handleSubmit} className="bg-surface-container-lowest border border-outline-variant p-8 rounded-xl mb-8 space-y-6 animate-in fade-in slide-in-from-top-4">
