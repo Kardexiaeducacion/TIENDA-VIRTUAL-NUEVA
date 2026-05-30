@@ -74,27 +74,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
 
   return (
     <div className="bg-background text-on-background font-sans min-h-screen">
-      {/* NAV */}
-      <nav className="fixed top-0 w-full h-20 bg-surface border-b border-outline-variant z-50">
-        <div className="max-w-[1440px] mx-auto px-20 h-full flex items-center justify-between">
-          <div className="flex items-center gap-10">
-            <Link href="/" className="text-3xl font-extrabold text-primary uppercase tracking-tighter">Cloe</Link>
-            {/* Omitted dynamic menu here for brevity, keeping simple links for now */}
-          </div>
-          <div className="flex items-center gap-5">
-            <div className="relative hidden lg:flex items-center">
-              <input className="bg-surface-container-low border-none outline-none py-2 px-4 w-48 text-sm" placeholder="Search..." type="text" />
-              <span className="material-symbols-outlined absolute right-2 text-secondary text-xl">search</span>
-            </div>
-            <Link href="/account" className="material-symbols-outlined hover:text-secondary transition-colors">person</Link>
-            <button className="material-symbols-outlined hover:text-secondary transition-colors">favorite</button>
-            <div className="relative">
-              <button className="material-symbols-outlined hover:text-secondary transition-colors">shopping_cart</button>
-              <span className="absolute -top-2 -right-2 bg-primary text-on-primary text-[10px] w-4 h-4 flex items-center justify-center rounded-full">0</span>
-            </div>
-          </div>
-        </div>
-      </nav>
+
 
       <main className="pt-20 min-h-screen">
         {/* HERO TITLE */}

@@ -29,30 +29,7 @@ export default function HomePage() {
 
   return (
     <div className="bg-background text-on-background font-sans">
-      {/* NAV */}
-      <nav className="fixed top-0 w-full h-20 bg-surface border-b border-outline-variant z-50 transition-all duration-200">
-        <div className="max-w-[1440px] mx-auto px-20 flex items-center justify-between h-full">
-          <div className="flex items-center gap-10">
-            <Link href="/" className="text-3xl font-extrabold text-primary uppercase tracking-tighter">Cloe</Link>
-            <div className="hidden lg:flex items-center gap-8">
-              <Link href="/" className="text-sm font-semibold text-primary border-b-2 border-primary pb-2 tracking-widest uppercase">New Arrivals</Link>
-              <Link href="/handbags" className="text-sm font-semibold text-secondary hover:text-primary transition-colors tracking-widest uppercase">Handbags</Link>
-              <Link href="/handbags" className="text-sm font-semibold text-secondary hover:text-primary transition-colors tracking-widest uppercase">Shoes</Link>
-              <Link href="/handbags" className="text-sm font-semibold text-secondary hover:text-primary transition-colors tracking-widest uppercase">Accessories</Link>
-              <Link href="/handbags" className="text-sm font-semibold text-secondary hover:text-primary transition-colors tracking-widest uppercase">Sale</Link>
-            </div>
-          </div>
-          <div className="flex items-center gap-5">
-            <button className="material-symbols-outlined text-primary hover:text-secondary transition-colors">search</button>
-            <Link href="/account" className="material-symbols-outlined text-primary hover:text-secondary transition-colors">person</Link>
-            <button className="material-symbols-outlined text-primary hover:text-secondary transition-colors">favorite</button>
-            <div className="relative">
-              <button className="material-symbols-outlined text-primary hover:text-secondary transition-colors">shopping_cart</button>
-              <span className="absolute -top-2 -right-2 bg-primary text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full">0</span>
-            </div>
-          </div>
-        </div>
-      </nav>
+
 
       <main className="mt-20">
         {/* HERO */}
