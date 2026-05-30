@@ -159,20 +159,30 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                         <button 
                           onClick={(e) => {
                             e.preventDefault();
-                            const isInCart = items.some((i: any) => i.id === product.id);
+                            const hasVariants = (product.variants as any[])?.length > 0;
+                            if (hasVariants) {
+                              router.push(`/product/${product.id}`);
+                              return;
+                            }
+                            const cartItemId = `${product.id}_base`;
+                            const isInCart = items.some((i: any) => i.id === cartItemId);
                             if (isInCart) {
-                              removeFromCart(product.id as string);
+                              removeFromCart(cartItemId);
                             } else {
                               addToCart(product);
                             }
                           }}
-                          className={`absolute bottom-0 left-0 w-full py-4 text-center text-sm font-semibold uppercase tracking-widest translate-y-full group-hover:translate-y-0 transition-all duration-300 ${
-                            items.some((i: any) => i.id === product.id)
+                          className={`absolute bottom-0 left-0 w-full py-4 text-center text-xs font-semibold uppercase tracking-widest translate-y-full group-hover:translate-y-0 transition-all duration-300 ${
+                            items.some((i: any) => i.id === `${product.id}_base`)
                               ? "bg-primary text-white"
                               : "bg-white/90 backdrop-blur-sm hover:bg-primary hover:text-on-primary"
                           }`}
                         >
-                          {items.some((i: any) => i.id === product.id) ? "EN CARRITO" : "AGREGAR AL CARRITO"}
+                          {(product.variants as any[])?.length > 0
+                            ? "VER OPCIONES"
+                            : items.some((i: any) => i.id === `${product.id}_base`) 
+                              ? "EN CARRITO (QUITAR)" 
+                              : "VISTA RÁPIDA / AGREGAR"}
                         </button>
                       </div>
                       <h4 className="text-lg font-semibold text-primary mb-1">{product.name as string}</h4>

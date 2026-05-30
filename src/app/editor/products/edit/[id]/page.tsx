@@ -22,13 +22,29 @@ export default function EditProductPage() {
     subcategory_id: "",
   });
 
-  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
-  const [subcategories, setSubcategories] = useState<{ id: string; category_id: string; name: string }[]>([]);
+  const [condition, setCondition] = useState("Nuevo");
+  
+  const [details, setDetails] = useState({
+    model: "",
+    material: "",
+    color: "",
+    prod_width: "",
+    prod_height: "",
+    prod_length: "",
+    weight: "",
+    ship_width: "",
+    ship_height: "",
+    ship_length: ""
+  });
 
+  const [variants, setVariants] = useState<{ id: string; name: string; stock: string }[]>([]);
   const [features, setFeatures] = useState<{ key: string; value: string }[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>([]);
+
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
+  const [subcategories, setSubcategories] = useState<{ id: string; category_id: string; name: string }[]>([]);
 
   useEffect(() => {
     async function fetchData() {
@@ -51,11 +67,46 @@ export default function EditProductPage() {
           subcategory_id: product.subcategory_id || "",
         });
 
+        if (product.condition) setCondition(product.condition);
+        if (product.variants) setVariants(product.variants);
+
         if (product.features) {
-          const feats = Object.entries(product.features).map(([key, value]) => ({ key, value: String(value) }));
-          setFeatures(feats.length > 0 ? feats : [{ key: "Marca", value: "Cloe" }, { key: "Material", value: "" }]);
+          const feats = { ...(product.features as Record<string, string>) };
+          const getAndRemove = (key: string) => {
+            const val = feats[key] || "";
+            delete feats[key];
+            return val;
+          };
+
+          const model = getAndRemove("Modelo");
+          const material = getAndRemove("Material");
+          const color = getAndRemove("Color");
+          const peso = getAndRemove("Peso")?.replace(" kg", "");
+          
+          let pw="", ph="", pl="";
+          const prodMedidas = getAndRemove("Medidas del Producto");
+          if (prodMedidas) {
+            const parts = prodMedidas.match(/(\d+)/g);
+            if (parts && parts.length >= 3) { pw = parts[0]; ph = parts[1]; pl = parts[2]; }
+          }
+          
+          let sw="", sh="", sl="";
+          const shipMedidas = getAndRemove("Medidas de Envío");
+          if (shipMedidas) {
+            const parts = shipMedidas.match(/(\d+)/g);
+            if (parts && parts.length >= 3) { sw = parts[0]; sh = parts[1]; sl = parts[2]; }
+          }
+
+          setDetails({
+            model, material, color, weight: peso,
+            prod_width: pw, prod_height: ph, prod_length: pl,
+            ship_width: sw, ship_height: sh, ship_length: sl
+          });
+
+          const remainingFeats = Object.entries(feats).map(([k, v]) => ({ key: k, value: String(v) }));
+          setFeatures(remainingFeats.length > 0 ? remainingFeats : [{ key: "Marca", value: "Cloe" }]);
         } else {
-          setFeatures([{ key: "Marca", value: "Cloe" }, { key: "Material", value: "" }]);
+          setFeatures([{ key: "Marca", value: "Cloe" }]);
         }
 
         if (product.images) {
@@ -73,6 +124,14 @@ export default function EditProductPage() {
     const newFeatures = [...features];
     newFeatures[index][field] = val;
     setFeatures(newFeatures);
+  };
+
+  const addVariant = () => setVariants([...variants, { id: Math.random().toString(36).substring(7), name: "", stock: "0" }]);
+  const removeVariant = (index: number) => setVariants(variants.filter((_, i) => i !== index));
+  const updateVariant = (index: number, field: "name" | "stock", val: string) => {
+    const newVariants = [...variants];
+    newVariants[index][field] = val;
+    setVariants(newVariants);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -108,6 +167,28 @@ export default function EditProductPage() {
         return acc;
       }, {} as Record<string, string>);
 
+      // Merge special details into features
+      if (details.model) featureObj["Modelo"] = details.model;
+      if (details.material) featureObj["Material"] = details.material;
+      if (details.color) featureObj["Color"] = details.color;
+      if (details.prod_width || details.prod_height || details.prod_length) {
+        featureObj["Medidas del Producto"] = `${details.prod_width || 0}cm ancho x ${details.prod_height || 0}cm alto x ${details.prod_length || 0}cm largo`;
+      }
+      if (details.weight) featureObj["Peso"] = `${details.weight} kg`;
+      if (details.ship_width || details.ship_height || details.ship_length) {
+        featureObj["Medidas de Envío"] = `${details.ship_width || 0}cm x ${details.ship_height || 0}cm x ${details.ship_length || 0}cm`;
+      }
+
+      const cleanVariants = variants.map(v => ({
+        id: v.id,
+        name: v.name,
+        stock: parseInt(v.stock) || 0
+      })).filter(v => v.name.trim() !== "");
+
+      const totalStock = cleanVariants.length > 0 
+        ? cleanVariants.reduce((sum, v) => sum + v.stock, 0)
+        : 1; // Default to 1 if no variants
+
       const imageUrls: string[] = [...existingImages];
 
       // Upload new images to Supabase Storage
@@ -134,6 +215,9 @@ export default function EditProductPage() {
         features: featureObj,
         category_id: formData.category_id || null,
         subcategory_id: formData.subcategory_id || null,
+        condition: condition,
+        variants: cleanVariants.length > 0 ? cleanVariants : null,
+        stock: totalStock
       }).eq("id", id);
 
       if (dbError) throw dbError;
@@ -220,6 +304,15 @@ export default function EditProductPage() {
                 value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} placeholder="0.00" />
             </div>
             <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-700 uppercase">Estado del Producto</label>
+              <select className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none"
+                value={condition} onChange={e => setCondition(e.target.value)}>
+                <option value="Nuevo">Nuevo</option>
+                <option value="Seminuevo">Seminuevo</option>
+                <option value="Usado">Usado</option>
+              </select>
+            </div>
+            <div className="space-y-2">
               <label className="text-xs font-bold text-gray-700 uppercase">Categoría</label>
               <select className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none"
                 value={formData.category_id} onChange={e => setFormData({...formData, category_id: e.target.value, subcategory_id: ""})}>
@@ -249,36 +342,120 @@ export default function EditProductPage() {
           </div>
         </div>
 
-        {/* MERCADO LIBRE STYLE FEATURES */}
+        {/* VARIANTS (STOCK) */}
         <div className="bg-white p-8 rounded-lg border border-[#EAEAEA] shadow-sm space-y-6">
           <div className="flex items-center justify-between border-b border-[#EAEAEA] pb-4">
-            <h2 className="text-lg font-bold text-black">Características Técnicas</h2>
-            <button type="button" onClick={addFeature} className="text-xs font-bold text-[#C1A87D] hover:underline uppercase flex items-center gap-1">
-              <span className="material-symbols-outlined text-[16px]">add</span> Agregar
+            <div>
+              <h2 className="text-lg font-bold text-black">Inventario por Variantes</h2>
+              <p className="text-xs text-gray-500">Añade stock separado por Talla, Color o Diseño. (Si dejas esto vacío, el stock general será 1).</p>
+            </div>
+            <button type="button" onClick={addVariant} className="text-xs font-bold text-white bg-black px-4 py-2 rounded-md uppercase flex items-center gap-1">
+              <span className="material-symbols-outlined text-[16px]">add</span> Añadir Variante
             </button>
           </div>
           
           <div className="space-y-3">
-            {features.map((feature, idx) => (
-              <div key={idx} className="flex items-center gap-4">
-                <input type="text" placeholder="Ej. Material" className="w-1/3 bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none"
-                  value={feature.key} onChange={e => updateFeature(idx, "key", e.target.value)} />
-                <input type="text" placeholder="Ej. Piel Sintética" className="flex-1 bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none"
-                  value={feature.value} onChange={e => updateFeature(idx, "value", e.target.value)} />
-                <button type="button" onClick={() => removeFeature(idx)} className="material-symbols-outlined text-gray-400 hover:text-red-500 transition-colors">delete</button>
+            {variants.length === 0 ? (
+              <p className="text-sm text-gray-400 italic">No hay variantes creadas.</p>
+            ) : variants.map((variant, idx) => (
+              <div key={variant.id} className="flex items-center gap-4 bg-[#F9F9F9] p-3 rounded-md border border-[#EAEAEA]">
+                <div className="flex-1 space-y-1">
+                  <label className="text-[10px] font-bold text-gray-500 uppercase">Nombre (Ej: Rojo - Talla S)</label>
+                  <input type="text" placeholder="Ej. Rojo - Talla S" className="w-full bg-white border border-[#EAEAEA] rounded-md p-2 text-sm focus:ring-1 focus:ring-black outline-none"
+                    value={variant.name} onChange={e => updateVariant(idx, "name", e.target.value)} />
+                </div>
+                <div className="w-1/3 space-y-1">
+                  <label className="text-[10px] font-bold text-gray-500 uppercase">Stock (Piezas)</label>
+                  <input type="number" min="0" placeholder="0" className="w-full bg-white border border-[#EAEAEA] rounded-md p-2 text-sm focus:ring-1 focus:ring-black outline-none"
+                    value={variant.stock} onChange={e => updateVariant(idx, "stock", e.target.value)} />
+                </div>
+                <button type="button" onClick={() => removeVariant(idx)} className="mt-5 material-symbols-outlined text-gray-400 hover:text-red-500 transition-colors">delete</button>
               </div>
             ))}
           </div>
         </div>
 
+        {/* DETALLES FÍSICOS */}
+        <div className="bg-white p-8 rounded-lg border border-[#EAEAEA] shadow-sm space-y-6">
+          <h2 className="text-lg font-bold text-black border-b border-[#EAEAEA] pb-4">Detalles Físicos del Producto</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-700 uppercase">Modelo</label>
+              <input type="text" className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none" 
+                value={details.model} onChange={e => setDetails({...details, model: e.target.value})} placeholder="Ej. CL-2026" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-700 uppercase">Color General</label>
+              <input type="text" className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none" 
+                value={details.color} onChange={e => setDetails({...details, color: e.target.value})} placeholder="Ej. Negro" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-700 uppercase">Material</label>
+              <input type="text" className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none" 
+                value={details.material} onChange={e => setDetails({...details, material: e.target.value})} placeholder="Ej. Piel Sintética" />
+            </div>
+          </div>
+          
+          <div>
+            <label className="text-xs font-bold text-gray-700 uppercase mb-2 block">Medidas del Producto (cm)</label>
+            <div className="flex gap-4">
+              <input type="number" placeholder="Ancho" className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none" 
+                value={details.prod_width} onChange={e => setDetails({...details, prod_width: e.target.value})} />
+              <input type="number" placeholder="Alto" className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none" 
+                value={details.prod_height} onChange={e => setDetails({...details, prod_height: e.target.value})} />
+              <input type="number" placeholder="Largo" className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none" 
+                value={details.prod_length} onChange={e => setDetails({...details, prod_length: e.target.value})} />
+            </div>
+          </div>
+
+          <div className="pt-4 border-t border-[#EAEAEA]">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-bold text-black">Otras Características</h3>
+              <button type="button" onClick={addFeature} className="text-xs font-bold text-[#C1A87D] hover:underline uppercase flex items-center gap-1">
+                <span className="material-symbols-outlined text-[16px]">add</span> Agregar Atributo Libre
+              </button>
+            </div>
+            <div className="space-y-3">
+              {features.map((feature, idx) => (
+                <div key={idx} className="flex items-center gap-4">
+                  <input type="text" placeholder="Ej. Garantía" className="w-1/3 bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none"
+                    value={feature.key} onChange={e => updateFeature(idx, "key", e.target.value)} />
+                  <input type="text" placeholder="Ej. 1 Año" className="flex-1 bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none"
+                    value={feature.value} onChange={e => updateFeature(idx, "value", e.target.value)} />
+                  <button type="button" onClick={() => removeFeature(idx)} className="material-symbols-outlined text-gray-400 hover:text-red-500 transition-colors">delete</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* SHIPPING & CALCULATOR */}
         <div className="bg-white p-8 rounded-lg border border-[#EAEAEA] shadow-sm space-y-6">
-          <h2 className="text-lg font-bold text-black border-b border-[#EAEAEA] pb-4">Envío y Calculadora</h2>
+          <h2 className="text-lg font-bold text-black border-b border-[#EAEAEA] pb-4">Logística y Envío</h2>
           
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-gray-700 uppercase">Costo de Envío (Dejar en 0 para Envío Gratis)</label>
-            <input required type="number" min="0" step="0.01" className="w-1/2 bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none" 
-              value={formData.shipping_cost} onChange={e => setFormData({...formData, shipping_cost: e.target.value})} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-700 uppercase">Costo de Envío (0 = Gratis)</label>
+              <input required type="number" min="0" step="0.01" className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none" 
+                value={formData.shipping_cost} onChange={e => setFormData({...formData, shipping_cost: e.target.value})} />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-700 uppercase">Peso del Paquete (kg)</label>
+              <input type="number" step="0.01" className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none" 
+                value={details.weight} onChange={e => setDetails({...details, weight: e.target.value})} placeholder="Ej. 1.5" />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-bold text-gray-700 uppercase mb-2 block">Medidas Volumétricas del Paquete (cm)</label>
+            <div className="flex gap-4">
+              <input type="number" placeholder="Ancho (Empaque)" className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none" 
+                value={details.ship_width} onChange={e => setDetails({...details, ship_width: e.target.value})} />
+              <input type="number" placeholder="Alto (Empaque)" className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none" 
+                value={details.ship_height} onChange={e => setDetails({...details, ship_height: e.target.value})} />
+              <input type="number" placeholder="Largo (Empaque)" className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none" 
+                value={details.ship_length} onChange={e => setDetails({...details, ship_length: e.target.value})} />
+            </div>
           </div>
 
           <div className="mt-6 bg-[#F9F9F9] border border-[#EAEAEA] rounded-md p-6">

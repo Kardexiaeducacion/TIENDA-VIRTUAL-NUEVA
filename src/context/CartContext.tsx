@@ -2,7 +2,10 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 export type CartItem = {
-  id: string;
+  id: string; // This will now be cartItemId: `${productId}_${variantId || 'base'}`
+  productId: string;
+  variantId?: string;
+  variantName?: string;
   name: string;
   price: number;
   image: string;
@@ -11,9 +14,9 @@ export type CartItem = {
 
 type CartContextType = {
   items: CartItem[];
-  addToCart: (product: any, quantity?: number) => void;
-  removeFromCart: (id: string) => void;
-  updateQuantity: (id: string, quantity: number) => void;
+  addToCart: (product: any, quantity?: number, variant?: { id: string, name: string }) => void;
+  removeFromCart: (cartItemId: string) => void;
+  updateQuantity: (cartItemId: string, quantity: number) => void;
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
@@ -45,12 +48,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [items, isInitialized]);
 
-  const addToCart = (product: any, quantity = 1) => {
+  const addToCart = (product: any, quantity = 1, variant?: { id: string, name: string }) => {
     setItems(prev => {
-      const existing = prev.find(item => item.id === product.id);
+      const cartItemId = `${product.id}_${variant?.id || 'base'}`;
+      const existing = prev.find(item => item.id === cartItemId);
       if (existing) {
         return prev.map(item => 
-          item.id === product.id 
+          item.id === cartItemId 
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
@@ -60,7 +64,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const imageUrl = images.length > 0 ? images[0] : "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800";
       
       return [...prev, {
-        id: product.id,
+        id: cartItemId,
+        productId: product.id,
+        variantId: variant?.id,
+        variantName: variant?.name,
         name: product.name,
         price: Number(product.price),
         image: imageUrl,

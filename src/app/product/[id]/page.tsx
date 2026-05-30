@@ -29,6 +29,7 @@ export default function ProductPage() {
   const [activeImg, setActiveImg] = useState(0);
   const [detailsOpen, setDetailsOpen] = useState(true);
   const [shippingOpen, setShippingOpen] = useState(false);
+  const [selectedVariant, setSelectedVariant] = useState<any>(null);
 
   useEffect(() => {
     async function fetchProduct() {
@@ -84,24 +85,57 @@ export default function ProductPage() {
                   <p className="text-3xl font-bold text-primary">${Number(product.price).toFixed(2)}</p>
                 </div>
 
+                {/* VARIANTS */}
+                {(product.variants as any[])?.length > 0 && (
+                  <div className="pt-4 border-t border-outline-variant">
+                    <span className="text-sm font-bold uppercase block mb-3">Selecciona una Opción:</span>
+                    <div className="flex flex-wrap gap-2">
+                      {(product.variants as any[]).map(variant => (
+                        <button
+                          key={variant.id}
+                          onClick={() => setSelectedVariant(variant)}
+                          className={`px-4 py-2 text-sm font-semibold border transition-colors ${
+                            selectedVariant?.id === variant.id 
+                              ? "border-primary bg-primary text-white" 
+                              : "border-outline-variant text-secondary hover:border-primary"
+                          } ${variant.stock <= 0 ? "opacity-50 cursor-not-allowed line-through" : ""}`}
+                          disabled={variant.stock <= 0}
+                        >
+                          {variant.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* CTA */}
                 <div className="flex flex-col gap-4 pt-4">
                   <button 
                     onClick={() => {
-                      const isInCart = items.some((i: any) => i.id === product.id);
+                      const hasVariants = (product.variants as any[])?.length > 0;
+                      if (hasVariants && !selectedVariant) {
+                        alert("Por favor, selecciona una opción antes de añadir al carrito.");
+                        return;
+                      }
+                      
+                      const cartItemId = `${product.id}_${selectedVariant?.id || 'base'}`;
+                      const isInCart = items.some((i: any) => i.id === cartItemId);
+                      
                       if (isInCart) {
-                        removeFromCart(product.id as string);
+                        removeFromCart(cartItemId);
                       } else {
-                        addToCart(product);
+                        addToCart(product, 1, selectedVariant);
                       }
                     }}
                     className={`w-full py-5 text-sm font-semibold uppercase tracking-widest transition-all duration-300 border border-primary ${
-                      items.some((i: any) => i.id === product.id)
+                      items.some((i: any) => i.id === `${product.id}_${selectedVariant?.id || 'base'}`)
                         ? "bg-primary text-white hover:bg-black"
                         : "bg-transparent text-primary hover:bg-surface-container-low"
                     }`}
                   >
-                    {items.some((i: any) => i.id === product.id) ? "Quitar del Carrito" : "Añadir al Carrito"}
+                    {items.some((i: any) => i.id === `${product.id}_${selectedVariant?.id || 'base'}`) 
+                      ? "Quitar del Carrito" 
+                      : "Añadir al Carrito"}
                   </button>
                   <FavoriteTextButton productId={product.id as string} />
                 </div>
@@ -127,14 +161,18 @@ export default function ProductPage() {
                     </button>
                     {detailsOpen && (
                       <div className="pb-4 text-secondary text-base leading-relaxed">
-                        <p>{product.description}</p>
-                        {product.features && (
-                          <ul className="mt-4 space-y-2 list-disc list-inside text-sm">
-                            {Object.entries(product.features).map(([key, value]) => (
-                              <li key={key}><strong>{key}:</strong> {value as string}</li>
+                        <p>{product.description as string}</p>
+                        
+                        <div className="mt-6">
+                          <h4 className="text-sm font-bold text-primary uppercase mb-3">Especificaciones</h4>
+                          <ul className="space-y-2 text-sm border-t border-outline-variant pt-3">
+                            {product.sku && <li><strong>SKU:</strong> {product.sku as string}</li>}
+                            {product.condition && <li><strong>Condición:</strong> {product.condition as string}</li>}
+                            {product.features && Object.entries(product.features as Record<string, string>).map(([key, value]) => (
+                              <li key={key}><strong>{key}:</strong> {value}</li>
                             ))}
                           </ul>
-                        )}
+                        </div>
                       </div>
                     )}
                   </div>

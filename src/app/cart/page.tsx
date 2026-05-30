@@ -51,9 +51,12 @@ export default function CartPage() {
                     <Image src={item.image} alt={item.name} fill className="object-cover" unoptimized />
                   </div>
                   <div className="flex flex-col justify-center">
-                    <Link href={`/product/${item.id}`} className="text-lg font-bold hover:underline mb-1">
+                    <Link href={`/product/${item.productId}`} className="text-lg font-bold hover:underline mb-1">
                       {item.name}
                     </Link>
+                    {item.variantName && (
+                      <span className="text-sm text-secondary mb-2 uppercase tracking-widest">{item.variantName}</span>
+                    )}
                     <button 
                       onClick={() => removeFromCart(item.id)}
                       className="text-xs font-semibold text-error text-left uppercase tracking-widest mt-auto hover:underline"
