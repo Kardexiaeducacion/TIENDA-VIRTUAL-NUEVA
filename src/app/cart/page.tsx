@@ -3,10 +3,12 @@ import { useCart } from "@/context/CartContext";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function CartPage() {
-  const { items, updateQuantity, removeFromCart, totalPrice, totalItems } = useCart();
+  const { items, updateQuantity, removeFromCart, totalPrice, totalItems, totalShipping, clearCart } = useCart();
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   if (items.length === 0) {
     return (
@@ -24,8 +26,29 @@ export default function CartPage() {
     );
   }
 
-  const shippingCost = totalPrice > 1500 ? 0 : 150;
+  const shippingCost = totalShipping;
   const finalTotal = totalPrice + shippingCost;
+
+  const handleCheckout = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items, totalPrice, shippingCost, finalTotal })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al procesar el pago");
+      
+      alert("¡Pago procesado con éxito! El stock ha sido descontado.");
+      clearCart();
+      router.push("/account/orders");
+    } catch (e: any) {
+      alert(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="bg-background text-on-background font-sans min-h-screen pt-32 pb-20">
@@ -116,7 +139,7 @@ export default function CartPage() {
                 </div>
                 {shippingCost > 0 && (
                   <p className="text-xs text-secondary mt-[-10px]">
-                    Faltan ${(1500 - totalPrice).toFixed(2)} para envío gratis.
+                    Basado en las opciones de envío de los productos.
                   </p>
                 )}
               </div>
@@ -127,10 +150,11 @@ export default function CartPage() {
               </div>
 
               <button 
-                onClick={() => alert("¡Pronto conectaremos esto con una pasarela de pago!")}
-                className="w-full py-5 bg-primary text-white text-sm font-bold uppercase tracking-widest hover:bg-black transition-colors"
+                onClick={handleCheckout}
+                disabled={loading}
+                className="w-full py-5 bg-primary text-white text-sm font-bold uppercase tracking-widest hover:bg-black transition-colors disabled:opacity-50"
               >
-                Proceder al Pago
+                {loading ? "Procesando..." : "Comprar Ahora (Simulado)"}
               </button>
               
               <div className="mt-6 flex items-center justify-center gap-2 text-secondary text-xs">

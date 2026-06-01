@@ -26,6 +26,7 @@ export default function ProductPage() {
   const { items, addToCart, removeFromCart } = useCart();
   
   const [product, setProduct] = useState<Record<string, unknown> | null>(null);
+  const [categoryName, setCategoryName] = useState<string>("");
   const [activeImg, setActiveImg] = useState(0);
   const [detailsOpen, setDetailsOpen] = useState(true);
   const [shippingOpen, setShippingOpen] = useState(false);
@@ -35,7 +36,13 @@ export default function ProductPage() {
     async function fetchProduct() {
       if (id) {
         const { data } = await supabase.from("products").select("*").eq("id", id).single();
-        if (data) setProduct(data);
+        if (data) {
+          setProduct(data);
+          if (data.category_id) {
+            const { data: catData } = await supabase.from("categories").select("name").eq("id", data.category_id).single();
+            if (catData) setCategoryName(catData.name);
+          }
+        }
       }
     }
     fetchProduct();
@@ -80,8 +87,8 @@ export default function ProductPage() {
             <div className="col-span-12 lg:col-span-5">
               <div className="lg:sticky lg:top-28 flex flex-col gap-6">
                 <div className="border-b border-outline-variant pb-6">
-                  <span className="text-xs font-semibold text-secondary uppercase tracking-widest mb-2 block">Exclusivo Cloe</span>
-                  <h1 className="text-3xl font-bold text-primary mb-2 leading-tight">{product.name}</h1>
+                  <span className="text-xs font-semibold text-secondary uppercase tracking-widest mb-2 block">{categoryName || "Exclusivo Cloe"}</span>
+                  <h1 className="text-3xl font-bold text-primary mb-2 leading-tight">{product.name as string}</h1>
                   <p className="text-3xl font-bold text-primary">${Number(product.price).toFixed(2)}</p>
                 </div>
 
@@ -110,33 +117,55 @@ export default function ProductPage() {
 
                 {/* CTA */}
                 <div className="flex flex-col gap-4 pt-4">
-                  <button 
-                    onClick={() => {
-                      const hasVariants = (product.variants as any[])?.length > 0;
-                      if (hasVariants && !selectedVariant) {
-                        alert("Por favor, selecciona una opción antes de añadir al carrito.");
-                        return;
-                      }
-                      
-                      const cartItemId = `${product.id}_${selectedVariant?.id || 'base'}`;
-                      const isInCart = items.some((i: any) => i.id === cartItemId);
-                      
-                      if (isInCart) {
-                        removeFromCart(cartItemId);
-                      } else {
-                        addToCart(product, 1, selectedVariant);
-                      }
-                    }}
-                    className={`w-full py-5 text-sm font-semibold uppercase tracking-widest transition-all duration-300 border border-primary ${
-                      items.some((i: any) => i.id === `${product.id}_${selectedVariant?.id || 'base'}`)
-                        ? "bg-primary text-white hover:bg-black"
-                        : "bg-transparent text-primary hover:bg-surface-container-low"
-                    }`}
-                  >
-                    {items.some((i: any) => i.id === `${product.id}_${selectedVariant?.id || 'base'}`) 
-                      ? "Quitar del Carrito" 
-                      : "Añadir al Carrito"}
-                  </button>
+                  {(() => {
+                    const hasVariants = (product.variants as any[])?.length > 0;
+                    const stock = hasVariants 
+                      ? (selectedVariant ? selectedVariant.stock : (product.stock as number || 0))
+                      : (product.stock as number || 0);
+
+                    const isOutOfStock = hasVariants ? (selectedVariant && selectedVariant.stock <= 0) : (stock <= 0);
+
+                    return (
+                      <>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className={`w-2 h-2 rounded-full ${stock > 0 ? "bg-green-500" : "bg-red-500"}`}></span>
+                          <span className="text-sm font-semibold">{stock > 0 ? `${stock} disponibles` : "Agotado"}</span>
+                        </div>
+                        <button 
+                          onClick={() => {
+                            if (isOutOfStock) return;
+                            if (hasVariants && !selectedVariant) {
+                              alert("Por favor, selecciona una opción antes de añadir al carrito.");
+                              return;
+                            }
+                            
+                            const cartItemId = `${product.id}_${selectedVariant?.id || 'base'}`;
+                            const isInCart = items.some((i: any) => i.id === cartItemId);
+                            
+                            if (isInCart) {
+                              removeFromCart(cartItemId);
+                            } else {
+                              addToCart(product, 1, selectedVariant);
+                            }
+                          }}
+                          disabled={isOutOfStock}
+                          className={`w-full py-5 text-sm font-semibold uppercase tracking-widest transition-all duration-300 border border-primary ${
+                            isOutOfStock 
+                              ? "bg-surface-container text-secondary border-outline-variant cursor-not-allowed opacity-50"
+                              : items.some((i: any) => i.id === `${product.id}_${selectedVariant?.id || 'base'}`)
+                                ? "bg-primary text-white hover:bg-black"
+                                : "bg-transparent text-primary hover:bg-surface-container-low"
+                          }`}
+                        >
+                          {isOutOfStock 
+                            ? "Agotado"
+                            : items.some((i: any) => i.id === `${product.id}_${selectedVariant?.id || 'base'}`) 
+                              ? "Quitar del Carrito" 
+                              : "Añadir al Carrito"}
+                        </button>
+                      </>
+                    );
+                  })()}
                   <FavoriteTextButton productId={product.id as string} />
                 </div>
 
