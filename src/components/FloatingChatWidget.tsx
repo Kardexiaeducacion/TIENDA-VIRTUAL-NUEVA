@@ -14,19 +14,12 @@ export default function FloatingChatWidget() {
   const supabase = createClient();
   const pathname = usePathname();
 
-  // No renderizar en panel de administrador ni login
-  if (pathname?.startsWith("/editor") || pathname?.startsWith("/login") || pathname?.startsWith("/register")) {
-    return null;
-  }
-
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (isOpen && !chat) {
       initChat();
     }
   }, [isOpen]);
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (chat) {
       fetchMessages();
@@ -101,6 +94,11 @@ export default function FloatingChatWidget() {
       })
     });
   };
+
+  // No renderizar en panel de administrador ni login
+  if (pathname?.startsWith("/editor") || pathname?.startsWith("/login") || pathname?.startsWith("/register")) {
+    return null;
+  }
 
   return (
     <>
