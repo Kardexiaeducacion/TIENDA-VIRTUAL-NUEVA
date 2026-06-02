@@ -19,8 +19,7 @@ export async function POST(req: Request) {
       user_id: user?.id || null,
       total_amount: finalTotal,
       status: "en proceso",
-      // Si la tabla tiene una columna para los items, aquí iría. 
-      // Por ahora lo insertamos básico para no romper si no existen las columnas de items
+      items: items // Save the JSON array into the items column
     };
 
     const { data: order, error: orderError } = await supabase

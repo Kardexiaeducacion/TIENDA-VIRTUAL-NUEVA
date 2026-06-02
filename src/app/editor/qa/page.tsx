@@ -1,102 +1,148 @@
 "use client";
-import { useState } from "react";
-import Image from "next/image";
+import { useState, useEffect } from "react";
+import { createClient } from "@/utils/supabase/client";
 
-const questions = [
-  {
-    product: "Cloe Medium Tote Bag - Monogram",
-    price: "$2,899.00",
-    img: "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800&auto=format&fit=crop&q=60",
-    customer: "María Gómez",
-    question: "Tienen meses sin intereses con tarjetas Banamex?",
-    time: "2h ago",
-    urgent: true,
-    initials: "MG",
-    initialsStyle: "bg-blue-100 text-blue-800"
-  },
-  {
-    product: "Quilted Crossbody Leather",
-    price: "$3,499.00",
-    img: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&auto=format&fit=crop&q=60",
-    customer: "Fernanda López",
-    question: "El material interior de qué es?",
-    time: "5h ago",
-    urgent: false,
-    initials: "FL",
-    initialsStyle: "bg-purple-100 text-purple-800"
-  }
-];
-
-const emojis = ["😊","👍","✨","🎉","💯","❤️","🙏","🤩","👏","💎","🛍️","📦","🚀","⭐","💬"];
-
-export default function QAPanel() {
-  const [selectedChat, setSelectedChat] = useState<number | null>(null);
+export default function AdminQAPage() {
+  const [questions, setQuestions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
+  const supabase = createClient();
+
+  useEffect(() => {
+    fetchQuestions();
+  }, []);
+
+  const fetchQuestions = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('product_questions')
+      .select('*, products(name)')
+      .order('created_at', { ascending: false });
+    
+    if (!error && data) {
+      setQuestions(data);
+    }
+    setLoading(false);
+  };
+
+  const handleReply = async (id: string) => {
+    if (!replyText.trim()) return;
+    
+    try {
+      const res = await fetch("/api/qa", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ questionId: id, answer: replyText }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      setReplyingTo(null);
+      setReplyText("");
+      fetchQuestions();
+    } catch (e: any) {
+      alert(e.message);
+    }
+  };
+
+  if (loading) {
+    return <div className="p-8">Cargando preguntas...</div>;
+  }
+
+  const unanswered = questions.filter(q => !q.answer);
+  const answered = questions.filter(q => q.answer);
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex justify-between items-center mb-6">
+    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500 pb-12">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-black mb-2">Preguntas y Respuestas</h1>
-          <p className="text-gray-500 text-sm">Responde las inquietudes de tus clientes para aumentar conversiones.</p>
+          <p className="text-gray-500 text-sm">Gestiona y responde las dudas de tus clientes sobre los productos.</p>
+        </div>
+        <div className="flex gap-4 text-sm font-bold">
+          <div className="bg-red-50 text-red-600 px-4 py-2 rounded-md border border-red-100 flex items-center gap-2">
+            <span className="material-symbols-outlined text-[18px]">error</span>
+            {unanswered.length} Pendientes
+          </div>
+          <div className="bg-green-50 text-green-600 px-4 py-2 rounded-md border border-green-100 flex items-center gap-2">
+            <span className="material-symbols-outlined text-[18px]">check_circle</span>
+            {answered.length} Respondidas
+          </div>
         </div>
       </div>
 
-      <div className="space-y-6">
-        {questions.map((q, i) => (
-          <div key={i}>
-            <article 
-              className={`grid grid-cols-1 md:grid-cols-12 gap-8 bg-white p-6 border transition-all hover:-translate-y-0.5 hover:shadow-sm cursor-pointer rounded-lg ${
-                q.urgent ? "border-l-4 border-l-red-500 border-y border-r border-[#EAEAEA]" : "border border-[#EAEAEA] hover:border-black"
-              }`}
-              onClick={() => setSelectedChat(selectedChat === i ? null : i)}
-            >
-              <div className="col-span-3 flex gap-4">
-                <div className="w-20 h-24 bg-gray-100 flex-shrink-0 relative overflow-hidden border border-[#EAEAEA] rounded-md">
-                  <Image alt={q.product} src={q.img} fill className="object-cover" unoptimized />
+      {unanswered.length > 0 && (
+        <div className="bg-white p-8 rounded-lg border border-[#EAEAEA] shadow-sm space-y-6">
+          <h2 className="text-lg font-bold text-black border-b border-[#EAEAEA] pb-4 flex items-center gap-2">
+            <span className="material-symbols-outlined text-red-500">mark_email_unread</span>
+            Por Responder
+          </h2>
+          <div className="space-y-6">
+            {unanswered.map(q => (
+              <div key={q.id} className="bg-[#F9F9F9] p-4 rounded-md border border-[#EAEAEA]">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <span className="text-[10px] font-bold text-gray-500 uppercase">Producto:</span>
+                    <p className="text-sm font-bold text-black">{q.products?.name}</p>
+                  </div>
+                  <span className="text-xs text-gray-500">{new Date(q.created_at).toLocaleString()}</span>
                 </div>
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-black line-clamp-2">{q.product}</p>
-                  <p className="text-xs text-gray-500">{q.price}</p>
+                
+                <div className="mt-3">
+                  <span className="text-[10px] font-bold text-gray-500 uppercase">Pregunta de {q.user_name || 'Anónimo'}:</span>
+                  <p className="text-base text-black mt-1 font-medium">{q.question}</p>
                 </div>
-              </div>
-              <div className="col-span-6 flex flex-col justify-center">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className={`w-6 h-6 rounded-full ${q.initialsStyle} flex items-center justify-center text-xs font-semibold`}>{q.initials}</span>
-                  <p className="text-xs font-bold text-gray-500">{q.customer} <span className="font-normal opacity-70">• {q.time}</span></p>
-                </div>
-                <p className="text-base text-gray-700 italic">&ldquo;{q.question}&rdquo;</p>
-              </div>
-              <div className="col-span-3 flex items-center justify-end gap-4">
-                <button className="text-sm font-semibold text-gray-400 hover:text-black transition-colors py-2 px-4" onClick={(e) => e.stopPropagation()}>Ignorar</button>
-                <button className="bg-[#1C1C1C] text-white text-xs font-bold px-6 py-3 rounded-md hover:bg-black transition-all flex items-center gap-2">
-                  <span className="material-symbols-outlined text-[16px]">reply</span> Responder
-                </button>
-              </div>
-            </article>
 
-            {selectedChat === i && (
-              <div className="bg-white border border-t-0 border-[#EAEAEA] p-6 rounded-b-lg -mt-2 shadow-sm relative z-10">
-                <p className="text-xs font-bold uppercase tracking-widest text-gray-700 mb-3">Tu Respuesta</p>
-                <textarea
-                  className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-4 text-sm focus:border-black focus:ring-1 focus:ring-black outline-none min-h-[100px] resize-none"
-                  placeholder="Escribe aquí tu respuesta para el cliente..."
-                  value={replyText}
-                  onChange={(e) => setReplyText(e.target.value)}
-                />
-                <div className="flex flex-wrap gap-2 my-3">
-                  {emojis.map((emoji) => (
-                    <button key={emoji} className="text-xl hover:scale-125 transition-transform" type="button" onClick={() => setReplyText(prev => prev + emoji)}>{emoji}</button>
-                  ))}
+                {replyingTo === q.id ? (
+                  <div className="mt-4 pt-4 border-t border-[#EAEAEA]">
+                    <textarea 
+                      className="w-full bg-white border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none resize-none"
+                      rows={3}
+                      placeholder="Escribe tu respuesta pública..."
+                      value={replyText}
+                      onChange={e => setReplyText(e.target.value)}
+                    />
+                    <div className="flex justify-end gap-2 mt-2">
+                      <button onClick={() => setReplyingTo(null)} className="px-4 py-2 text-xs font-bold text-gray-500 hover:text-black">Cancelar</button>
+                      <button onClick={() => handleReply(q.id)} className="px-4 py-2 bg-black text-white rounded-md text-xs font-bold uppercase hover:bg-gray-800">Enviar Respuesta</button>
+                    </div>
+                  </div>
+                ) : (
+                  <button onClick={() => setReplyingTo(q.id)} className="mt-4 px-4 py-2 bg-white border border-[#EAEAEA] text-black rounded-md text-xs font-bold uppercase hover:bg-gray-50 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[16px]">reply</span> Responder
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="bg-white p-8 rounded-lg border border-[#EAEAEA] shadow-sm space-y-6">
+        <h2 className="text-lg font-bold text-black border-b border-[#EAEAEA] pb-4 flex items-center gap-2">
+          <span className="material-symbols-outlined text-gray-500">forum</span>
+          Historial de Respuestas
+        </h2>
+        {answered.length === 0 ? (
+          <p className="text-sm text-gray-500 italic">No tienes respuestas anteriores.</p>
+        ) : (
+          <div className="space-y-6">
+            {answered.map(q => (
+              <div key={q.id} className="border-b border-[#EAEAEA] pb-4 last:border-0 last:pb-0">
+                <div className="flex justify-between items-start mb-2">
+                  <p className="text-xs font-bold text-gray-500 uppercase">{q.products?.name}</p>
+                  <span className="text-xs text-gray-500">{new Date(q.answered_at).toLocaleDateString()}</span>
                 </div>
-                <div className="flex justify-end gap-3 mt-4">
-                  <button className="px-6 py-2 border border-[#EAEAEA] rounded-md text-sm font-bold text-gray-600 hover:bg-gray-50 transition-colors" onClick={() => setSelectedChat(null)}>Cancelar</button>
-                  <button className="px-6 py-2 bg-[#1C1C1C] text-white rounded-md text-sm font-bold hover:bg-black transition-colors">Publicar Respuesta</button>
+                <p className="text-sm text-black mb-2"><span className="font-bold">{q.user_name || 'Anónimo'}:</span> {q.question}</p>
+                <div className="bg-[#F5F5F5] p-3 rounded-md border-l-2 border-black ml-4">
+                  <p className="text-xs font-bold text-black uppercase mb-1">Tu Respuesta:</p>
+                  <p className="text-sm text-gray-700">{q.answer}</p>
                 </div>
               </div>
-            )}
+            ))}
           </div>
-        ))}
+        )}
       </div>
     </div>
   );

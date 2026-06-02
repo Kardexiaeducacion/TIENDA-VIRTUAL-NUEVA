@@ -7,6 +7,8 @@ import { createClient } from "@/utils/supabase/client";
 import Navbar from "@/components/Navbar";
 import FavoriteTextButton from "@/components/FavoriteTextButton";
 import { useCart } from "@/context/CartContext";
+import ProductQA from "@/components/ProductQA";
+import ProductReviews from "@/components/ProductReviews";
 
 const defaultImages = [
   "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800",
@@ -240,6 +242,12 @@ export default function ProductPage() {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* QA AND REVIEWS */}
+          <div className="mt-20 pt-10 border-t border-outline-variant">
+            <ProductQA productId={id} />
+            <ProductReviews productId={id} />
           </div>
 
           {/* YOU MAY ALSO LIKE */}
