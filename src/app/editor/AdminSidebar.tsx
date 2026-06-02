@@ -17,6 +17,8 @@ export default function AdminSidebar({ profile, email }: { profile: Record<strin
     { label: "Envíos", icon: "local_shipping", href: "/editor/shipping" },
     { label: "Usuarios", icon: "group", href: "/editor/users" },
     { label: "Preguntas y Respuestas", icon: "forum", href: "/editor/qa" },
+    { label: "Soporte (Chat)", icon: "support_agent", href: "/editor/support" },
+    { label: "Centro de Ayuda", icon: "help_center", href: "/editor/help-center" },
     { label: "Banners", icon: "view_carousel", href: "/editor/banners" },
     { label: "Cupones", icon: "sell", href: "/editor/coupons" },
     { label: "Configuración", icon: "settings", href: "/editor/settings" },

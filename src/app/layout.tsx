@@ -8,6 +8,7 @@ export const metadata: Metadata = {
 };
 
 import { CartProvider } from "@/context/CartContext";
+import FloatingChatWidget from "@/components/FloatingChatWidget";
 
 export default function RootLayout({
   children,
@@ -26,6 +27,7 @@ export default function RootLayout({
         <CartProvider>
           <Navbar />
           {children}
+          <FloatingChatWidget />
         </CartProvider>
       </body>
     </html>
