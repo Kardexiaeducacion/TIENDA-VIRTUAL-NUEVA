@@ -22,6 +22,22 @@ export default function AddressesPage() {
     is_default: false
   });
 
+  const handleZipCodeChange = async (val: string) => {
+    setFormData((prev: any) => ({ ...prev, zip_code: val }));
+    if (val.length === 5) {
+      try {
+        const res = await fetch(`https://api.zippopotam.us/mx/${val}`);
+        if (res.ok) {
+          const data = await res.json();
+          const state = data.places[0]?.state || "";
+          setFormData((prev: any) => ({ ...prev, state }));
+        }
+      } catch (err) {
+        console.error("Error fetching CP", err);
+      }
+    }
+  };
+
   useEffect(() => {
     async function fetchAddresses() {
       const { data: { user } } = await supabase.auth.getUser();
@@ -147,7 +163,7 @@ export default function AddressesPage() {
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-gray-700 uppercase">Código Postal</label>
                     <input required type="text" className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none" 
-                      value={formData.zip_code} onChange={e => setFormData({...formData, zip_code: e.target.value})} placeholder="Ej. 06600" />
+                      value={formData.zip_code} onChange={e => handleZipCodeChange(e.target.value)} placeholder="Ej. 06600" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-gray-700 uppercase">Ciudad / Municipio</label>

@@ -17,6 +17,33 @@ export default function ShippingSettingsPage() {
     free_shipping_threshold: 1500
   });
 
+  const [addressObj, setAddressObj] = useState({
+    street: "",
+    zip_code: "",
+    city: "",
+    state: "",
+    country: "México",
+    phone: ""
+  });
+
+  const handleZipCodeChange = async (val: string, setter: any) => {
+    setter((prev: any) => ({ ...prev, zip_code: val }));
+    if (val.length === 5) {
+      try {
+        const res = await fetch(`https://api.zippopotam.us/mx/${val}`);
+        if (res.ok) {
+          const data = await res.json();
+          const state = data.places[0]?.state || "";
+          // Zippopotam API primarily returns "state" and "place name" (neighborhood). 
+          // We autocomplete the state. The user can type the city/municipality.
+          setter((prev: any) => ({ ...prev, state }));
+        }
+      } catch (err) {
+        console.error("Error fetching CP", err);
+      }
+    }
+  };
+
   useEffect(() => {
     async function fetchSettings() {
       const { data } = await supabase.from("store_settings").select("*").limit(1).single();
@@ -30,6 +57,17 @@ export default function ShippingSettingsPage() {
           base_shipping_cost: data.base_shipping_cost || 150,
           free_shipping_threshold: data.free_shipping_threshold || 1500
         });
+
+        try {
+          if (data.sender_address && data.sender_address.startsWith("{")) {
+            const parsed = JSON.parse(data.sender_address);
+            setAddressObj(parsed);
+          } else {
+            setAddressObj(prev => ({ ...prev, street: data.sender_address || "" }));
+          }
+        } catch {
+          setAddressObj(prev => ({ ...prev, street: data.sender_address || "" }));
+        }
       }
       setLoading(false);
     }
@@ -44,7 +82,7 @@ export default function ShippingSettingsPage() {
       if (settings.id) {
         // Update
         const { error } = await supabase.from("store_settings").update({
-          sender_address: settings.sender_address,
+          sender_address: JSON.stringify(addressObj),
           shipping_api_provider: settings.shipping_api_provider,
           shipping_api_key: settings.shipping_api_key,
           volumetric_divisor: settings.volumetric_divisor,
@@ -55,7 +93,7 @@ export default function ShippingSettingsPage() {
       } else {
         // Insert
         const { data, error } = await supabase.from("store_settings").insert([{
-          sender_address: settings.sender_address,
+          sender_address: JSON.stringify(addressObj),
           shipping_api_provider: settings.shipping_api_provider,
           shipping_api_key: settings.shipping_api_key,
           volumetric_divisor: settings.volumetric_divisor,
@@ -89,15 +127,33 @@ export default function ShippingSettingsPage() {
         {/* DIRECCIÓN DEL REMITENTE */}
         <div className="bg-white p-8 rounded-lg border border-[#EAEAEA] shadow-sm space-y-6">
           <h2 className="text-lg font-bold text-black border-b border-[#EAEAEA] pb-4">Dirección del Remitente (Origen)</h2>
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-gray-700 uppercase">Dirección Completa</label>
-            <textarea 
-              rows={3}
-              placeholder="Ej. Av. de las Américas 1254, Colonia Country Club, Guadalajara, Jalisco, 44610"
-              className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none resize-none"
-              value={settings.sender_address}
-              onChange={(e) => setSettings({ ...settings, sender_address: e.target.value })}
-            />
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-xs font-bold text-gray-700 uppercase">Calle y Número</label>
+              <input required type="text" className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none" 
+                value={addressObj.street} onChange={e => setAddressObj({...addressObj, street: e.target.value})} placeholder="Ej. Av. Reforma 222, Int 4" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-700 uppercase">Código Postal</label>
+              <input required type="text" className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none" 
+                value={addressObj.zip_code} onChange={e => handleZipCodeChange(e.target.value, setAddressObj)} placeholder="Ej. 06600" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-700 uppercase">Ciudad / Municipio</label>
+              <input required type="text" className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none" 
+                value={addressObj.city} onChange={e => setAddressObj({...addressObj, city: e.target.value})} placeholder="Ej. Cuauhtémoc" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-700 uppercase">Estado</label>
+              <input required type="text" className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none" 
+                value={addressObj.state} onChange={e => setAddressObj({...addressObj, state: e.target.value})} placeholder="Ej. CDMX" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-700 uppercase">Teléfono de contacto</label>
+              <input required type="tel" className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none" 
+                value={addressObj.phone} onChange={e => setAddressObj({...addressObj, phone: e.target.value})} placeholder="Ej. 55 1234 5678" />
+            </div>
           </div>
         </div>
 
