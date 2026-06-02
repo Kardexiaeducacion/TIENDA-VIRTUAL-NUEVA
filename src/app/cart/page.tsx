@@ -25,8 +25,7 @@ export default function CartPage() {
     );
   }
 
-  const shippingCost = totalShipping;
-  const finalTotal = totalPrice + shippingCost + totalIva + totalIsr;
+  const finalTotal = totalPrice + totalIva + totalIsr;
 
   return (
     <div className="bg-background text-on-background font-sans min-h-screen pt-32 pb-20">
@@ -111,15 +110,8 @@ export default function CartPage() {
                 </div>
                 <div className="flex justify-between text-secondary">
                   <span>Envío</span>
-                  <span className="font-semibold text-primary">
-                    {shippingCost === 0 ? "Gratis" : `$${shippingCost.toFixed(2)}`}
-                  </span>
+                  <span className="font-semibold text-primary text-xs">Calculado en el checkout</span>
                 </div>
-                {shippingCost > 0 && (
-                  <p className="text-xs text-secondary mt-[-10px]">
-                    Basado en las opciones de envío de los productos.
-                  </p>
-                )}
                 
                 {(totalIva > 0 || totalIsr > 0) && (
                   <>
