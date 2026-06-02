@@ -21,6 +21,13 @@ export default function NewProductPage() {
 
   const [condition, setCondition] = useState("Nuevo");
   
+  const [taxes, setTaxes] = useState({
+    applyIva: false,
+    ivaPercentage: 16,
+    applyIsr: false,
+    isrPercentage: 1.25
+  });
+  
   const [details, setDetails] = useState({
     model: "",
     material: "",
@@ -90,6 +97,10 @@ export default function NewProductPage() {
   const productPrice = Number(formData.price) || 0;
   const shippingCost = Number(formData.shipping_cost) || 0;
   const totalCost = productPrice + shippingCost;
+  
+  const ivaAmount = taxes.applyIva ? (productPrice * (taxes.ivaPercentage / 100)) : 0;
+  const isrAmount = taxes.applyIsr ? (productPrice * (taxes.isrPercentage / 100)) : 0;
+  const totalCostWithTaxes = totalCost + ivaAmount + isrAmount;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -149,7 +160,9 @@ export default function NewProductPage() {
         subcategory_id: formData.subcategory_id || null,
         condition: condition,
         variants: cleanVariants.length > 0 ? cleanVariants : null,
-        stock: totalStock
+        stock: totalStock,
+        iva_percentage: taxes.applyIva ? taxes.ivaPercentage : 0,
+        isr_percentage: taxes.applyIsr ? taxes.isrPercentage : 0
       });
 
       if (dbError) throw dbError;
@@ -355,6 +368,44 @@ export default function NewProductPage() {
           </div>
         </div>
 
+        {/* IMPUESTOS (IVA / ISR) */}
+        <div className="bg-white p-8 rounded-lg border border-[#EAEAEA] shadow-sm space-y-6">
+          <h2 className="text-lg font-bold text-black border-b border-[#EAEAEA] pb-4">Impuestos (Facturación)</h2>
+          <p className="text-xs text-gray-500 mb-4">Configura si este producto cobra impuestos adicionales cuando el cliente solicita factura (con RFC).</p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-4">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" className="w-4 h-4 accent-black" 
+                  checked={taxes.applyIva} onChange={e => setTaxes({...taxes, applyIva: e.target.checked})} />
+                <span className="text-sm font-bold text-black uppercase">Cobrar IVA</span>
+              </label>
+              {taxes.applyIva && (
+                <div className="pl-7 space-y-2">
+                  <label className="text-[10px] font-bold text-gray-500 uppercase">Porcentaje de IVA (%)</label>
+                  <input type="number" min="0" step="0.01" className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none" 
+                    value={taxes.ivaPercentage} onChange={e => setTaxes({...taxes, ivaPercentage: Number(e.target.value)})} />
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-4">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" className="w-4 h-4 accent-black" 
+                  checked={taxes.applyIsr} onChange={e => setTaxes({...taxes, applyIsr: e.target.checked})} />
+                <span className="text-sm font-bold text-black uppercase">Cobrar ISR</span>
+              </label>
+              {taxes.applyIsr && (
+                <div className="pl-7 space-y-2">
+                  <label className="text-[10px] font-bold text-gray-500 uppercase">Porcentaje de ISR (%)</label>
+                  <input type="number" min="0" step="0.01" className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none" 
+                    value={taxes.isrPercentage} onChange={e => setTaxes({...taxes, isrPercentage: Number(e.target.value)})} />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
         {/* SHIPPING & CALCULATOR */}
         <div className="bg-white p-8 rounded-lg border border-[#EAEAEA] shadow-sm space-y-6">
           <h2 className="text-lg font-bold text-black border-b border-[#EAEAEA] pb-4">Logística y Envío</h2>
@@ -396,9 +447,32 @@ export default function NewProductPage() {
                 <span>{shippingCost === 0 ? "Gratis" : `$${shippingCost.toFixed(2)}`}</span>
               </div>
               <div className="flex justify-between text-black font-bold border-t border-[#EAEAEA] pt-3 text-base">
-                <span>Total a Pagar</span>
+                <span>Total a Pagar (Sin RFC)</span>
                 <span>${totalCost.toFixed(2)}</span>
               </div>
+              {(taxes.applyIva || taxes.applyIsr) && (
+                <>
+                  <div className="border-t border-[#EAEAEA] pt-3 mt-3">
+                    <p className="text-xs font-bold text-gray-500 uppercase mb-2">Si el cliente solicita factura (Con RFC):</p>
+                  </div>
+                  {taxes.applyIva && (
+                    <div className="flex justify-between text-gray-600">
+                      <span>IVA ({taxes.ivaPercentage}%)</span>
+                      <span>+ ${ivaAmount.toFixed(2)}</span>
+                    </div>
+                  )}
+                  {taxes.applyIsr && (
+                    <div className="flex justify-between text-gray-600">
+                      <span>ISR ({taxes.isrPercentage}%)</span>
+                      <span>+ ${isrAmount.toFixed(2)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-primary font-bold pt-2 text-base">
+                    <span>Total a Pagar (Con Factura)</span>
+                    <span>${totalCostWithTaxes.toFixed(2)}</span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>

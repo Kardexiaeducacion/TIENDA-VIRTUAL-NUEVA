@@ -11,6 +11,8 @@ export type CartItem = {
   shippingCost: number;
   image: string;
   quantity: number;
+  ivaPercentage: number;
+  isrPercentage: number;
 };
 
 type CartContextType = {
@@ -22,6 +24,8 @@ type CartContextType = {
   totalItems: number;
   totalPrice: number;
   totalShipping: number;
+  totalIva: number;
+  totalIsr: number;
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -74,7 +78,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         price: Number(product.price),
         shippingCost: Number(product.shipping_cost) || 0,
         image: imageUrl,
-        quantity
+        quantity,
+        ivaPercentage: Number(product.iva_percentage) || 0,
+        isrPercentage: Number(product.isr_percentage) || 0
       }];
     });
   };
@@ -98,10 +104,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const totalShipping = items.reduce((sum, item) => sum + ((item.shippingCost || 0) * item.quantity), 0);
+  const totalIva = items.reduce((sum, item) => sum + (item.price * item.quantity * (item.ivaPercentage / 100)), 0);
+  const totalIsr = items.reduce((sum, item) => sum + (item.price * item.quantity * (item.isrPercentage / 100)), 0);
 
   return (
     <CartContext.Provider value={{
-      items, addToCart, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice, totalShipping
+      items, addToCart, removeFromCart, updateQuantity, clearCart, 
+      totalItems, totalPrice, totalShipping, totalIva, totalIsr
     }}>
       {children}
     </CartContext.Provider>
