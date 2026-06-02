@@ -9,8 +9,6 @@ export default function CartPage() {
   const { items, updateQuantity, removeFromCart, totalPrice, totalItems, totalShipping, totalIva, totalIsr, clearCart } = useCart();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [requireFactura, setRequireFactura] = useState(false);
-  const [facturaData, setFacturaData] = useState({ rfc: "", razonSocial: "", regimen: "" });
 
   if (items.length === 0) {
     return (
@@ -29,11 +27,7 @@ export default function CartPage() {
   }
 
   const shippingCost = totalShipping;
-  let finalTotal = totalPrice + shippingCost;
-  
-  if (requireFactura) {
-    finalTotal += totalIva + totalIsr;
-  }
+  const finalTotal = totalPrice + shippingCost + totalIva + totalIsr;
 
   const handleCheckout = async () => {
     setLoading(true);
@@ -125,57 +119,6 @@ export default function CartPage() {
                 </div>
               </div>
             ))}
-            
-            {/* FACTURACIÓN SECTION */}
-            <div className="mt-8 bg-surface-container-lowest p-8 border border-outline-variant">
-              <label className="flex items-center gap-3 cursor-pointer mb-4">
-                <input 
-                  type="checkbox" 
-                  className="w-5 h-5 accent-primary" 
-                  checked={requireFactura} 
-                  onChange={(e) => setRequireFactura(e.target.checked)} 
-                />
-                <span className="text-lg font-bold uppercase tracking-widest">Requiero Factura (Con RFC)</span>
-              </label>
-              
-              {requireFactura && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 animate-in fade-in slide-in-from-top-4 duration-300">
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-secondary uppercase">RFC</label>
-                    <input 
-                      type="text" 
-                      className="w-full bg-background border border-outline-variant p-3 text-sm focus:outline-none focus:border-primary uppercase"
-                      value={facturaData.rfc}
-                      onChange={(e) => setFacturaData({...facturaData, rfc: e.target.value})}
-                      placeholder="Ej. XAXX010101000"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-secondary uppercase">Razón Social</label>
-                    <input 
-                      type="text" 
-                      className="w-full bg-background border border-outline-variant p-3 text-sm focus:outline-none focus:border-primary uppercase"
-                      value={facturaData.razonSocial}
-                      onChange={(e) => setFacturaData({...facturaData, razonSocial: e.target.value})}
-                      placeholder="Nombre o Empresa"
-                    />
-                  </div>
-                  <div className="space-y-2 md:col-span-2">
-                    <label className="text-xs font-bold text-secondary uppercase">Régimen Fiscal</label>
-                    <select 
-                      className="w-full bg-background border border-outline-variant p-3 text-sm focus:outline-none focus:border-primary"
-                      value={facturaData.regimen}
-                      onChange={(e) => setFacturaData({...facturaData, regimen: e.target.value})}
-                    >
-                      <option value="">Seleccionar Régimen</option>
-                      <option value="601">601 - General de Ley Personas Morales</option>
-                      <option value="612">612 - Personas Físicas con Actividades Empresariales</option>
-                      <option value="626">626 - Régimen Simplificado de Confianza (RESICO)</option>
-                    </select>
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
 
           {/* ORDER SUMMARY */}
@@ -200,18 +143,18 @@ export default function CartPage() {
                   </p>
                 )}
                 
-                {requireFactura && (totalIva > 0 || totalIsr > 0) && (
+                {(totalIva > 0 || totalIsr > 0) && (
                   <>
                     <div className="border-t border-outline-variant my-2"></div>
                     {totalIva > 0 && (
                       <div className="flex justify-between text-secondary">
-                        <span>IVA (16%)</span>
+                        <span>IVA Adicional</span>
                         <span className="font-semibold text-primary">+ ${totalIva.toFixed(2)}</span>
                       </div>
                     )}
                     {totalIsr > 0 && (
                       <div className="flex justify-between text-secondary">
-                        <span>ISR Retenido</span>
+                        <span>Cargos Adicionales (ISR)</span>
                         <span className="font-semibold text-primary">+ ${totalIsr.toFixed(2)}</span>
                       </div>
                     )}

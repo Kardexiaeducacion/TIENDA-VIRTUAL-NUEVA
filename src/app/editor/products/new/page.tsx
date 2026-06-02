@@ -447,17 +447,17 @@ export default function NewProductPage() {
                 <span>{shippingCost === 0 ? "Gratis" : `$${shippingCost.toFixed(2)}`}</span>
               </div>
               <div className="flex justify-between text-black font-bold border-t border-[#EAEAEA] pt-3 text-base">
-                <span>Total a Pagar (Sin RFC)</span>
+                <span>Subtotal</span>
                 <span>${totalCost.toFixed(2)}</span>
               </div>
               {(taxes.applyIva || taxes.applyIsr) && (
                 <>
                   <div className="border-t border-[#EAEAEA] pt-3 mt-3">
-                    <p className="text-xs font-bold text-gray-500 uppercase mb-2">Si el cliente solicita factura (Con RFC):</p>
+                    <p className="text-xs font-bold text-gray-500 uppercase mb-2">Cargos Adicionales Configurables:</p>
                   </div>
                   {taxes.applyIva && (
                     <div className="flex justify-between text-gray-600">
-                      <span>IVA ({taxes.ivaPercentage}%)</span>
+                      <span>IVA Adicional ({taxes.ivaPercentage}%)</span>
                       <span>+ ${ivaAmount.toFixed(2)}</span>
                     </div>
                   )}
@@ -468,7 +468,7 @@ export default function NewProductPage() {
                     </div>
                   )}
                   <div className="flex justify-between text-primary font-bold pt-2 text-base">
-                    <span>Total a Pagar (Con Factura)</span>
+                    <span>Total Final</span>
                     <span>${totalCostWithTaxes.toFixed(2)}</span>
                   </div>
                 </>
