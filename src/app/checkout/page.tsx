@@ -5,6 +5,13 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 
+const CARRIER_LOGOS: Record<string, string> = {
+  FEDEX: "https://upload.wikimedia.org/wikipedia/commons/9/9d/FedEx_Express.svg",
+  DHL: "https://upload.wikimedia.org/wikipedia/commons/a/ac/DHL_Logo.svg",
+  PAQUETEXPRESS: "https://www.paquetexpress.com.mx/assets/img/logo-px.svg",
+  ESTAFETA: "https://upload.wikimedia.org/wikipedia/commons/5/52/Estafeta_logo.svg"
+};
+
 export default function CheckoutPage() {
   const { items, totalPrice, totalIva, totalIsr, clearCart } = useCart();
   const router = useRouter();
@@ -221,6 +228,11 @@ export default function CheckoutPage() {
                       <label key={opt.option_id} className={`flex items-center justify-between p-4 border rounded-lg cursor-pointer transition-colors ${selectedOptionId === opt.option_id ? 'border-black bg-gray-50' : 'border-[#EAEAEA] hover:border-gray-300'}`}>
                         <div className="flex items-center gap-4">
                           <input type="radio" name="shippingOpt" className="w-4 h-4 accent-black" checked={selectedOptionId === opt.option_id} onChange={() => handleSelectOption(opt)} />
+                          {CARRIER_LOGOS[opt.carrier.toUpperCase()] && (
+                            <div className="w-16 h-8 relative flex-shrink-0">
+                              <img src={CARRIER_LOGOS[opt.carrier.toUpperCase()]} alt={opt.carrier} className="w-full h-full object-contain" />
+                            </div>
+                          )}
                           <div>
                             <p className="font-bold uppercase tracking-widest text-sm">{opt.carrier}</p>
                             <p className="text-xs text-secondary mt-1">{opt.service} (Entrega aprox. {opt.estimated_days} días)</p>
