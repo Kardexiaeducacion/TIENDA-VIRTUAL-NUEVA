@@ -32,7 +32,7 @@ function SearchContent() {
       const { data: cats } = await supabase.from("categories").select("id").ilike("name", `%${q}%`);
       const catIds = cats ? cats.map(c => c.id) : [];
 
-      let query = supabase.from("products").select("*");
+      let query = supabase.from("products").select("*").neq("is_active", false);
       
       if (catIds.length > 0) {
         // If it matches a category, show all products in those categories, OR products that match name/sku

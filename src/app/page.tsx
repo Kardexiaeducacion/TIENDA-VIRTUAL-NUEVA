@@ -14,7 +14,7 @@ export default function HomePage() {
 
   useEffect(() => {
     async function fetchData() {
-      const { data: prodData } = await supabase.from("products").select("*").order("created_at", { ascending: false }).limit(4);
+      const { data: prodData } = await supabase.from("products").select("*").neq("is_active", false).order("created_at", { ascending: false }).limit(4);
       if (prodData) setProducts(prodData);
 
       const { data: banData } = await supabase.from("banners").select("*");

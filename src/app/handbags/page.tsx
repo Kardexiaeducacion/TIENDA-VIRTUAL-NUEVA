@@ -10,7 +10,7 @@ export default function HandbagsPage() {
 
   useEffect(() => {
     async function fetchProducts() {
-      const { data } = await supabase.from("products").select("*").order("created_at", { ascending: false });
+      const { data } = await supabase.from("products").select("*").neq("is_active", false).order("created_at", { ascending: false });
       if (data) setProducts(data);
     }
     fetchProducts();

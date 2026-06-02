@@ -40,7 +40,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
       if (subData) setSubcategories(subData);
 
       // 3. Fetch Products
-      let query = supabase.from("products").select("*").eq("category_id", catData.id).order("created_at", { ascending: false });
+      let query = supabase.from("products").select("*").eq("category_id", catData.id).neq("is_active", false).order("created_at", { ascending: false });
       
       // Filter by subcategory if subSlug is present
       if (subSlug && subData) {

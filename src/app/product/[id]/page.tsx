@@ -53,6 +53,22 @@ export default function ProductPage() {
     return <div className="min-h-screen flex justify-center items-center">Cargando producto...</div>;
   }
 
+  if (product.is_active === false) {
+    return (
+      <div className="bg-background text-on-background font-sans">
+        <Navbar />
+        <main className="min-h-screen flex flex-col justify-center items-center pt-20">
+          <span className="material-symbols-outlined text-6xl text-gray-300 mb-4">inventory_2</span>
+          <h1 className="text-2xl font-bold mb-2">Producto no disponible</h1>
+          <p className="text-secondary">Este producto se encuentra pausado temporalmente.</p>
+          <Link href="/" className="mt-6 px-6 py-3 bg-primary text-white text-sm font-bold uppercase tracking-widest hover:bg-black transition-colors rounded-lg">
+            Volver a la tienda
+          </Link>
+        </main>
+      </div>
+    );
+  }
+
   const productImages = product.images?.length > 0 ? product.images : defaultImages;
 
   return (
