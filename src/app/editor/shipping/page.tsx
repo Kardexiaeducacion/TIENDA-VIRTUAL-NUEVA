@@ -216,6 +216,7 @@ export default function ShippingSettingsPage() {
                 value={settings.shipping_api_provider}
                 onChange={(e) => setSettings({ ...settings, shipping_api_provider: e.target.value })}
               >
+                <option value="indeli">INDELI Envíos</option>
                 <option value="skydropx">Skydropx</option>
                 <option value="enviacom">Envia.com</option>
               </select>

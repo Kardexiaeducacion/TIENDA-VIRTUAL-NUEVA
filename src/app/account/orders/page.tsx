@@ -91,9 +91,23 @@ export default function MyOrdersPage() {
                         </div>
                       ))}
                     </div>
-                    <div className={`flex items-center px-3 py-1 rounded-full space-x-1 ${order.status === 'Entregado' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
-                      <span className="material-symbols-outlined text-[16px]">local_shipping</span>
-                      <span className="text-sm font-semibold">{order.status || "En Tránsito"}</span>
+                    <div className="flex flex-col items-end gap-2">
+                      <div className={`flex items-center px-3 py-1 rounded-full space-x-1 ${order.status === 'Entregado' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
+                        <span className="material-symbols-outlined text-[16px]">local_shipping</span>
+                        <span className="text-sm font-semibold">{order.status || "En Tránsito"}</span>
+                      </div>
+                      {order.tracking_number && (
+                        <div className="text-right">
+                          <p className="text-[10px] text-gray-500 uppercase font-bold">Guía de Envío:</p>
+                          {order.tracking_url ? (
+                            <a href={order.tracking_url} target="_blank" rel="noreferrer" className="text-xs text-blue-600 hover:underline font-bold">
+                              {order.tracking_number}
+                            </a>
+                          ) : (
+                            <p className="text-xs font-bold">{order.tracking_number}</p>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                   

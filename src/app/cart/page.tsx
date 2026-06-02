@@ -8,7 +8,6 @@ import { useState } from "react";
 export default function CartPage() {
   const { items, updateQuantity, removeFromCart, totalPrice, totalItems, totalShipping, totalIva, totalIsr, clearCart } = useCart();
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
 
   if (items.length === 0) {
     return (
@@ -28,27 +27,6 @@ export default function CartPage() {
 
   const shippingCost = totalShipping;
   const finalTotal = totalPrice + shippingCost + totalIva + totalIsr;
-
-  const handleCheckout = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items, totalPrice, shippingCost, finalTotal })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Error al procesar el pago");
-      
-      alert("¡Pago procesado con éxito! El stock ha sido descontado.");
-      clearCart();
-      router.push("/account/orders");
-    } catch (e: any) {
-      alert(e.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="bg-background text-on-background font-sans min-h-screen pt-32 pb-20">
@@ -167,13 +145,12 @@ export default function CartPage() {
                 <span className="text-2xl font-bold">${finalTotal.toFixed(2)}</span>
               </div>
 
-              <button 
-                onClick={handleCheckout}
-                disabled={loading}
-                className="w-full py-5 bg-primary text-white text-sm font-bold uppercase tracking-widest hover:bg-black transition-colors disabled:opacity-50"
+              <Link 
+                href="/checkout"
+                className="w-full py-5 bg-primary text-white text-sm font-bold uppercase tracking-widest hover:bg-black transition-colors block text-center"
               >
-                {loading ? "Procesando..." : "Comprar Ahora (Simulado)"}
-              </button>
+                Proceder al Pago
+              </Link>
               
               <div className="mt-6 flex items-center justify-center gap-2 text-secondary text-xs">
                 <span className="material-symbols-outlined text-sm">lock</span>
