@@ -38,6 +38,11 @@ export default function CheckoutPage() {
   const [selectedOptionId, setSelectedOptionId] = useState("");
   const [shippingCost, setShippingCost] = useState(0);
 
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
+  const [couponError, setCouponError] = useState("");
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
+
   useEffect(() => {
     if (items.length === 0) {
       router.push("/cart");
@@ -91,7 +96,43 @@ export default function CheckoutPage() {
     setShippingCost(opt.price_mxn);
   };
 
-  const finalTotal = totalPrice + shippingCost + totalIva + totalIsr;
+  let discountAmount = 0;
+  const rawTotal = totalPrice + shippingCost + totalIva + totalIsr;
+  
+  if (appliedCoupon) {
+    if (appliedCoupon.discount_type === 'percentage') {
+      discountAmount = totalPrice * (appliedCoupon.discount_value / 100);
+    } else {
+      discountAmount = appliedCoupon.discount_value;
+    }
+    if (rawTotal - discountAmount < 10) {
+      discountAmount = rawTotal - 10;
+    }
+  }
+
+  const finalTotal = rawTotal - discountAmount;
+
+  const applyCoupon = async () => {
+    if (!couponCode) return;
+    setApplyingCoupon(true);
+    setCouponError("");
+    try {
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: couponCode, cartTotal: totalPrice })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Cupón inválido");
+      
+      setAppliedCoupon(data.coupon);
+    } catch (e: any) {
+      setCouponError(e.message);
+      setAppliedCoupon(null);
+    } finally {
+      setApplyingCoupon(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,6 +153,8 @@ export default function CheckoutPage() {
           totalIva,
           totalIsr,
           finalTotal,
+          discountAmount,
+          appliedCoupon,
           shippingAddress: address,
           shippingOption: {
             quote_id: selectedQuoteId,
@@ -295,9 +338,50 @@ export default function CheckoutPage() {
                     )}
                   </>
                 )}
+                {appliedCoupon && (
+                  <div className="flex justify-between text-green-600 text-sm font-bold">
+                    <span>Cupón ({appliedCoupon.code})</span>
+                    <span>- ${discountAmount.toFixed(2)}</span>
+                  </div>
+                )}
               </div>
 
-              <div className="flex justify-between items-end border-t border-black pt-4 mb-8">
+              {/* CUPONES */}
+              <div className="mb-6 border-b border-outline-variant pb-6">
+                <label className="text-xs font-bold text-gray-500 uppercase block mb-2">¿Tienes un código de descuento?</label>
+                <div className="flex gap-2">
+                  <input 
+                    type="text" 
+                    className="flex-1 bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none uppercase" 
+                    placeholder="Ej. BUENFIN"
+                    value={couponCode}
+                    onChange={e => setCouponCode(e.target.value.toUpperCase())}
+                    disabled={applyingCoupon || appliedCoupon}
+                  />
+                  {!appliedCoupon ? (
+                    <button 
+                      type="button"
+                      onClick={applyCoupon}
+                      disabled={applyingCoupon || !couponCode}
+                      className="bg-black text-white px-4 rounded-md text-sm font-bold uppercase tracking-widest disabled:opacity-50"
+                    >
+                      {applyingCoupon ? "..." : "Aplicar"}
+                    </button>
+                  ) : (
+                    <button 
+                      type="button"
+                      onClick={() => { setAppliedCoupon(null); setCouponCode(""); }}
+                      className="bg-red-50 text-red-500 px-4 rounded-md text-sm font-bold uppercase tracking-widest border border-red-200 hover:bg-red-100"
+                    >
+                      Quitar
+                    </button>
+                  )}
+                </div>
+                {couponError && <p className="text-xs text-red-500 font-bold mt-2">{couponError}</p>}
+                {appliedCoupon && <p className="text-xs text-green-600 font-bold mt-2">¡Cupón aplicado correctamente!</p>}
+              </div>
+
+              <div className="flex justify-between items-end pt-2 mb-8">
                 <span className="text-lg font-bold uppercase tracking-widest">Total</span>
                 <span className="text-2xl font-bold">${finalTotal.toFixed(2)}</span>
               </div>

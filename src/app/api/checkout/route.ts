@@ -5,7 +5,7 @@ export async function POST(req: Request) {
   try {
     const supabase = await createClient();
     const body = await req.json();
-    const { items, totalPrice, shippingCost, finalTotal, shippingAddress, shippingOption } = body;
+    const { items, totalPrice, shippingCost, finalTotal, discountAmount, appliedCoupon, shippingAddress, shippingOption } = body;
 
     if (!items || items.length === 0) {
       return NextResponse.json({ error: "El carrito está vacío" }, { status: 400 });
@@ -112,6 +112,8 @@ export async function POST(req: Request) {
       items: items,
       tracking_number: trackingNumber,
       tracking_url: trackingUrl,
+      discount_amount: discountAmount || 0,
+      coupon_code: appliedCoupon ? appliedCoupon.code : null,
       shipping_address: shippingAddress ? JSON.stringify(shippingAddress) : null
     };
 
@@ -125,7 +127,16 @@ export async function POST(req: Request) {
       console.warn("No se pudo crear la orden (quizás falta user_id o tabla no tiene la estructura esperada)", orderError);
     }
 
-    // 3. Descontar Stock
+    // 5. Incrementar usos del cupón si se aplicó
+    if (appliedCoupon && appliedCoupon.id) {
+      // Obtenemos count actual
+      const { data: cData } = await supabase.from('coupons').select('uses_count').eq('id', appliedCoupon.id).single();
+      if (cData) {
+        await supabase.from('coupons').update({ uses_count: (cData.uses_count || 0) + 1 }).eq('id', appliedCoupon.id);
+      }
+    }
+
+    // 6. Descontar Stock
     for (const item of items) {
       // Obtener producto actual
       const { data: product } = await supabase

@@ -45,9 +45,10 @@ export async function POST(req: Request) {
     let maxH = 10;
     
     let paidShippingItemsCount = 0;
+    let totalPrice = 0;
 
     for (const item of items) {
-      const { data: product } = await supabase.from('products').select('features').eq('id', item.productId).single();
+      const { data: product } = await supabase.from('products').select('features, price').eq('id', item.productId).single();
       
       let isFreeShipping = false;
       if (product && product.features && product.features["Envío Gratis"] === "Sí") {
@@ -55,12 +56,19 @@ export async function POST(req: Request) {
       }
 
       if (isFreeShipping) {
+        if (product && product.price) {
+          totalPrice += product.price * item.quantity;
+        }
         continue; // Skip this product for Indeli weight/dimensions
       }
 
       paidShippingItemsCount++;
 
-      if (product && product.features) {
+      if (product) {
+        if (product.price) {
+          totalPrice += product.price * item.quantity;
+        }
+        if (product.features) {
         // Parse Peso
         const pesoStr = product.features["Peso"]; // e.g. "1.5 kg"
         let pWeight = 1;
@@ -85,8 +93,12 @@ export async function POST(req: Request) {
       }
     }
 
-    if (paidShippingItemsCount === 0) {
-      // All items have free shipping!
+    // Check Global Free Shipping Threshold
+    const threshold = settings.free_shipping_threshold ? parseFloat(settings.free_shipping_threshold) : 0;
+    const meetsThreshold = threshold > 0 && totalPrice >= threshold;
+
+    if (paidShippingItemsCount === 0 || meetsThreshold) {
+      // All items have free shipping! Or the threshold is met.
       return NextResponse.json({
         success: true,
         quote: {
@@ -95,7 +107,7 @@ export async function POST(req: Request) {
             {
               option_id: "free_shipping",
               carrier: "ENVÍO GRATIS",
-              service: "Estándar",
+              service: meetsThreshold ? "Envío Gratis por Compra Mínima" : "Estándar",
               price_mxn: 0,
               estimated_days: "3-5"
             }
