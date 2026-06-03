@@ -88,6 +88,7 @@ export async function POST(req: Request) {
             maxL = Math.max(maxL, dims[2]);
           }
         }
+        } // Close if (product.features)
       } else {
         totalWeight += (1 * item.quantity); // 1kg default
       }
