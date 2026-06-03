@@ -44,6 +44,8 @@ export default function EditProductPage() {
     ship_length: ""
   });
 
+  const [freeShipping, setFreeShipping] = useState(false);
+
   const [variants, setVariants] = useState<{ id: string; name: string; stock: string }[]>([]);
   const [features, setFeatures] = useState<{ key: string; value: string }[]>([]);
   const [files, setFiles] = useState<File[]>([]);
@@ -111,14 +113,34 @@ export default function EditProductPage() {
             if (parts && parts.length >= 3) { sw = parts[0]; sh = parts[1]; sl = parts[2]; }
           }
 
-          setDetails({
-            model, material, color, weight: peso,
-            prod_width: pw, prod_height: ph, prod_length: pl,
-            ship_width: sw, ship_height: sh, ship_length: sl
-          });
+          const loadedFeatures = Array.isArray(product.features) ? product.features : 
+          (typeof product.features === "object" && product.features !== null ? 
+            Object.entries(product.features).map(([k, v]) => ({ key: k, value: String(v) })) : []);
 
-          const remainingFeats = Object.entries(feats).map(([k, v]) => ({ key: k, value: String(v) }));
-          setFeatures(remainingFeats.length > 0 ? remainingFeats : [{ key: "Marca", value: "Cloe" }]);
+        const cleanFeatures = loadedFeatures.filter((f: any) => 
+          f.key !== "Modelo" && f.key !== "Material" && f.key !== "Color" && f.key !== "Peso" && f.key !== "Medidas de Envío" && f.key !== "Medidas del Producto" && f.key !== "Envío Gratis"
+        );
+        setFeatures(cleanFeatures.length > 0 ? cleanFeatures : [{ key: "Marca", value: "Cloe" }]);
+
+        if (product.features && !Array.isArray(product.features)) {
+          const f = product.features as Record<string, string>;
+          setDetails({
+            model: f["Modelo"] || "",
+            material: f["Material"] || "",
+            color: f["Color"] || "",
+            prod_width: f["Medidas del Producto"]?.split("x")[0]?.replace(/[^0-9.]/g, "") || "",
+            prod_height: f["Medidas del Producto"]?.split("x")[1]?.replace(/[^0-9.]/g, "") || "",
+            prod_length: f["Medidas del Producto"]?.split("x")[2]?.replace(/[^0-9.]/g, "") || "",
+            weight: f["Peso"]?.replace(" kg", "") || "",
+            ship_width: f["Medidas de Envío"]?.split("x")[0]?.replace("cm ", "") || "",
+            ship_height: f["Medidas de Envío"]?.split("x")[1]?.replace("cm ", "") || "",
+            ship_length: f["Medidas de Envío"]?.split("x")[2]?.replace("cm", "") || "",
+          });
+          
+          if (f["Envío Gratis"] === "Sí") {
+            setFreeShipping(true);
+          }
+        }
         } else {
           setFeatures([{ key: "Marca", value: "Cloe" }]);
         }
@@ -195,6 +217,9 @@ export default function EditProductPage() {
       if (details.weight) featureObj["Peso"] = `${details.weight} kg`;
       if (details.ship_width || details.ship_height || details.ship_length) {
         featureObj["Medidas de Envío"] = `${details.ship_width || 0}cm x ${details.ship_height || 0}cm x ${details.ship_length || 0}cm`;
+      }
+      if (freeShipping) {
+        featureObj["Envío Gratis"] = "Sí";
       }
 
       const cleanVariants = variants.map(v => ({
@@ -491,11 +516,22 @@ export default function EditProductPage() {
         <div className="bg-white p-8 rounded-lg border border-[#EAEAEA] shadow-sm space-y-6">
           <h2 className="text-lg font-bold text-black border-b border-[#EAEAEA] pb-4">Logística y Envío</h2>
           
+          <div className="mb-6 bg-green-50 border border-green-100 p-4 rounded-md">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input type="checkbox" className="w-5 h-5 accent-green-600" 
+                checked={freeShipping} onChange={e => setFreeShipping(e.target.checked)} />
+              <span className="text-sm font-bold text-green-900 uppercase">Ofrecer Envío Gratis en este producto</span>
+            </label>
+            <p className="text-xs text-green-700 pl-8 mt-1">Si activas esto, el cliente pagará $0 por el envío de este producto y el sistema omitirá la creación de guía automática en INDELI para el mismo.</p>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div className="space-y-2">
-              <label className="text-xs font-bold text-gray-700 uppercase">Costo de Envío (0 = Gratis)</label>
-              <input required type="number" min="0" step="0.01" className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none" 
-                value={formData.shipping_cost} onChange={e => setFormData({...formData, shipping_cost: e.target.value})} />
+              <label className="text-xs font-bold text-gray-700 uppercase">Costo de Envío Manual (Ignorado si hay Envío Gratis)</label>
+              <input required type="number" min="0" step="0.01" className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none disabled:opacity-50" 
+                value={freeShipping ? 0 : formData.shipping_cost} 
+                onChange={e => setFormData({...formData, shipping_cost: e.target.value})}
+                disabled={freeShipping} />
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-gray-700 uppercase">Peso del Paquete (kg)</label>

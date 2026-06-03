@@ -43,9 +43,23 @@ export async function POST(req: Request) {
     let maxL = 10;
     let maxW = 10;
     let maxH = 10;
+    
+    let paidShippingItemsCount = 0;
 
     for (const item of items) {
       const { data: product } = await supabase.from('products').select('features').eq('id', item.productId).single();
+      
+      let isFreeShipping = false;
+      if (product && product.features && product.features["Envío Gratis"] === "Sí") {
+        isFreeShipping = true;
+      }
+
+      if (isFreeShipping) {
+        continue; // Skip this product for Indeli weight/dimensions
+      }
+
+      paidShippingItemsCount++;
+
       if (product && product.features) {
         // Parse Peso
         const pesoStr = product.features["Peso"]; // e.g. "1.5 kg"
@@ -69,6 +83,25 @@ export async function POST(req: Request) {
       } else {
         totalWeight += (1 * item.quantity); // 1kg default
       }
+    }
+
+    if (paidShippingItemsCount === 0) {
+      // All items have free shipping!
+      return NextResponse.json({
+        success: true,
+        quote: {
+          quote_id: "free_shipping_quote",
+          options: [
+            {
+              option_id: "free_shipping",
+              carrier: "ENVÍO GRATIS",
+              service: "Estándar",
+              price_mxn: 0,
+              estimated_days: "3-5"
+            }
+          ]
+        }
+      });
     }
 
     // 3. Call INDELI Quote API

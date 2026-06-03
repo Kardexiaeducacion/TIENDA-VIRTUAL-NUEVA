@@ -20,8 +20,8 @@ export async function POST(req: Request) {
     let trackingNumber = null;
     let trackingUrl = null;
 
-    // 3. Crear guía de INDELI si se proporcionó shippingOption
-    if (shippingOption && settings && settings.shipping_api_provider === 'indeli' && settings.shipping_api_key) {
+    // 3. Crear guía de INDELI si se proporcionó shippingOption y no es envío gratis
+    if (shippingOption && shippingOption.option_id !== "free_shipping" && settings && settings.shipping_api_provider === 'indeli' && settings.shipping_api_key) {
       let sender = {
         contact: "Remitente Tienda",
         company: "Mi Tienda",
