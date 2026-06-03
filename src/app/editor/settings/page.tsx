@@ -36,31 +36,13 @@ export default function EditorSettingsPage() {
           {/* BANNERS */}
           <section className="bg-white p-8 border border-[#EAEAEA] rounded-lg shadow-sm">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500">Banners de Inicio</h3>
-              <button className="flex items-center gap-1 text-xs font-bold text-[#C1A87D] hover:underline uppercase tracking-wider">
-                <span className="material-symbols-outlined text-sm">add</span> Añadir Banner
-              </button>
-            </div>
-            <div className="space-y-4">
-              {[
-                { title: "Liquidación de Verano — Última Oportunidad", status: "Activo", statusStyle: "bg-green-100 text-green-800" },
-                { title: "Edición Limitada", status: "Programado", statusStyle: "bg-blue-100 text-blue-800" },
-                { title: "Colección Otoño 2024", status: "Borrador", statusStyle: "bg-gray-100 text-gray-600" },
-              ].map((banner) => (
-                <div key={banner.title} className="flex items-center justify-between p-4 border border-[#EAEAEA] rounded-md hover:border-black transition-colors">
-                  <div className="flex items-center gap-4">
-                    <span className="material-symbols-outlined text-gray-400">image</span>
-                    <div>
-                      <p className="text-sm font-semibold">{banner.title}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${banner.statusStyle}`}>{banner.status}</span>
-                    <button className="material-symbols-outlined text-gray-400 hover:text-black transition-colors">edit</button>
-                    <button className="material-symbols-outlined text-gray-400 hover:text-red-600 transition-colors">delete</button>
-                  </div>
-                </div>
-              ))}
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Banners de Inicio</h3>
+                <p className="text-sm text-gray-500">Administra las imágenes, textos y enlaces de los banners principales de la tienda.</p>
+              </div>
+              <a href="/editor/banners" className="px-6 py-2 bg-black text-white text-sm font-bold uppercase tracking-wider rounded-md hover:bg-gray-800 transition-all text-center flex items-center justify-center">
+                Ir a Editor de Banners
+              </a>
             </div>
           </section>
 
