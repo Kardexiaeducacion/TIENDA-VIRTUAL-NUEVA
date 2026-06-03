@@ -76,68 +76,100 @@ export default function MyOrdersPage() {
                 </Link>
               </div>
             ) : (
-              orders.map((order) => (
-                <div key={order.id} className={`bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden mb-6 hover:shadow-sm transition-shadow ${order.status === "Devuelto" ? "opacity-80" : ""}`}>
-                  <div className="bg-surface-container px-6 py-4 flex items-center justify-between border-b border-outline-variant">
-                    <div className="flex items-center space-x-12">
-                      {[
-                        { label: "Fecha", value: new Date(order.created_at).toLocaleDateString() },
-                        { label: "Total", value: `$${order.total_amount}` },
-                        { label: "Pedido #", value: order.id.slice(0, 8).toUpperCase() },
-                      ].map((info) => (
-                        <div key={info.label}>
-                          <p className="text-xs text-secondary uppercase font-bold">{info.label}</p>
-                          <p className="text-sm font-semibold">{info.value}</p>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="flex flex-col items-end gap-2">
-                      <div className={`flex items-center px-3 py-1 rounded-full space-x-1 ${order.status === 'Entregado' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
-                        <span className="material-symbols-outlined text-[16px]">local_shipping</span>
-                        <span className="text-sm font-semibold">{order.status || "En Tránsito"}</span>
+              orders.map((order) => {
+                const subtotal = order.order_items?.reduce((acc: number, item: any) => acc + (item.quantity * item.price_at_time), 0) || 0;
+                
+                return (
+                  <div key={order.id} className={`bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden mb-6 hover:shadow-sm transition-shadow ${order.status === "Devuelto" ? "opacity-80" : ""}`}>
+                    <div className="bg-surface-container px-6 py-4 flex flex-col md:flex-row md:items-center justify-between border-b border-outline-variant gap-4">
+                      <div className="flex items-center space-x-8 md:space-x-12">
+                        {[
+                          { label: "Fecha", value: new Date(order.created_at).toLocaleDateString() },
+                          { label: "Total", value: `$${order.total_amount}` },
+                          { label: "Pedido #", value: order.id.slice(0, 8).toUpperCase() },
+                        ].map((info) => (
+                          <div key={info.label}>
+                            <p className="text-xs text-secondary uppercase font-bold">{info.label}</p>
+                            <p className="text-sm font-semibold">{info.value}</p>
+                          </div>
+                        ))}
                       </div>
-                      {order.tracking_number && (
-                        <div className="text-right">
-                          <p className="text-[10px] text-gray-500 uppercase font-bold">Guía de Envío:</p>
-                          {order.tracking_url ? (
-                            <a href={order.tracking_url} target="_blank" rel="noreferrer" className="text-xs text-blue-600 hover:underline font-bold">
-                              {order.tracking_number}
-                            </a>
-                          ) : (
-                            <p className="text-xs font-bold">{order.tracking_number}</p>
-                          )}
+                      <div className="flex flex-col items-start md:items-end gap-2">
+                        <div className={`flex items-center px-3 py-1 rounded-full space-x-1 ${order.status === 'Entregado' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
+                          <span className="material-symbols-outlined text-[16px]">local_shipping</span>
+                          <span className="text-sm font-semibold">{order.status || "En Tránsito"}</span>
                         </div>
-                      )}
+                        {order.tracking_number ? (
+                          <div className="text-left md:text-right">
+                            <p className="text-[10px] text-gray-500 uppercase font-bold">Logística y Rastreo:</p>
+                            {order.tracking_url ? (
+                              <a href={order.tracking_url} target="_blank" rel="noreferrer" className="text-xs text-blue-600 hover:underline font-bold">
+                                {order.tracking_number}
+                              </a>
+                            ) : (
+                              <p className="text-xs font-bold">{order.tracking_number}</p>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="text-left md:text-right">
+                            <p className="text-[10px] text-gray-500 uppercase font-bold">Logística y Rastreo:</p>
+                            <p className="text-xs font-bold text-gray-400">Pendiente de asignación</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
+                      <div className="lg:col-span-2 flex flex-col gap-6">
+                        <h3 className="font-bold text-sm uppercase tracking-widest border-b border-outline-variant pb-2">Artículos</h3>
+                        {order.order_items?.map((item: any, idx: number) => {
+                          const product = item.products;
+                          const image = product?.images?.[0] || "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800";
+                          return (
+                            <div key={idx} className="flex items-start justify-between">
+                              <div className="flex space-x-6">
+                                <div className="relative w-20 h-20 flex-shrink-0">
+                                  <Image alt={product?.name || "Producto"} src={image} fill className="object-cover border border-outline-variant rounded-lg" unoptimized />
+                                </div>
+                                <div className="flex flex-col justify-center">
+                                  <h3 className="text-base font-bold text-primary">{product?.name || "Producto no disponible"}</h3>
+                                  <p className="text-xs text-secondary mt-1">Cantidad: {item.quantity}</p>
+                                  <p className="text-sm font-bold mt-2">${item.price_at_time}</p>
+                                </div>
+                              </div>
+                              <div className="flex flex-col items-end space-y-4">
+                                <Link href={`/product/${product?.id}`} className="text-xs font-bold uppercase tracking-wider hover:underline">
+                                  Volver a Comprar
+                                </Link>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      <div className="lg:col-span-1 border-t lg:border-t-0 lg:border-l border-outline-variant pt-6 lg:pt-0 lg:pl-6">
+                        <h3 className="font-bold text-sm uppercase tracking-widest border-b border-outline-variant pb-2 mb-4">Resumen de Pago</h3>
+                        <div className="space-y-3 text-sm">
+                          <div className="flex justify-between text-secondary">
+                            <span>Subtotal:</span>
+                            <span>${subtotal.toFixed(2)}</span>
+                          </div>
+                          {order.discount_amount > 0 && (
+                            <div className="flex justify-between text-green-600 font-bold">
+                              <span>Cupón {order.coupon_code ? `(${order.coupon_code})` : ''}:</span>
+                              <span>- ${Number(order.discount_amount).toFixed(2)}</span>
+                            </div>
+                          )}
+                          <div className="flex justify-between font-bold text-lg pt-4 border-t border-outline-variant mt-4">
+                            <span>Total Pagado:</span>
+                            <span>${Number(order.total_amount).toFixed(2)}</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  
-                  <div className="p-6 flex flex-col gap-6">
-                    {order.order_items?.map((item: any, idx: number) => {
-                      const product = item.products;
-                      const image = product?.images?.[0] || "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800";
-                      return (
-                        <div key={idx} className="flex items-start justify-between">
-                          <div className="flex space-x-6">
-                            <div className="relative w-24 h-24 flex-shrink-0">
-                              <Image alt={product?.name || "Producto"} src={image} fill className="object-cover border border-outline-variant rounded-lg" unoptimized />
-                            </div>
-                            <div className="flex flex-col justify-center">
-                              <h3 className="text-lg font-bold text-primary">{product?.name || "Producto no disponible"}</h3>
-                              <p className="text-sm text-secondary mt-1 max-w-md leading-relaxed">Cantidad: {item.quantity}</p>
-                            </div>
-                          </div>
-                          <div className="flex flex-col items-end space-y-4">
-                            <p className="text-xl font-bold">${item.price_at_time}</p>
-                            <Link href={`/product/${product?.id}`} className="px-6 py-2 bg-primary text-white text-sm font-bold hover:bg-black transition-all rounded-lg">
-                              Volver a Comprar
-                            </Link>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))
+                );
+              })
             )}
 
             {orders.length > 0 && (
