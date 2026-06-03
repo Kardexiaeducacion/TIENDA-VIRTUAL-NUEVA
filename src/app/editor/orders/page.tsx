@@ -12,10 +12,7 @@ export default function AdminOrdersPage() {
 
   useEffect(() => {
     async function fetchOrders() {
-      const { data } = await supabase.from("orders").select(`
-        *, 
-        profiles(full_name, email)
-      `).order("created_at", { ascending: false });
+      const { data } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
       setOrders(data || []);
       setLoading(false);
     }
@@ -74,13 +71,17 @@ export default function AdminOrdersPage() {
           <div className="p-12 text-center text-gray-500 bg-white rounded-lg border border-[#EAEAEA]">Cargando ventas...</div>
         ) : orders.filter(order => {
             const idStr = (order.id as string).split("-")[0].toUpperCase();
-            const nameStr = ((order.profiles as any)?.full_name || "").toLowerCase();
+            let addressInfo: any = null;
+            try { addressInfo = order.shipping_address ? (typeof order.shipping_address === 'string' ? JSON.parse(order.shipping_address) : order.shipping_address) : null; } catch (e) {}
+            const nameStr = (addressInfo?.contact || "").toLowerCase();
             const q = searchQuery.toLowerCase();
             return idStr.includes(q) || nameStr.includes(q);
           }).length > 0 ? (
           orders.filter(order => {
             const idStr = (order.id as string).split("-")[0].toUpperCase();
-            const nameStr = ((order.profiles as any)?.full_name || "").toLowerCase();
+            let addressInfo: any = null;
+            try { addressInfo = order.shipping_address ? (typeof order.shipping_address === 'string' ? JSON.parse(order.shipping_address) : order.shipping_address) : null; } catch (e) {}
+            const nameStr = (addressInfo?.contact || "").toLowerCase();
             const q = searchQuery.toLowerCase();
             return idStr.includes(q) || nameStr.includes(q);
           }).map((order: any) => {
@@ -106,7 +107,7 @@ export default function AdminOrdersPage() {
                     </div>
                     <div>
                       <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">Cliente</p>
-                      <p className="font-semibold text-sm">{order.profiles?.full_name || "Anónimo"} ({order.profiles?.email || "Sin email"})</p>
+                      <p className="font-semibold text-sm">{addressInfo?.contact || "Anónimo"} ({addressInfo?.email || "Sin email"})</p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">Total Pagado</p>
