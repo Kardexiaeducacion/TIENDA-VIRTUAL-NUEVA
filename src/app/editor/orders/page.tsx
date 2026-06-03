@@ -14,12 +14,7 @@ export default function AdminOrdersPage() {
     async function fetchOrders() {
       const { data } = await supabase.from("orders").select(`
         *, 
-        profiles(full_name, email),
-        order_items (
-          quantity,
-          price_at_time,
-          products (name, images)
-        )
+        profiles(full_name, email)
       `).order("created_at", { ascending: false });
       setOrders(data || []);
       setLoading(false);
@@ -143,14 +138,15 @@ export default function AdminOrdersPage() {
                     <div>
                       <h3 className="font-bold text-sm uppercase tracking-widest border-b border-[#EAEAEA] pb-2 mb-4">Productos en la Orden</h3>
                       <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2">
-                        {order.order_items?.map((item: any, idx: number) => (
+                        {order.items?.map((item: any, idx: number) => (
                           <div key={idx} className="flex gap-4 items-center bg-white p-3 border border-[#EAEAEA] rounded-md">
-                            <img src={item.products?.images?.[0]} alt={item.products?.name} className="w-12 h-12 object-cover rounded-md" />
+                            <img src={item.image || "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800"} alt={item.name} className="w-12 h-12 object-cover rounded-md" />
                             <div className="flex-1">
-                              <p className="font-bold text-sm">{item.products?.name}</p>
-                              <p className="text-xs text-gray-500">Cantidad: {item.quantity} x ${item.price_at_time}</p>
+                              <p className="font-bold text-sm">{item.name}</p>
+                              {item.variantName && <p className="text-xs text-gray-500 mt-1">{item.variantName}</p>}
+                              <p className="text-xs text-gray-500">Cantidad: {item.quantity} x ${item.price}</p>
                             </div>
-                            <p className="font-bold">${(item.quantity * item.price_at_time).toFixed(2)}</p>
+                            <p className="font-bold">${(item.quantity * item.price).toFixed(2)}</p>
                           </div>
                         ))}
                       </div>
@@ -158,7 +154,7 @@ export default function AdminOrdersPage() {
                       <div className="mt-6 space-y-2 text-sm bg-white p-4 border border-[#EAEAEA] rounded-md">
                         <div className="flex justify-between">
                           <span className="text-gray-500">Subtotal de productos:</span>
-                          <span>${order.order_items?.reduce((acc: number, item: any) => acc + (item.quantity * item.price_at_time), 0).toFixed(2)}</span>
+                          <span>${order.items?.reduce((acc: number, item: any) => acc + (item.quantity * item.price), 0).toFixed(2)}</span>
                         </div>
                         {order.discount_amount > 0 && (
                           <div className="flex justify-between text-green-600 font-bold">

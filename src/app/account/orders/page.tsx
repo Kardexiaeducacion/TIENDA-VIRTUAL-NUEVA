@@ -21,19 +21,7 @@ export default function MyOrdersPage() {
       // Fetch orders and their items
       const { data, error } = await supabase
         .from("orders")
-        .select(`
-          *,
-          order_items (
-            quantity,
-            price_at_time,
-            products (
-              id,
-              name,
-              images,
-              features
-            )
-          )
-        `)
+        .select("*")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
@@ -77,7 +65,7 @@ export default function MyOrdersPage() {
               </div>
             ) : (
               orders.map((order) => {
-                const subtotal = order.order_items?.reduce((acc: number, item: any) => acc + (item.quantity * item.price_at_time), 0) || 0;
+                const subtotal = order.items?.reduce((acc: number, item: any) => acc + (item.quantity * item.price), 0) || 0;
                 
                 return (
                   <div key={order.id} className={`bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden mb-6 hover:shadow-sm transition-shadow ${order.status === "Devuelto" ? "opacity-80" : ""}`}>
@@ -122,23 +110,23 @@ export default function MyOrdersPage() {
                     <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
                       <div className="lg:col-span-2 flex flex-col gap-6">
                         <h3 className="font-bold text-sm uppercase tracking-widest border-b border-outline-variant pb-2">Artículos</h3>
-                        {order.order_items?.map((item: any, idx: number) => {
-                          const product = item.products;
-                          const image = product?.images?.[0] || "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800";
+                        {order.items?.map((item: any, idx: number) => {
+                          const image = item.image || "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800";
                           return (
                             <div key={idx} className="flex items-start justify-between">
                               <div className="flex space-x-6">
                                 <div className="relative w-20 h-20 flex-shrink-0">
-                                  <Image alt={product?.name || "Producto"} src={image} fill className="object-cover border border-outline-variant rounded-lg" unoptimized />
+                                  <Image alt={item.name || "Producto"} src={image} fill className="object-cover border border-outline-variant rounded-lg" unoptimized />
                                 </div>
                                 <div className="flex flex-col justify-center">
-                                  <h3 className="text-base font-bold text-primary">{product?.name || "Producto no disponible"}</h3>
+                                  <h3 className="text-base font-bold text-primary">{item.name || "Producto no disponible"}</h3>
+                                  {item.variantName && <p className="text-xs font-medium text-gray-500 mt-1">{item.variantName}</p>}
                                   <p className="text-xs text-secondary mt-1">Cantidad: {item.quantity}</p>
-                                  <p className="text-sm font-bold mt-2">${item.price_at_time}</p>
+                                  <p className="text-sm font-bold mt-2">${item.price}</p>
                                 </div>
                               </div>
                               <div className="flex flex-col items-end space-y-4">
-                                <Link href={`/product/${product?.id}`} className="text-xs font-bold uppercase tracking-wider hover:underline">
+                                <Link href={`/product/${item.productId}`} className="text-xs font-bold uppercase tracking-wider hover:underline">
                                   Volver a Comprar
                                 </Link>
                               </div>
