@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 120" width="500" height="120">
+  <rect width="500" height="120" fill="transparent"/>
+  <!-- The characteristic shapes -->
+  <path d="M 30 20 L 50 20 L 50 90 L 480 90 L 480 110 L 30 110 Z" fill="#403c64"/>
+  <path d="M 60 20 L 70 20 L 70 80 L 480 80 L 480 90 L 60 90 Z" fill="#403c64"/>
+  <text x="85" y="75" font-family="Arial, sans-serif" font-weight="900" font-size="62" fill="#403c64" letter-spacing="-2">PAQUETEXPRESS</text>
+  <text x="450" y="75" font-family="Arial, sans-serif" font-weight="bold" font-size="14" fill="#403c64">M.R.</text>
+</svg>

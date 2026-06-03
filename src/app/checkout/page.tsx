@@ -8,7 +8,7 @@ import Link from "next/link";
 const CARRIER_LOGOS: Record<string, string> = {
   FEDEX: "https://upload.wikimedia.org/wikipedia/commons/9/9d/FedEx_Express.svg",
   DHL: "https://upload.wikimedia.org/wikipedia/commons/a/ac/DHL_Logo.svg",
-  PAQUETEXPRESS: "https://www.paquetexpress.com.mx/assets/img/logo-px.svg",
+  PAQUETEXPRESS: "/logos/paquetexpress.svg",
   ESTAFETA: "https://upload.wikimedia.org/wikipedia/commons/5/52/Estafeta_logo.svg"
 };
 
