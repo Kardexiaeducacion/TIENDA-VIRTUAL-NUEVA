@@ -2,10 +2,13 @@
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 
-export default function AdminProductsPage() {
+function ProductsTable() {
   const supabase = createClient();
+  const searchParams = useSearchParams();
+  const q = searchParams?.get("q") || "";
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -44,6 +47,12 @@ export default function AdminProductsPage() {
     return <div className="p-8 text-gray-500">Cargando inventario...</div>;
   }
 
+  const filteredProducts = products.filter(p => {
+    if (!q) return true;
+    const term = q.toLowerCase();
+    return (p.name || "").toLowerCase().includes(term) || (p.sku || "").toLowerCase().includes(term);
+  });
+
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex justify-between items-center mb-6">
@@ -71,8 +80,8 @@ export default function AdminProductsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#EAEAEA]">
-              {products && products.length > 0 ? (
-                products.map((product) => (
+              {filteredProducts && filteredProducts.length > 0 ? (
+                filteredProducts.map((product) => (
                   <tr key={product.id} className={`hover:bg-gray-50 transition-colors group ${product.is_active === false ? 'opacity-60 bg-gray-50' : ''}`}>
                     <td className="p-4 pl-6">
                       <div className="flex items-center gap-4">
@@ -137,5 +146,13 @@ export default function AdminProductsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AdminProductsPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-gray-500">Cargando...</div>}>
+      <ProductsTable />
+    </Suspense>
   );
 }
