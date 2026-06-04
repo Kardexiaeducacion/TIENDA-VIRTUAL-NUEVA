@@ -230,45 +230,6 @@ export default function HomePage() {
         </section>
       </main>
 
-      {/* FOOTER */}
-      <footer className="bg-surface-container py-20 border-t border-outline-variant">
-        <div className="max-w-[1440px] mx-auto px-20 grid grid-cols-12 gap-8 mb-20">
-          <div className="col-span-12 md:col-span-3">
-            <Link href="/" className="text-2xl font-bold text-primary uppercase mb-6 block tracking-tighter">Cloe</Link>
-            <p className="text-base text-secondary mb-6 pr-4 leading-relaxed">Accesorios de alta gama y equipaje para el mundo moderno. Precisión artesanal se encuentra con la elegancia atemporal.</p>
-            <div className="flex gap-3">
-              {["public", "camera", "video_library"].map((icon) => (
-                <a key={icon} href="#" className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-outline-variant hover:border-primary transition-colors">
-                  <span className="material-symbols-outlined text-xl">{icon}</span>
-                </a>
-              ))}
-            </div>
-          </div>
-          {[
-            { title: "Tienda", links: ["Todas las Bolsas", "Equipaje", "Zapatos", "Edición Limitada", "Ofertas"] },
-            { title: "Compañía", links: ["Nuestra Historia", "Sustentabilidad", "Buscador de Tiendas", "Revista"] },
-            { title: "Soporte", links: ["Contáctanos", "Envíos", "Devoluciones", "Preguntas Frecuentes"] },
-            { title: "Cuenta", links: ["Iniciar Sesión / Registro", "Estado de Orden", "Lista de Deseos", "Tarjetas de Regalo"] },
-          ].map((col) => (
-            <div key={col.title} className="col-span-6 md:col-span-2">
-              <h5 className="text-sm font-semibold text-primary mb-6 uppercase tracking-widest">{col.title}</h5>
-              <ul className="space-y-3">
-                {col.links.map((link) => (
-                  <li key={link}><a href="#" className="text-sm text-secondary hover:text-primary transition-colors">{link}</a></li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-        <div className="max-w-[1440px] mx-auto px-20 pt-8 border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-4">
-          <span className="text-sm text-secondary">© 2024 Cloe. Todos los derechos reservados.</span>
-          <div className="flex gap-8">
-            {["Privacidad", "Términos", "Ayuda", "Contacto"].map((l) => (
-              <a key={l} href="#" className="text-sm text-secondary hover:text-primary transition-colors">{l}</a>
-            ))}
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

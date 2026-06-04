@@ -9,6 +9,7 @@ export const metadata: Metadata = {
 
 import { CartProvider } from "@/context/CartContext";
 import FloatingChatWidget from "@/components/FloatingChatWidget";
+import Footer from "@/components/Footer";
 
 export default function RootLayout({
   children,
@@ -26,7 +27,10 @@ export default function RootLayout({
       <body className="bg-background text-on-background">
         <CartProvider>
           <Navbar />
-          {children}
+          <div className="flex-1 flex flex-col min-h-screen">
+            {children}
+            <Footer />
+          </div>
           <FloatingChatWidget />
         </CartProvider>
       </body>

@@ -20,6 +20,8 @@ export default function AdminSidebar({ profile, email }: { profile: Record<strin
     { label: "Soporte (Chat)", icon: "support_agent", href: "/editor/support" },
     { label: "Centro de Ayuda", icon: "help_center", href: "/editor/help-center" },
     { label: "Banners", icon: "view_carousel", href: "/editor/banners" },
+    { label: "Páginas", icon: "article", href: "/editor/pages" },
+    { label: "Sucursales", icon: "store", href: "/editor/stores" },
     { label: "Cupones", icon: "sell", href: "/editor/coupons" },
     { label: "Configuración", icon: "settings", href: "/editor/settings" },
   ];
