@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 export default function Footer() {
   const [categories, setCategories] = useState<any[]>([]);
+  const [socials, setSocials] = useState<Record<string, string>>({});
   const supabase = createClient();
 
   useEffect(() => {
@@ -12,8 +13,30 @@ export default function Footer() {
       const { data } = await supabase.from("categories").select("*");
       if (data) setCategories(data);
     }
+    async function fetchSocials() {
+      const { data } = await supabase.from("custom_pages").select("content").eq("slug", "social_links").single();
+      if (data && data.content) {
+        try { setSocials(JSON.parse(data.content)); } catch(e) {}
+      }
+    }
     fetchCategories();
+    fetchSocials();
   }, [supabase]);
+
+  const SocialIcon = ({ type, url }: { type: string, url: string }) => {
+    if (!url) return null;
+    const icons: any = {
+      instagram: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>,
+      facebook: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>,
+      tiktok: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path></svg>,
+      x: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4l11.733 16h4.267l-11.733 -16z"></path><path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772"></path></svg>
+    };
+    return (
+      <a href={url} target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-outline-variant hover:border-black hover:text-white transition-all text-black">
+        {icons[type]}
+      </a>
+    );
+  };
 
   return (
     <footer className="bg-surface-container py-20 border-t border-outline-variant mt-auto">
@@ -22,11 +45,13 @@ export default function Footer() {
           <Link href="/" className="text-2xl font-bold text-primary uppercase mb-6 block tracking-tighter">Cloe</Link>
           <p className="text-base text-secondary mb-6 pr-4 leading-relaxed">Accesorios de alta gama y equipaje para el mundo moderno. Precisión artesanal se encuentra con la elegancia atemporal.</p>
           <div className="flex gap-3">
-            {["public", "camera", "video_library"].map((icon) => (
-              <a key={icon} href="#" className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-outline-variant hover:border-primary transition-colors">
-                <span className="material-symbols-outlined text-xl">{icon}</span>
-              </a>
-            ))}
+            {Object.keys(socials).some(k => socials[k]) ? (
+              Object.entries(socials).map(([key, url]) => (
+                <SocialIcon key={key} type={key} url={url} />
+              ))
+            ) : (
+              <p className="text-xs text-secondary italic">Redes no configuradas</p>
+            )}
           </div>
         </div>
         
