@@ -22,29 +22,29 @@ function SearchContent() {
   useEffect(() => {
     async function fetchSearch() {
       setLoading(true);
-      if (!q.trim()) {
-        setProducts([]);
-        setLoading(false);
-        return;
-      }
-
-      // First try to find if the query matches a category name
-      const { data: cats } = await supabase.from("categories").select("id").ilike("name", `%${q}%`);
-      const catIds = cats ? cats.map(c => c.id) : [];
-
       let query = supabase.from("products").select("*").neq("is_active", false);
-      
-      if (catIds.length > 0) {
-        // If it matches a category, show all products in those categories, OR products that match name/sku
-        const catIdsStr = `(${catIds.join(",")})`;
-        query = query.or(`name.ilike.%${q}%,sku.ilike.%${q}%,category_id.in.${catIdsStr}`);
-      } else {
-        // Just name and sku
-        query = query.or(`name.ilike.%${q}%,sku.ilike.%${q}%`);
-      }
 
-      const { data } = await query.order("created_at", { ascending: false });
-      setProducts(data || []);
+      if (!q.trim()) {
+        // If no query, just fetch all active products
+        const { data } = await query.order("created_at", { ascending: false });
+        setProducts(data || []);
+      } else {
+        // First try to find if the query matches a category name
+        const { data: cats } = await supabase.from("categories").select("id").ilike("name", `%${q}%`);
+        const catIds = cats ? cats.map(c => c.id) : [];
+
+        if (catIds.length > 0) {
+          // If it matches a category, show all products in those categories, OR products that match name/sku
+          const catIdsStr = `(${catIds.join(",")})`;
+          query = query.or(`name.ilike.%${q}%,sku.ilike.%${q}%,category_id.in.${catIdsStr}`);
+        } else {
+          // Just name and sku
+          query = query.or(`name.ilike.%${q}%,sku.ilike.%${q}%`);
+        }
+
+        const { data } = await query.order("created_at", { ascending: false });
+        setProducts(data || []);
+      }
       setLoading(false);
     }
     
@@ -57,7 +57,11 @@ function SearchContent() {
         
         <div className="mb-12 border-b border-outline-variant pb-6">
           <h1 className="text-4xl font-bold uppercase tracking-tighter mb-2">
-            Resultados para: <span className="text-primary">&quot;{q}&quot;</span>
+            {q ? (
+              <>Resultados para: <span className="text-primary">&quot;{q}&quot;</span></>
+            ) : (
+              "Todos los Productos"
+            )}
           </h1>
           <p className="text-secondary text-sm font-semibold uppercase tracking-widest">
             {products.length} productos encontrados
