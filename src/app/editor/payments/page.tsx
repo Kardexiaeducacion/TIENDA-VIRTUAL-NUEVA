@@ -351,6 +351,22 @@ export default function PaymentsAdminPage() {
 
                   <div className="space-y-3 mb-5 text-sm">
                     <div className="flex justify-between">
+                      <span className="text-gray-500">ID Venta</span>
+                      <span className="font-bold font-mono">{selectedOrder.id.split("-")[0].toUpperCase()}</span>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <span className="text-gray-500 whitespace-nowrap">Cliente</span>
+                      <span className="font-bold text-right truncate">
+                        {selectedOrder.shipping_address ? JSON.parse(selectedOrder.shipping_address).contact : "N/A"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between gap-4">
+                      <span className="text-gray-500 whitespace-nowrap">Correo</span>
+                      <span className="font-bold text-right truncate">
+                        {selectedOrder.shipping_address && JSON.parse(selectedOrder.shipping_address).email ? JSON.parse(selectedOrder.shipping_address).email : "N/A"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
                       <span className="text-gray-500">Método</span>
                       <span className="font-bold capitalize">{selectedOrder.payment_method === "spei" ? "SPEI / Transferencia" : "OXXO"}</span>
                     </div>
@@ -358,9 +374,24 @@ export default function PaymentsAdminPage() {
                       <span className="text-gray-500">Estado</span>
                       {statusBadge(selectedOrder.payment_status)}
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Total</span>
-                      <span className="font-bold">${selectedOrder.total_amount?.toFixed(2)}</span>
+                    <div className="flex justify-between border-t border-gray-100 pt-3">
+                      <span className="text-gray-500 font-bold">Total</span>
+                      <span className="font-bold text-lg text-green-700">${selectedOrder.total_amount?.toFixed(2)}</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 rounded-xl p-4 mb-5 text-sm border border-gray-100">
+                    <p className="font-bold text-[10px] text-gray-400 uppercase tracking-widest mb-3">Productos Comprados</p>
+                    <div className="space-y-3 max-h-[150px] overflow-y-auto pr-1">
+                      {selectedOrder.items?.map((item: any, idx: number) => {
+                        const prodId = item.product_id || item.id || "";
+                        return (
+                          <div key={idx} className="flex flex-col gap-0.5 border-b border-gray-200 pb-2 last:border-0 last:pb-0">
+                            <p className="font-bold text-xs truncate">{item.quantity}x {item.name}</p>
+                            <p className="text-[10px] font-mono text-gray-500">ID Prod: {prodId.split("-")[0].toUpperCase() || "N/A"}</p>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
 
