@@ -127,7 +127,7 @@ export default function MyOrdersPage() {
                             <p className="text-xs text-secondary uppercase font-bold">Método de Pago</p>
                             <p className="text-sm font-semibold capitalize flex items-center gap-1">
                               {order.payment_method === "spei" ? (
-                                <><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/BBVA_2019.svg/320px-BBVA_2019.svg.png" className="h-4 object-contain inline" alt="BBVA" /> SPEI</>
+                                <><img src="https://logodownload.org/wp-content/uploads/2019/10/bbva-logo.png" className="h-4 object-contain inline" alt="BBVA" /> SPEI</>
                               ) : (
                                 <><span className="bg-[#E4002B] text-white text-[9px] font-black px-1 rounded">OXXO</span> Depósito</>
                               )}

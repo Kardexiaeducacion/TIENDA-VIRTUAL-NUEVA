@@ -12,7 +12,7 @@ const CARRIER_LOGOS: Record<string, string> = {
   ESTAFETA: "https://upload.wikimedia.org/wikipedia/commons/5/52/Estafeta_logo.svg"
 };
 
-const BBVA_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/BBVA_2019.svg/320px-BBVA_2019.svg.png";
+const BBVA_LOGO = "https://logodownload.org/wp-content/uploads/2019/10/bbva-logo.png";
 
 export default function CheckoutPage() {
   const { items, totalPrice, totalIva, totalIsr, clearCart } = useCart();

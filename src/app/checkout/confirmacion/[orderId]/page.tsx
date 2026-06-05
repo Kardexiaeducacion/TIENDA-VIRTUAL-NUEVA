@@ -4,7 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
 
-const BBVA_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/BBVA_2019.svg/320px-BBVA_2019.svg.png";
+const BBVA_LOGO = "https://logodownload.org/wp-content/uploads/2019/10/bbva-logo.png";
 
 type PaymentSettings = {
   bank_name: string;
@@ -12,6 +12,7 @@ type PaymentSettings = {
   beneficiary: string;
   account_number: string;
   instructions: string;
+  bank_logo_url?: string;
 };
 
 export default function ConfirmacionPage({ params }: { params: { orderId: string } }) {
@@ -197,7 +198,7 @@ export default function ConfirmacionPage({ params }: { params: { orderId: string
                 <div className={`flex items-center gap-3 px-5 py-3 rounded-xl border-2 font-bold text-sm ${
                   method === "spei" ? "border-[#004A97] bg-blue-50 text-[#004A97]" : "border-gray-200 text-gray-400"
                 }`}>
-                  <img src={BBVA_LOGO} alt="BBVA" className="h-5 object-contain" />
+                  <img src={settings?.bank_logo_url || BBVA_LOGO} alt="BBVA" className="h-5 object-contain" />
                   Transferencia SPEI
                 </div>
                 <div className={`flex items-center gap-3 px-5 py-3 rounded-xl border-2 font-bold text-sm ${
@@ -212,7 +213,7 @@ export default function ConfirmacionPage({ params }: { params: { orderId: string
                 <div>
                   <div className="flex items-center gap-4 mb-5">
                     <div className="w-16 h-16 bg-white border border-gray-100 rounded-xl p-2 flex items-center justify-center shadow-sm">
-                      <img src={BBVA_LOGO} alt="BBVA" className="w-full h-full object-contain" />
+                      <img src={settings?.bank_logo_url || BBVA_LOGO} alt="Banco" className="w-full h-full object-contain" />
                     </div>
                     <div>
                       <p className="font-bold text-lg">Transferencia SPEI</p>
