@@ -5,7 +5,7 @@ export async function POST(req: Request) {
   try {
     const supabase = await createClient();
     const body = await req.json();
-    const { items, totalPrice, shippingCost, finalTotal, discountAmount, appliedCoupon, shippingAddress, shippingOption } = body;
+    const { items, totalPrice, shippingCost, finalTotal, discountAmount, appliedCoupon, shippingAddress, shippingOption, paymentMethod } = body;
 
     if (!items || items.length === 0) {
       return NextResponse.json({ error: "El carrito está vacío" }, { status: 400 });
@@ -114,7 +114,9 @@ export async function POST(req: Request) {
       tracking_url: trackingUrl,
       discount_amount: discountAmount || 0,
       coupon_code: appliedCoupon ? appliedCoupon.code : null,
-      shipping_address: shippingAddress ? JSON.stringify(shippingAddress) : null
+      shipping_address: shippingAddress ? JSON.stringify(shippingAddress) : null,
+      payment_method: paymentMethod || 'spei',
+      payment_status: 'pending'
     };
 
     const { data: order, error: orderError } = await supabase
@@ -171,7 +173,7 @@ export async function POST(req: Request) {
       }
     }
 
-    return NextResponse.json({ success: true, order });
+    return NextResponse.json({ success: true, orderId: order?.id, order });
 
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

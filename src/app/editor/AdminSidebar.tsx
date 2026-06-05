@@ -3,17 +3,28 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 
 export default function AdminSidebar({ profile, email }: { profile: Record<string, unknown> | null, email: string | undefined }) {
   const pathname = usePathname();
   const supabase = createClient();
   const router = useRouter();
+  const [pendingPayments, setPendingPayments] = useState(0);
+
+  useEffect(() => {
+    supabase
+      .from("orders")
+      .select("id", { count: "exact" })
+      .eq("payment_status", "proof_uploaded")
+      .then(({ count }) => setPendingPayments(count || 0));
+  }, []);
 
   const menuItems = [
     { label: "Resumen", icon: "dashboard", href: "/editor" },
     { label: "Productos", icon: "inventory_2", href: "/editor/products" },
     { label: "Categorías", icon: "category", href: "/editor/categories" },
     { label: "Ventas", icon: "point_of_sale", href: "/editor/orders" },
+    { label: "Pagos", icon: "payments", href: "/editor/payments", badge: pendingPayments },
     { label: "Envíos", icon: "local_shipping", href: "/editor/shipping" },
     { label: "Usuarios", icon: "group", href: "/editor/users" },
     { label: "Preguntas y Respuestas", icon: "forum", href: "/editor/qa" },
@@ -56,7 +67,12 @@ export default function AdminSidebar({ profile, email }: { profile: Record<strin
               }`}
             >
               <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
-              <span>{item.label}</span>
+              <span className="flex-1">{item.label}</span>
+              {(item as any).badge > 0 && (
+                <span className="bg-red-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center">
+                  {(item as any).badge}
+                </span>
+              )}
             </Link>
           );
         })}

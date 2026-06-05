@@ -12,12 +12,15 @@ const CARRIER_LOGOS: Record<string, string> = {
   ESTAFETA: "https://upload.wikimedia.org/wikipedia/commons/5/52/Estafeta_logo.svg"
 };
 
+const BBVA_LOGO = "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/BBVA_2019.svg/320px-BBVA_2019.svg.png";
+
 export default function CheckoutPage() {
   const { items, totalPrice, totalIva, totalIsr, clearCart } = useCart();
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
   const [quoting, setQuoting] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"spei" | "oxxo">("spei");
 
   const [address, setAddress] = useState({
     contact: "",
@@ -156,6 +159,7 @@ export default function CheckoutPage() {
           discountAmount,
           appliedCoupon,
           shippingAddress: address,
+          paymentMethod,
           shippingOption: {
             quote_id: selectedQuoteId,
             option_id: selectedOptionId
@@ -163,11 +167,10 @@ export default function CheckoutPage() {
         })
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Error al procesar el pago");
+      if (!res.ok) throw new Error(data.error || "Error al procesar el pedido");
       
-      alert("¡Pedido realizado con éxito! Tu guía de envío se está procesando.");
       clearCart();
-      router.push("/account/orders");
+      router.push(`/checkout/confirmacion/${data.orderId}?method=${paymentMethod}`);
     } catch (e: any) {
       alert(e.message);
     } finally {
@@ -256,10 +259,43 @@ export default function CheckoutPage() {
               </div>
             </div>
 
+            {/* PAYMENT METHOD */}
+            <div className="bg-white p-8 rounded-lg border border-outline-variant shadow-sm">
+              <h2 className="text-xl font-bold uppercase tracking-widest mb-6 border-b border-outline-variant pb-4">3. Método de Pago</h2>
+              <div className="flex gap-3 mb-6">
+                <button
+                  type="button"
+                  id="btn-pago-spei"
+                  onClick={() => setPaymentMethod("spei")}
+                  className={`flex items-center gap-3 px-5 py-3 rounded-lg border-2 font-bold text-sm transition-all ${
+                    paymentMethod === "spei" ? "border-[#004A97] bg-blue-50 text-[#004A97]" : "border-[#EAEAEA] text-gray-500 hover:border-gray-300"
+                  }`}
+                >
+                  <img src={BBVA_LOGO} alt="BBVA" className="h-5 object-contain" />
+                  Transferencia SPEI
+                </button>
+                <button
+                  type="button"
+                  id="btn-pago-oxxo"
+                  onClick={() => setPaymentMethod("oxxo")}
+                  className={`flex items-center gap-3 px-5 py-3 rounded-lg border-2 font-bold text-sm transition-all ${
+                    paymentMethod === "oxxo" ? "border-[#E4002B] bg-red-50 text-[#E4002B]" : "border-[#EAEAEA] text-gray-500 hover:border-gray-300"
+                  }`}
+                >
+                  <span className="bg-[#E4002B] text-white text-xs font-black px-2 py-0.5 rounded">OXXO</span>
+                  Depósito en tienda
+                </button>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-500 flex items-center gap-2">
+                <span className="material-symbols-outlined text-[18px] text-blue-500">info</span>
+                Al confirmar el pedido, recibirás los datos de pago y podrás subir tu comprobante.
+              </div>
+            </div>
+
             {/* SHIPPING OPTIONS */}
             {address.cp.length === 5 && (
               <div className="bg-white p-8 rounded-lg border border-outline-variant shadow-sm">
-                <h2 className="text-xl font-bold uppercase tracking-widest mb-6 border-b border-outline-variant pb-4">3. Método de Envío</h2>
+                <h2 className="text-xl font-bold uppercase tracking-widest mb-6 border-b border-outline-variant pb-4">4. Método de Envío</h2>
                 {quoting ? (
                   <div className="flex items-center gap-3 text-secondary text-sm">
                     <span className="material-symbols-outlined animate-spin">progress_activity</span>
