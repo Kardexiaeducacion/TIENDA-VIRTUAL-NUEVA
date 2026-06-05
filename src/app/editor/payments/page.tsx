@@ -237,8 +237,42 @@ export default function PaymentsAdminPage() {
                 </div>
 
                 <div className="space-y-4">
+                  {/* Banco Dropdown */}
+                  <div>
+                    <label className="text-xs font-bold text-gray-500 uppercase">Banco</label>
+                    <select
+                      value={
+                        ["BBVA", "Banamex", "Santander", "Banorte", "HSBC", "Scotiabank", "Inbursa"].includes(speiSettings.bank_name) 
+                          ? speiSettings.bank_name 
+                          : (speiSettings.bank_name === "" ? "" : "Otro")
+                      }
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === "Otro") {
+                          setSpeiSettings({ ...speiSettings, bank_name: "Mi Banco" });
+                        } else {
+                          setSpeiSettings({ ...speiSettings, bank_name: val });
+                        }
+                      }}
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-black outline-none mt-1"
+                    >
+                      <option value="" disabled>Selecciona un banco</option>
+                      {["BBVA", "Banamex", "Santander", "Banorte", "HSBC", "Scotiabank", "Inbursa"].map(b => <option key={b} value={b}>{b}</option>)}
+                      <option value="Otro">Otro banco...</option>
+                    </select>
+
+                    {(!["BBVA", "Banamex", "Santander", "Banorte", "HSBC", "Scotiabank", "Inbursa"].includes(speiSettings.bank_name) && speiSettings.bank_name !== "") && (
+                      <input
+                        type="text"
+                        value={speiSettings.bank_name === "Mi Banco" ? "" : speiSettings.bank_name}
+                        onChange={e => setSpeiSettings({ ...speiSettings, bank_name: e.target.value })}
+                        placeholder="Escribe el nombre de tu banco"
+                        className="w-full bg-white border-2 border-blue-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none mt-2"
+                      />
+                    )}
+                  </div>
+
                   {[
-                    { label: "Banco", field: "bank_name" as const, placeholder: "BBVA Bancomer" },
                     { label: "CLABE interbancaria (18 dígitos)", field: "clabe" as const, placeholder: "012 840 01234567890 1" },
                     { label: "Nombre del beneficiario", field: "beneficiary" as const, placeholder: "Tu Nombre o Empresa S.A." },
                     { label: "Instrucciones adicionales", field: "instructions" as const, placeholder: "Ej. Incluye la referencia para identificar tu pago." },
