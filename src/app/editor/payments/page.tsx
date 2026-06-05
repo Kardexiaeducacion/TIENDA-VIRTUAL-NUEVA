@@ -1,8 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
-import AdminSidebar from "../AdminSidebar";
-
 type PaymentSettings = {
   id: string;
   method: string;
@@ -28,8 +26,6 @@ type Order = {
 
 export default function PaymentsAdminPage() {
   const supabase = createClient();
-  const [profile, setProfile] = useState<any>(null);
-  const [email, setEmail] = useState<string>("");
   const [tab, setTab] = useState<"config" | "reports">("config");
 
   const [speiSettings, setSpeiSettings] = useState<PaymentSettings | null>(null);
@@ -48,12 +44,6 @@ export default function PaymentsAdminPage() {
   }, []);
 
   const loadData = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    setEmail(user?.email || "");
-    if (user) {
-      const { data: p } = await supabase.from("profiles").select("*").eq("id", user.id).single();
-      setProfile(p);
-    }
 
     // Load payment settings
     const { data: settings } = await supabase.from("payment_settings").select("*");
@@ -129,10 +119,7 @@ export default function PaymentsAdminPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#F7F4F0]">
-      <AdminSidebar profile={profile} email={email} />
-      <main className="flex-1 p-10 overflow-y-auto">
-
+    <div className="space-y-6 animate-in fade-in duration-500 pb-20">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -437,7 +424,6 @@ export default function PaymentsAdminPage() {
           </div>
         )}
 
-      </main>
     </div>
   );
 }
