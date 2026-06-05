@@ -11,6 +11,8 @@ type PaymentSettings = {
   instructions: string;
   enabled: boolean;
   bank_logo_url?: string;
+  public_key?: string;
+  access_token?: string;
 };
 
 type Order = {
@@ -31,6 +33,7 @@ export default function PaymentsAdminPage() {
 
   const [speiSettings, setSpeiSettings] = useState<PaymentSettings | null>(null);
   const [oxxoSettings, setOxxoSettings] = useState<PaymentSettings | null>(null);
+  const [mpSettings, setMpSettings] = useState<PaymentSettings | null>(null);
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState("");
 
@@ -51,8 +54,10 @@ export default function PaymentsAdminPage() {
     if (settings) {
       const spei = settings.find(s => s.method === "spei");
       const oxxo = settings.find(s => s.method === "oxxo");
+      const mp = settings.find(s => s.method === "mercadopago");
       if (spei) setSpeiSettings(spei);
       if (oxxo) setOxxoSettings(oxxo);
+      if (mp) setMpSettings(mp);
     }
 
     // Load payment proof orders
@@ -70,8 +75,8 @@ export default function PaymentsAdminPage() {
     setLoadingOrders(false);
   };
 
-  const handleSaveSettings = async (method: "spei" | "oxxo") => {
-    const data = method === "spei" ? speiSettings : oxxoSettings;
+  const handleSaveSettings = async (method: "spei" | "oxxo" | "mercadopago") => {
+    const data = method === "spei" ? speiSettings : method === "oxxo" ? oxxoSettings : mpSettings;
     if (!data) return;
     setSaving(true);
     const { error } = await supabase
@@ -84,6 +89,8 @@ export default function PaymentsAdminPage() {
         instructions: data.instructions,
         enabled: data.enabled,
         bank_logo_url: data.bank_logo_url,
+        public_key: data.public_key,
+        access_token: data.access_token,
         updated_at: new Date().toISOString(),
       })
       .eq("method", method);
@@ -358,6 +365,58 @@ export default function PaymentsAdminPage() {
                   className="mt-5 w-full py-3 bg-black text-white font-bold uppercase tracking-widest text-sm rounded-xl hover:bg-gray-800 transition-colors disabled:opacity-50"
                 >
                   {saving ? "Guardando..." : "Guardar configuración OXXO"}
+                </button>
+              </div>
+            )}
+
+            {/* Mercado Pago Config */}
+            {mpSettings && (
+              <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+                <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-[#009EE3]/10 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
+                      <span className="material-symbols-outlined text-[#009EE3]">credit_card</span>
+                    </div>
+                    <div className="ml-1">
+                      <h2 className="font-bold">Mercado Pago (Tarjetas)</h2>
+                      <p className="text-xs text-gray-400 mb-1">Pagos en línea</p>
+                    </div>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={mpSettings.enabled}
+                      onChange={e => setMpSettings({ ...mpSettings, enabled: e.target.checked })}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
+                  </label>
+                </div>
+
+                <div className="space-y-4">
+                  {[
+                    { label: "Public Key (Clave Pública)", field: "public_key" as const, placeholder: "APP_USR-..." },
+                    { label: "Access Token (Token de Acceso)", field: "access_token" as const, placeholder: "APP_USR-..." },
+                  ].map(({ label, field, placeholder }) => (
+                    <div key={field}>
+                      <label className="text-xs font-bold text-gray-500 uppercase">{label}</label>
+                      <input
+                        type="text"
+                        value={mpSettings[field as keyof PaymentSettings] as string || ""}
+                        onChange={e => setMpSettings({ ...mpSettings, [field]: e.target.value })}
+                        placeholder={placeholder}
+                        className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-black outline-none mt-1 font-mono text-[10px]"
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => handleSaveSettings("mercadopago")}
+                  disabled={saving}
+                  className="mt-5 w-full py-3 bg-[#009EE3] text-white font-bold uppercase tracking-widest text-sm rounded-xl hover:bg-[#0089c4] transition-colors disabled:opacity-50"
+                >
+                  {saving ? "Guardando..." : "Guardar configuración Mercado Pago"}
                 </button>
               </div>
             )}

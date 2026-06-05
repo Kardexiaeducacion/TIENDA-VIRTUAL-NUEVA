@@ -123,25 +123,41 @@ export default function ConfirmacionPage({ params }: { params: { orderId: string
     </div>
   );
 
-  if (step === "success") {
+  if (step === "success" || method === "mercadopago") {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
         <div className="bg-white rounded-2xl shadow-lg p-10 max-w-md w-full text-center">
           <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
             <span className="material-symbols-outlined text-green-500 text-[48px]">check_circle</span>
           </div>
-          <h1 className="text-2xl font-bold mb-3 uppercase tracking-tight">¡Orden Creada!</h1>
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
-            <div className="flex items-center gap-2 justify-center mb-1">
-              <span className="material-symbols-outlined text-amber-500 text-[20px]">schedule</span>
-              <span className="font-bold text-amber-700 text-sm">Pago en proceso de aprobación</span>
+          <h1 className="text-2xl font-bold mb-3 uppercase tracking-tight">¡Orden {method === "mercadopago" ? "Confirmada" : "Creada"}!</h1>
+          
+          {method === "mercadopago" ? (
+            <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
+              <div className="flex items-center gap-2 justify-center mb-1">
+                <span className="material-symbols-outlined text-green-500 text-[20px]">verified</span>
+                <span className="font-bold text-green-700 text-sm">Pago aprobado con éxito</span>
+              </div>
+              <p className="text-xs text-green-600">
+                Hemos recibido tu pago. Comenzaremos a preparar tu pedido de inmediato.
+              </p>
             </div>
-            <p className="text-xs text-amber-600">
-              Revisaremos tu comprobante y confirmaremos tu pedido en un máximo de 24 horas.
-            </p>
-          </div>
+          ) : (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+              <div className="flex items-center gap-2 justify-center mb-1">
+                <span className="material-symbols-outlined text-amber-500 text-[20px]">schedule</span>
+                <span className="font-bold text-amber-700 text-sm">Pago en proceso de revisión</span>
+              </div>
+              <p className="text-xs text-amber-600">
+                Revisaremos tu comprobante y confirmaremos tu pedido en un máximo de 24 horas.
+              </p>
+            </div>
+          )}
+
           <p className="text-sm text-gray-500 mb-8">
-            Te notificaremos cuando tu pago sea verificado y tu pedido sea enviado.
+            {method === "mercadopago"
+              ? "Te notificaremos por correo cuando tu pedido sea enviado y recibas tu guía de rastreo."
+              : "Te notificaremos cuando tu pago sea verificado y tu pedido sea enviado."}
           </p>
           <div className="flex flex-col gap-3">
             <Link

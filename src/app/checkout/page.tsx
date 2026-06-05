@@ -4,6 +4,8 @@ import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { createClient } from "@/utils/supabase/client";
+import { initMercadoPago, Payment } from '@mercadopago/sdk-react';
 
 const CARRIER_LOGOS: Record<string, string> = {
   FEDEX: "https://upload.wikimedia.org/wikipedia/commons/9/9d/FedEx_Express.svg",
@@ -20,7 +22,8 @@ export default function CheckoutPage() {
 
   const [loading, setLoading] = useState(false);
   const [quoting, setQuoting] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<"spei" | "oxxo">("spei");
+  const [paymentMethod, setPaymentMethod] = useState<"spei" | "oxxo" | "mercadopago">("spei");
+  const [mpPublicKey, setMpPublicKey] = useState<string | null>(null);
 
   const [address, setAddress] = useState({
     contact: "",
@@ -52,6 +55,18 @@ export default function CheckoutPage() {
       router.push("/cart");
     }
   }, [items, router, orderCompleted]);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      const supabase = createClient();
+      const { data } = await supabase.from('payment_settings').select('public_key').eq('method', 'mercadopago').single();
+      if (data?.public_key) {
+        initMercadoPago(data.public_key, { locale: 'es-MX' });
+        setMpPublicKey(data.public_key);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   // Autocomplete & Quote when CP is 5 digits
   useEffect(() => {
@@ -188,6 +203,51 @@ export default function CheckoutPage() {
     }
   };
 
+  const handleMpSubmit = async ({ formData }: any) => {
+    if (!selectedOptionId && quotes.length > 0) {
+      alert("Por favor selecciona una opción de envío.");
+      return;
+    }
+    const selectedOptObj = quotes.find((q: any) => q.option_id === selectedOptionId);
+
+    setLoading(true);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items,
+          totalPrice,
+          shippingCost,
+          totalIva,
+          totalIsr,
+          finalTotal,
+          discountAmount,
+          appliedCoupon,
+          shippingAddress: address,
+          paymentMethod: 'mercadopago',
+          shippingOption: {
+            quote_id: selectedQuoteId,
+            option_id: selectedOptionId,
+            carrier: selectedOptObj?.carrier || "N/A",
+            service: selectedOptObj?.service || "N/A"
+          },
+          mercadopagoData: formData
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Error al procesar el pago con Mercado Pago");
+      
+      setOrderCompleted(true);
+      router.push(`/checkout/confirmacion/${data.orderId}?method=mercadopago`);
+      clearCart();
+    } catch (e: any) {
+      alert(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (items.length === 0) return null;
 
   return (
@@ -295,10 +355,24 @@ export default function CheckoutPage() {
                   <span className="bg-[#E4002B] text-white text-xs font-black px-2 py-0.5 rounded">OXXO</span>
                   Depósito en tienda
                 </button>
+                {mpPublicKey && (
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("mercadopago")}
+                    className={`flex items-center gap-3 px-5 py-3 rounded-lg border-2 font-bold text-sm transition-all ${
+                      paymentMethod === "mercadopago" ? "border-[#009EE3] bg-[#009EE3]/10 text-[#009EE3]" : "border-[#EAEAEA] text-gray-500 hover:border-gray-300"
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[18px]">credit_card</span>
+                    Tarjeta de Crédito / Débito
+                  </button>
+                )}
               </div>
               <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-500 flex items-center gap-2">
                 <span className="material-symbols-outlined text-[18px] text-blue-500">info</span>
-                Al confirmar el pedido, recibirás los datos de pago y podrás subir tu comprobante.
+                {paymentMethod === 'mercadopago' 
+                  ? "Paga de forma segura. Tus datos están protegidos."
+                  : "Al confirmar el pedido, recibirás los datos de pago y podrás subir tu comprobante."}
               </div>
             </div>
 
@@ -443,23 +517,43 @@ export default function CheckoutPage() {
                 <span className="text-2xl font-bold">${finalTotal.toFixed(2)}</span>
               </div>
 
-              <button 
-                type="submit"
-                disabled={loading || (address.cp.length === 5 && !selectedOptionId)}
-                className="w-full py-5 bg-primary text-white text-sm font-bold uppercase tracking-widest hover:bg-black transition-colors disabled:opacity-50 flex justify-center items-center gap-2"
-              >
-                {loading ? (
-                  <>
-                    <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
-                    Procesando...
-                  </>
-                ) : (
-                  <>
-                    <span className="material-symbols-outlined text-[18px]">lock</span>
-                    Confirmar y Pagar
-                  </>
-                )}
-              </button>
+              {paymentMethod === 'mercadopago' ? (
+                <div className="mt-4">
+                  <Payment
+                    initialization={{ amount: finalTotal }}
+                    customization={{
+                      paymentMethods: {
+                        creditCard: "all",
+                        debitCard: "all",
+                        ticket: "none",
+                        bankTransfer: "none",
+                        mercadoPago: "none",
+                      },
+                    }}
+                    onSubmit={handleMpSubmit}
+                    onError={(error) => console.error("MP Error:", error)}
+                  />
+                  {loading && <p className="text-center text-sm mt-2 text-gray-500">Procesando pago, por favor espera...</p>}
+                </div>
+              ) : (
+                <button 
+                  type="submit"
+                  disabled={loading || (address.cp.length === 5 && !selectedOptionId)}
+                  className="w-full py-5 bg-primary text-white text-sm font-bold uppercase tracking-widest hover:bg-black transition-colors disabled:opacity-50 flex justify-center items-center gap-2"
+                >
+                  {loading ? (
+                    <>
+                      <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+                      Procesando...
+                    </>
+                  ) : (
+                    <>
+                      <span className="material-symbols-outlined text-[18px]">lock</span>
+                      Confirmar y Pagar
+                    </>
+                  )}
+                </button>
+              )}
             </div>
           </div>
 

@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { MercadoPagoConfig, Payment } from 'mercadopago';
 
 export async function POST(req: Request) {
   try {
     const supabase = await createClient();
     const body = await req.json();
-    const { items, totalPrice, shippingCost, finalTotal, discountAmount, appliedCoupon, shippingAddress, shippingOption, paymentMethod } = body;
+    const { items, totalPrice, shippingCost, finalTotal, discountAmount, appliedCoupon, shippingAddress, shippingOption, paymentMethod, mercadopagoData } = body;
 
     if (!items || items.length === 0) {
       return NextResponse.json({ error: "El carrito está vacío" }, { status: 400 });
@@ -19,6 +20,48 @@ export async function POST(req: Request) {
 
     let trackingNumber = null;
     let trackingUrl = null;
+    let mpPaymentId = null;
+    let paymentStatus = 'pending';
+    let orderStatus = 'en proceso';
+
+    // 2.5 Cobro de Mercado Pago
+    if (paymentMethod === 'mercadopago') {
+      if (!mercadopagoData) {
+        return NextResponse.json({ error: "Faltan datos de la tarjeta para procesar Mercado Pago." }, { status: 400 });
+      }
+
+      // Obtener Access Token de la DB
+      const { data: mpSettings } = await supabase.from('payment_settings').select('access_token').eq('method', 'mercadopago').single();
+      if (!mpSettings || !mpSettings.access_token) {
+        throw new Error("Mercado Pago no está configurado en el servidor.");
+      }
+
+      const client = new MercadoPagoConfig({ accessToken: mpSettings.access_token });
+      const payment = new Payment(client);
+
+      const paymentRes = await payment.create({
+        body: {
+          transaction_amount: Number(finalTotal.toFixed(2)),
+          token: mercadopagoData.token,
+          description: 'Compra en tienda Cloe',
+          installments: mercadopagoData.installments,
+          payment_method_id: mercadopagoData.payment_method_id,
+          issuer_id: mercadopagoData.issuer_id,
+          payer: {
+            email: mercadopagoData.payer.email,
+            identification: mercadopagoData.payer.identification
+          }
+        }
+      });
+
+      if (paymentRes.status === 'approved') {
+        mpPaymentId = paymentRes.id;
+        paymentStatus = 'verified';
+        orderStatus = 'confirmado';
+      } else {
+        throw new Error(`El pago fue rechazado. Estado: ${paymentRes.status_detail || paymentRes.status}`);
+      }
+    }
 
     // 3. Crear guía de INDELI si se proporcionó shippingOption y no es envío gratis
     if (shippingOption && shippingOption.option_id !== "free_shipping" && settings && settings.shipping_api_provider === 'indeli' && settings.shipping_api_key) {
@@ -115,7 +158,7 @@ export async function POST(req: Request) {
     const orderData = {
       user_id: user?.id || null,
       total_amount: finalTotal,
-      status: "en proceso",
+      status: orderStatus,
       items: items,
       tracking_number: trackingNumber,
       tracking_url: trackingUrl,
@@ -123,7 +166,8 @@ export async function POST(req: Request) {
       coupon_code: appliedCoupon ? appliedCoupon.code : null,
       shipping_address: shippingDetails ? JSON.stringify(shippingDetails) : null,
       payment_method: paymentMethod || 'spei',
-      payment_status: 'pending'
+      payment_status: paymentStatus,
+      payment_tracking_key: mpPaymentId ? mpPaymentId.toString() : null
     };
 
     const { data: order, error: orderError } = await supabase
