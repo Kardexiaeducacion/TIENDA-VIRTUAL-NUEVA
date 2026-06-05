@@ -10,6 +10,7 @@ type PaymentSettings = {
   account_number: string;
   instructions: string;
   enabled: boolean;
+  bank_logo_url?: string;
 };
 
 type Order = {
@@ -82,6 +83,7 @@ export default function PaymentsAdminPage() {
         account_number: data.account_number,
         instructions: data.instructions,
         enabled: data.enabled,
+        bank_logo_url: data.bank_logo_url,
         updated_at: new Date().toISOString(),
       })
       .eq("method", method);
@@ -90,6 +92,29 @@ export default function PaymentsAdminPage() {
     if (!error) {
       setSavedMsg("Guardado correctamente");
       setTimeout(() => setSavedMsg(""), 3000);
+    }
+  };
+
+  const handleUploadLogo = async (method: "spei" | "oxxo", e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setSaving(true);
+    try {
+      const ext = file.name.split(".").pop();
+      const fileName = `logo-${method}-${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage.from("payment-proofs").upload(fileName, file, { upsert: true });
+      if (uploadError) throw uploadError;
+      const { data: urlData } = supabase.storage.from("payment-proofs").getPublicUrl(fileName);
+      
+      if (method === "spei") {
+        setSpeiSettings(prev => prev ? { ...prev, bank_logo_url: urlData.publicUrl } : null);
+      } else {
+        setOxxoSettings(prev => prev ? { ...prev, bank_logo_url: urlData.publicUrl } : null);
+      }
+    } catch (err: any) {
+      alert("Error subiendo logo: " + err.message);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -174,12 +199,20 @@ export default function PaymentsAdminPage() {
               <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
-                      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/BBVA_2019.svg/320px-BBVA_2019.svg.png" alt="BBVA" className="w-7 h-7 object-contain" />
+                    <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
+                      {speiSettings.bank_logo_url ? (
+                        <img src={speiSettings.bank_logo_url} alt="Bank Logo" className="w-full h-full object-contain p-1" />
+                      ) : (
+                        <span className="material-symbols-outlined text-blue-500">account_balance</span>
+                      )}
                     </div>
-                    <div>
+                    <div className="ml-1">
                       <h2 className="font-bold">Transferencia SPEI</h2>
-                      <p className="text-xs text-gray-400">BBVA Bancomer</p>
+                      <p className="text-xs text-gray-400 mb-1">{speiSettings.bank_name || "Nombre del Banco"}</p>
+                      <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded text-[10px] font-bold text-gray-600 transition-colors inline-block">
+                        {saving ? "Subiendo..." : "Cambiar Logo"}
+                        <input type="file" accept="image/png, image/jpeg, image/webp, image/svg+xml" className="hidden" onChange={(e) => handleUploadLogo("spei", e)} disabled={saving} />
+                      </label>
                     </div>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
@@ -229,12 +262,20 @@ export default function PaymentsAdminPage() {
               <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-red-600 rounded-xl flex items-center justify-center">
-                      <span className="text-white text-xs font-black">OXXO</span>
+                    <div className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
+                      {oxxoSettings.bank_logo_url ? (
+                        <img src={oxxoSettings.bank_logo_url} alt="OXXO Logo" className="w-full h-full object-contain bg-white" />
+                      ) : (
+                        <span className="text-white text-xs font-black">OXXO</span>
+                      )}
                     </div>
-                    <div>
+                    <div className="ml-1">
                       <h2 className="font-bold">Depósito en OXXO</h2>
-                      <p className="text-xs text-gray-400">Pago en tienda</p>
+                      <p className="text-xs text-gray-400 mb-1">Pago en tienda</p>
+                      <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded text-[10px] font-bold text-gray-600 transition-colors inline-block">
+                        {saving ? "Subiendo..." : "Cambiar Logo"}
+                        <input type="file" accept="image/png, image/jpeg, image/webp, image/svg+xml" className="hidden" onChange={(e) => handleUploadLogo("oxxo", e)} disabled={saving} />
+                      </label>
                     </div>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
@@ -309,13 +350,13 @@ export default function PaymentsAdminPage() {
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0 ${
                               order.payment_method === "spei" ? "bg-blue-50" : "bg-red-600"
                             }`}>
                               {order.payment_method === "spei" ? (
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/BBVA_2019.svg/320px-BBVA_2019.svg.png" alt="BBVA" className="w-6 h-6 object-contain" />
+                                speiSettings?.bank_logo_url ? <img src={speiSettings.bank_logo_url} alt="SPEI" className="w-full h-full object-contain p-1" /> : <span className="material-symbols-outlined text-blue-500">account_balance</span>
                               ) : (
-                                <span className="text-white text-[10px] font-black">OXXO</span>
+                                oxxoSettings?.bank_logo_url ? <img src={oxxoSettings.bank_logo_url} alt="OXXO" className="w-full h-full object-contain bg-white" /> : <span className="text-white text-[10px] font-black">OXXO</span>
                               )}
                             </div>
                             <div>
