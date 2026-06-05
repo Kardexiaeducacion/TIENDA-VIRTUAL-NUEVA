@@ -45,12 +45,13 @@ export default function CheckoutPage() {
   const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
   const [couponError, setCouponError] = useState("");
   const [applyingCoupon, setApplyingCoupon] = useState(false);
+  const [orderCompleted, setOrderCompleted] = useState(false);
 
   useEffect(() => {
-    if (items.length === 0) {
+    if (items.length === 0 && !orderCompleted) {
       router.push("/cart");
     }
-  }, [items, router]);
+  }, [items, router, orderCompleted]);
 
   // Autocomplete & Quote when CP is 5 digits
   useEffect(() => {
@@ -169,8 +170,9 @@ export default function CheckoutPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Error al procesar el pedido");
       
-      clearCart();
+      setOrderCompleted(true);
       router.push(`/checkout/confirmacion/${data.orderId}?method=${paymentMethod}`);
+      clearCart();
     } catch (e: any) {
       alert(e.message);
     } finally {
