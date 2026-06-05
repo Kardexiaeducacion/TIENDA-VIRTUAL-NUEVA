@@ -133,7 +133,8 @@ export async function POST(req: Request) {
       .single();
 
     if (orderError) {
-      console.warn("No se pudo crear la orden (quizás falta user_id o tabla no tiene la estructura esperada)", orderError);
+      console.error("Error creating order:", orderError);
+      throw new Error("No se pudo crear la orden: " + orderError.message);
     }
 
     // 5. Incrementar usos del cupón si se aplicó
