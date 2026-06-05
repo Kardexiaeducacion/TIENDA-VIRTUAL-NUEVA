@@ -87,6 +87,10 @@ export default function CheckoutPage() {
       if (data.success && data.quote?.options) {
         setQuotes(data.quote.options);
         setSelectedQuoteId(data.quote.quote_id);
+        if (data.quote.options.length === 1 && data.quote.options[0].option_id === "free_shipping") {
+          setSelectedOptionId("free_shipping");
+          setShippingCost(0);
+        }
       }
     } catch (error) {
       console.error("Error quoting shipping:", error);
@@ -145,6 +149,8 @@ export default function CheckoutPage() {
       return;
     }
 
+    const selectedOptObj = quotes.find(q => q.option_id === selectedOptionId);
+
     setLoading(true);
     try {
       const res = await fetch("/api/checkout", {
@@ -163,7 +169,9 @@ export default function CheckoutPage() {
           paymentMethod,
           shippingOption: {
             quote_id: selectedQuoteId,
-            option_id: selectedOptionId
+            option_id: selectedOptionId,
+            carrier: selectedOptObj?.carrier || "N/A",
+            service: selectedOptObj?.service || "N/A"
           }
         })
       });
@@ -301,7 +309,18 @@ export default function CheckoutPage() {
                 {quoting ? (
                   <div className="flex items-center gap-3 text-secondary text-sm">
                     <span className="material-symbols-outlined animate-spin">progress_activity</span>
-                    Cotizando mejores tarifas de envío con INDELI...
+                    Cotizando mejores tarifas de envío...
+                  </div>
+                ) : quotes.length === 1 && quotes[0].option_id === "free_shipping" ? (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center justify-between text-green-800">
+                    <div className="flex items-center gap-3">
+                      <span className="material-symbols-outlined text-green-600 text-2xl">local_shipping</span>
+                      <div>
+                        <p className="font-bold uppercase tracking-widest text-sm">ENVÍO GRATIS</p>
+                        <p className="text-xs mt-1 font-medium">{quotes[0].service}</p>
+                      </div>
+                    </div>
+                    <div className="font-bold">$0.00</div>
                   </div>
                 ) : quotes.length > 0 ? (
                   <div className="space-y-4">

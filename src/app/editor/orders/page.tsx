@@ -185,14 +185,29 @@ export default function AdminOrdersPage() {
                             <p className="font-bold text-sm">{item.name}</p>
                             {item.variantName && <p className="text-xs text-gray-500 mt-0.5">{item.variantName}</p>}
                             <p className="text-xs text-gray-500">{item.quantity} x ${item.price}</p>
+                            <p className="text-[10px] font-mono text-gray-400 mt-1">ID Prod: {(item.productId || item.id || "").split("-")[0].toUpperCase()}</p>
                           </div>
                           <p className="font-bold text-sm">${(item.quantity * item.price).toFixed(2)}</p>
                         </div>
                       ))}
                     </div>
-                    <div className="mt-4 bg-white p-3 border border-[#EAEAEA] rounded-md text-sm">
-                      <div className="flex justify-between font-bold">
-                        <span>Total:</span>
+                    <div className="mt-4 bg-white p-4 border border-[#EAEAEA] rounded-md text-sm space-y-2">
+                      <div className="flex justify-between text-gray-600">
+                        <span>Subtotal:</span>
+                        <span>${(Number(order.total_amount) - (addressInfo?.shipping_cost || 0) + (order.discount_amount || 0)).toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-gray-600">
+                        <span>Envío ({addressInfo?.carrier || "Estándar"}):</span>
+                        <span>${(addressInfo?.shipping_cost || 0).toFixed(2)}</span>
+                      </div>
+                      {(order.discount_amount > 0) && (
+                        <div className="flex justify-between text-green-600">
+                          <span>Descuento:</span>
+                          <span>-${Number(order.discount_amount).toFixed(2)}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between font-bold border-t border-[#EAEAEA] pt-2 mt-2">
+                        <span>Total Pagado:</span>
                         <span>${Number(order.total_amount).toFixed(2)}</span>
                       </div>
                     </div>
@@ -303,10 +318,12 @@ export default function AdminOrdersPage() {
                           </button>
                         </div>
 
-                        {/* Free shipping label upload */}
-                        <div className="border-t border-[#EAEAEA] pt-4">
-                          <p className="text-xs font-bold text-gray-500 uppercase mb-2">Subir etiqueta de envío gratis</p>
-                          <p className="text-xs text-gray-400 mb-3">Para envíos gestionados fuera de la plataforma, sube la etiqueta generada.</p>
+                        {/* Shipping label upload */}
+                        <div className={`border-t border-[#EAEAEA] mt-4 pt-4 ${order.status === 'etiqueta generada' ? 'bg-purple-50 -mx-4 px-4 pb-4 rounded-b-md border-t-purple-200' : ''}`}>
+                          <p className="text-xs font-bold text-gray-700 uppercase mb-2">
+                            {order.status === 'etiqueta generada' ? 'Enviar Guía al Comprador' : 'Subir etiqueta de envío'}
+                          </p>
+                          <p className="text-xs text-gray-500 mb-3">Sube la guía en PDF o Imagen para que el comprador pueda descargarla desde su panel.</p>
                           <input
                             ref={el => { labelFileRefs.current[order.id] = el; }}
                             type="file" accept="image/*,application/pdf"
@@ -318,9 +335,9 @@ export default function AdminOrdersPage() {
                               else alert("Selecciona un archivo primero.");
                             }}
                             disabled={uploadingLabel === order.id}
-                            className="w-full py-2 border border-[#EAEAEA] bg-white text-gray-700 font-bold uppercase text-xs rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+                            className={`w-full py-2 border font-bold uppercase text-xs rounded-md transition-colors disabled:opacity-50 flex items-center justify-center gap-2 ${order.status === 'etiqueta generada' ? 'bg-purple-600 text-white border-purple-700 hover:bg-purple-700' : 'border-[#EAEAEA] bg-white text-gray-700 hover:bg-gray-50'}`}>
                             <span className="material-symbols-outlined text-[16px]">upload</span>
-                            {uploadingLabel === order.id ? "Subiendo..." : "Subir Etiqueta"}
+                            {uploadingLabel === order.id ? "Subiendo..." : "Subir Guía"}
                           </button>
                         </div>
                       </div>

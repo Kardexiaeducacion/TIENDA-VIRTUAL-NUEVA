@@ -104,6 +104,13 @@ export async function POST(req: Request) {
       trackingUrl = indeliData.tracking_url || indeliData.guide?.tracking_url;
     }
 
+    const shippingDetails = shippingAddress ? {
+      ...shippingAddress,
+      carrier: shippingOption?.carrier || "N/A",
+      service: shippingOption?.service || "N/A",
+      shipping_cost: shippingCost || 0
+    } : null;
+
     // 4. Crear Orden
     const orderData = {
       user_id: user?.id || null,
@@ -114,7 +121,7 @@ export async function POST(req: Request) {
       tracking_url: trackingUrl,
       discount_amount: discountAmount || 0,
       coupon_code: appliedCoupon ? appliedCoupon.code : null,
-      shipping_address: shippingAddress ? JSON.stringify(shippingAddress) : null,
+      shipping_address: shippingDetails ? JSON.stringify(shippingDetails) : null,
       payment_method: paymentMethod || 'spei',
       payment_status: 'pending'
     };

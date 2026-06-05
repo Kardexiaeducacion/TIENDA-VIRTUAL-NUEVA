@@ -12,6 +12,14 @@ const PAYMENT_STATUS: Record<string, { label: string; color: string; icon: strin
   rejected:       { label: "Pago rechazado",            color: "bg-red-50 text-red-600 border border-red-200",   icon: "cancel" },
 };
 
+const SHIPPING_STATUS: Record<string, { color: string; icon: string }> = {
+  'en proceso': { color: 'bg-blue-100 text-blue-800', icon: 'hourglass_empty' },
+  'confirmado': { color: 'bg-emerald-100 text-emerald-800', icon: 'check_circle' },
+  'etiqueta generada': { color: 'bg-purple-100 text-purple-800', icon: 'local_shipping' },
+  'concluida': { color: 'bg-green-100 text-green-800', icon: 'done_all' },
+  'reporte': { color: 'bg-red-100 text-red-800', icon: 'report_problem' }
+};
+
 export default function MyOrdersPage() {
   const supabase = createClient();
   const [orders, setOrders] = useState<any[]>([]);
@@ -134,10 +142,15 @@ export default function MyOrdersPage() {
                           {ps.label}
                         </div>
                         {/* Shipping Status */}
-                        <div className={`flex items-center px-3 py-1 rounded-full space-x-1 text-xs ${order.status === 'Entregado' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
-                          <span className="material-symbols-outlined text-[14px]">local_shipping</span>
-                          <span className="font-semibold">{order.status || "En Tránsito"}</span>
-                        </div>
+                        {(() => {
+                          const ss = SHIPPING_STATUS[order.status?.toLowerCase()] || { color: 'bg-gray-100 text-gray-800', icon: 'local_shipping' };
+                          return (
+                            <div className={`flex items-center px-3 py-1 rounded-full space-x-1 text-xs ${ss.color}`}>
+                              <span className="material-symbols-outlined text-[14px]">{ss.icon}</span>
+                              <span className="font-semibold capitalize">{order.status || "En proceso"}</span>
+                            </div>
+                          );
+                        })()}
                         <button onClick={() => setExpandedId(isExpanded ? null : order.id)} className="text-xs text-gray-400 hover:text-black flex items-center gap-1 transition-colors">
                           {isExpanded ? "Ocultar detalles" : "Ver detalles"}
                           <span className="material-symbols-outlined text-[16px]">{isExpanded ? "expand_less" : "expand_more"}</span>
@@ -274,17 +287,22 @@ export default function MyOrdersPage() {
                           </div>
 
                           {/* Tracking */}
-                          {order.tracking_number && (
+                          {(order.tracking_number || order.tracking_url) && (
                             <div className="mt-6 pt-6 border-t border-outline-variant">
                               <h3 className="font-bold text-sm uppercase tracking-widest mb-3">Logística</h3>
-                              <div className="bg-blue-50 rounded-lg p-3 text-sm">
-                                <p className="text-xs text-gray-500 uppercase font-bold mb-1">Número de rastreo</p>
-                                {order.tracking_url ? (
-                                  <a href={order.tracking_url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline font-bold">
-                                    {order.tracking_number}
+                              <div className="bg-blue-50 rounded-lg p-4 text-sm flex flex-col gap-3">
+                                {order.tracking_number && (
+                                  <div>
+                                    <p className="text-[10px] text-blue-500 uppercase font-bold mb-0.5">Número de rastreo</p>
+                                    <p className="font-mono font-bold">{order.tracking_number}</p>
+                                  </div>
+                                )}
+                                {order.tracking_url && (
+                                  <a href={order.tracking_url} target="_blank" rel="noreferrer" 
+                                    className="w-full py-2.5 bg-blue-600 text-white font-bold uppercase tracking-widest text-xs rounded hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
+                                    <span className="material-symbols-outlined text-[18px]">download</span>
+                                    Descargar Guía de Envío
                                   </a>
-                                ) : (
-                                  <p className="font-bold">{order.tracking_number}</p>
                                 )}
                               </div>
                             </div>
