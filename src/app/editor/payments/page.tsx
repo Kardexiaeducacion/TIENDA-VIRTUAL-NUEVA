@@ -120,16 +120,26 @@ export default function PaymentsAdminPage() {
 
   const handleVerify = async (orderId: string) => {
     setVerifying(true);
-    await supabase.from("orders").update({ payment_status: "verified", status: "confirmado" }).eq("id", orderId);
+    const { error } = await supabase.from("orders").update({ payment_status: "verified", status: "confirmado" }).eq("id", orderId);
+    if (error) {
+      console.error("Error verificando pago:", error);
+      alert("Error al verificar: " + error.message);
+    } else {
+      setSelectedOrder(null);
+      loadData();
+    }
     setVerifying(false);
-    setSelectedOrder(null);
-    loadData();
   };
 
   const handleReject = async (orderId: string) => {
-    await supabase.from("orders").update({ payment_status: "rejected" }).eq("id", orderId);
-    setSelectedOrder(null);
-    loadData();
+    const { error } = await supabase.from("orders").update({ payment_status: "rejected" }).eq("id", orderId);
+    if (error) {
+      console.error("Error rechazando pago:", error);
+      alert("Error al rechazar: " + error.message);
+    } else {
+      setSelectedOrder(null);
+      loadData();
+    }
   };
 
   const statusBadge = (status: string) => {
