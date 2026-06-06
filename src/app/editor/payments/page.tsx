@@ -1,5 +1,6 @@
 ﻿"use client";
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 type PaymentSettings = {
   id: string;
@@ -50,6 +51,11 @@ export default function PaymentsAdminPage() {
   useEffect(() => {
     loadData();
   }, []);
+
+  const searchParams = useSearchParams();
+  const urlError = searchParams.get('error');
+  const urlSuccess = searchParams.get('success');
+  const urlMsg = searchParams.get('msg');
 
   const loadData = async () => {
 
