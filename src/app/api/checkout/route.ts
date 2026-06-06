@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 
 export async function POST(req: Request) {
@@ -101,9 +101,9 @@ export async function POST(req: Request) {
           items: prefItems,
           payer: shippingAddress?.email ? { email: shippingAddress.email } : undefined,
           back_urls: {
-            success: `${baseUrl}/checkout/confirmacion/${order.id}?source=mercadopago`,
+            success: `${baseUrl}/checkout/confirmacion/${order.id}?method=mercadopago`,
             failure: `${baseUrl}/checkout?error=payment_failed`,
-            pending: `${baseUrl}/checkout/confirmacion/${order.id}?source=mercadopago&pending=true`,
+            pending: `${baseUrl}/checkout/confirmacion/${order.id}?method=mercadopago&pending=true`,
           },
           auto_return: 'approved',
           external_reference: order.id,

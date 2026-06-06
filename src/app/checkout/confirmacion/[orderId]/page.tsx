@@ -18,6 +18,9 @@ type PaymentSettings = {
 export default function ConfirmacionPage({ params }: { params: { orderId: string } }) {
   const searchParams = useSearchParams();
   const method = searchParams.get("method") || "spei";
+  const collectionStatus = searchParams.get("collection_status") || searchParams.get("status") || "";
+  const mpPaymentId = searchParams.get("payment_id") || "";
+  const isPending = searchParams.get("pending") === "true" || collectionStatus === "pending";
   const orderId = params.orderId;
 
   const supabase = createClient();
@@ -32,19 +35,25 @@ export default function ConfirmacionPage({ params }: { params: { orderId: string
   const [reference, setReference] = useState("");
 
   useEffect(() => {
-    // Generate unique reference from orderId
     const ref = "CLOE-" + orderId.substring(0, 8).toUpperCase();
     setReference(ref);
 
-    // Load payment settings
     supabase
       .from("payment_settings")
       .select("*")
-      .eq("method", method)
+      .eq("method", method === "mercadopago" ? "mercadopago" : method)
       .single()
-      .then(({ data }) => {
-        if (data) setSettings(data);
-      });
+      .then(({ data }) => { if (data) setSettings(data); });
+
+    // If coming back from MP with approved payment, mark order as verified
+    if (method === "mercadopago" && (collectionStatus === "approved" || (!isPending && collectionStatus !== "rejected"))) {
+      const updatePayload: any = {
+        payment_status: "verified",
+        status: "confirmado",
+      };
+      if (mpPaymentId) updatePayload.payment_tracking_key = mpPaymentId;
+      supabase.from("orders").update(updatePayload).eq("id", orderId).then(() => {});
+    }
   }, [orderId, method]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -133,15 +142,30 @@ export default function ConfirmacionPage({ params }: { params: { orderId: string
           <h1 className="text-2xl font-bold mb-3 uppercase tracking-tight">¡Orden {method === "mercadopago" ? "Confirmada" : "Creada"}!</h1>
           
           {method === "mercadopago" ? (
-            <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
-              <div className="flex items-center gap-2 justify-center mb-1">
-                <span className="material-symbols-outlined text-green-500 text-[20px]">verified</span>
-                <span className="font-bold text-green-700 text-sm">Pago aprobado con éxito</span>
+            isPending ? (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+                <div className="flex items-center gap-2 justify-center mb-1">
+                  <span className="material-symbols-outlined text-amber-500 text-[20px]">schedule</span>
+                  <span className="font-bold text-amber-700 text-sm">Pago en proceso</span>
+                </div>
+                <p className="text-xs text-amber-600">
+                  Tu pago está siendo procesado. Te notificaremos cuando sea confirmado.
+                </p>
               </div>
-              <p className="text-xs text-green-600">
-                Hemos recibido tu pago. Comenzaremos a preparar tu pedido de inmediato.
-              </p>
-            </div>
+            ) : (
+              <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
+                <div className="flex items-center gap-2 justify-center mb-1">
+                  <span className="material-symbols-outlined text-green-500 text-[20px]">verified</span>
+                  <span className="font-bold text-green-700 text-sm">¡Pago aprobado con éxito!</span>
+                </div>
+                <p className="text-xs text-green-600">
+                  Hemos recibido tu pago. Comenzaremos a preparar tu pedido de inmediato.
+                </p>
+                {mpPaymentId && (
+                  <p className="text-[10px] text-green-500 font-mono mt-2">ID de pago: {mpPaymentId}</p>
+                )}
+              </div>
+            )
           ) : (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
               <div className="flex items-center gap-2 justify-center mb-1">
