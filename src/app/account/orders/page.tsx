@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import Link from "next/link";
 import Image from "next/image";
 import AccountSidebar from "@/components/AccountSidebar";
@@ -28,9 +28,15 @@ export default function MyOrdersPage() {
   const [uploadingId, setUploadingId] = useState<string | null>(null);
   const [trackingInputs, setTrackingInputs] = useState<Record<string, string>>({});
   const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const [mpNotif, setMpNotif] = useState<'success'|'pending'|null>(null);
 
   useEffect(() => {
     fetchOrders();
+    if (typeof window !== 'undefined') {
+      const p = new URLSearchParams(window.location.search);
+      if (p.get('mp_success') === 'true') setMpNotif('success');
+      else if (p.get('mp_pending') === 'true') setMpNotif('pending');
+    }
   }, []);
 
   const fetchOrders = async () => {
@@ -89,6 +95,29 @@ export default function MyOrdersPage() {
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-4xl font-bold text-primary">Mis Compras</h1>
             </div>
+
+            {mpNotif === 'success' && (
+              <div className="mb-6 bg-green-50 border border-green-300 rounded-2xl p-5 flex items-center gap-4">
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="material-symbols-outlined text-green-600 text-2xl">verified</span>
+                </div>
+                <div>
+                  <p className="font-bold text-green-800">¡Pago con Mercado Pago aprobado!</p>
+                  <p className="text-sm text-green-600 mt-0.5">Tu compra fue procesada exitosamente. Prepararemos tu pedido de inmediato.</p>
+                </div>
+              </div>
+            )}
+            {mpNotif === 'pending' && (
+              <div className="mb-6 bg-amber-50 border border-amber-300 rounded-2xl p-5 flex items-center gap-4">
+                <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="material-symbols-outlined text-amber-600 text-2xl">schedule</span>
+                </div>
+                <div>
+                  <p className="font-bold text-amber-800">Pago en proceso</p>
+                  <p className="text-sm text-amber-600 mt-0.5">Tu pago está siendo procesado. Te notificaremos cuando sea confirmado.</p>
+                </div>
+              </div>
+            )}
 
             {orders.length === 0 ? (
               <div className="bg-surface-container-lowest border border-outline-variant p-12 text-center rounded-xl flex flex-col items-center">

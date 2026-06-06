@@ -101,9 +101,9 @@ export async function POST(req: Request) {
           items: prefItems,
           payer: shippingAddress?.email ? { email: shippingAddress.email } : undefined,
           back_urls: {
-            success: `${baseUrl}/checkout/confirmacion/${order.id}?method=mercadopago`,
+            success: `${baseUrl}/account/orders?mp_success=true`,
             failure: `${baseUrl}/checkout?error=payment_failed`,
-            pending: `${baseUrl}/checkout/confirmacion/${order.id}?method=mercadopago&pending=true`,
+            pending: `${baseUrl}/account/orders?mp_pending=true`,
           },
           auto_return: 'approved',
           external_reference: order.id,

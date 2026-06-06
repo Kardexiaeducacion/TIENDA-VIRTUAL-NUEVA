@@ -511,10 +511,12 @@ export default function PaymentsAdminPage() {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div className={`w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0 ${
-                              order.payment_method === "spei" ? "bg-blue-50" : "bg-red-600"
+                              order.payment_method === "spei" ? "bg-blue-50" : order.payment_method === "mercadopago" ? "bg-[#009EE3]/10" : "bg-red-600"
                             }`}>
                               {order.payment_method === "spei" ? (
                                 speiSettings?.bank_logo_url ? <img src={speiSettings.bank_logo_url} alt="SPEI" className="w-full h-full object-contain p-1" /> : <span className="material-symbols-outlined text-blue-500">account_balance</span>
+                              ) : order.payment_method === "mercadopago" ? (
+                                <span className="material-symbols-outlined text-[#009EE3] text-[20px]">credit_card</span>
                               ) : (
                                 oxxoSettings?.bank_logo_url ? <img src={oxxoSettings.bank_logo_url} alt="OXXO" className="w-full h-full object-contain bg-white" /> : <span className="text-white text-[10px] font-black">OXXO</span>
                               )}
@@ -569,7 +571,9 @@ export default function PaymentsAdminPage() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">Método</span>
-                      <span className="font-bold capitalize">{selectedOrder.payment_method === "spei" ? "SPEI / Transferencia" : "OXXO"}</span>
+                      <span className="font-bold capitalize">
+                        {selectedOrder.payment_method === "spei" ? "SPEI / Transferencia" : selectedOrder.payment_method === "mercadopago" ? "Mercado Pago ✓" : "OXXO"}
+                      </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">Estado</span>
@@ -598,7 +602,7 @@ export default function PaymentsAdminPage() {
 
                   {selectedOrder.payment_tracking_key && (
                     <div className="bg-gray-50 rounded-xl p-4 mb-4">
-                      <p className="text-xs font-bold text-gray-400 uppercase mb-1">Clave de rastreo</p>
+                      <p className="text-xs font-bold text-gray-400 uppercase mb-1">{selectedOrder.payment_method === "mercadopago" ? "ID de Pago MP" : "Clave de rastreo"}</p>
                       <p className="font-mono font-bold text-sm break-all">{selectedOrder.payment_tracking_key}</p>
                     </div>
                   )}
@@ -617,7 +621,7 @@ export default function PaymentsAdminPage() {
                     </div>
                   )}
 
-                  {!selectedOrder.payment_tracking_key && !selectedOrder.payment_proof_url && (
+                  {!selectedOrder.payment_tracking_key && !selectedOrder.payment_proof_url && selectedOrder.payment_method !== "mercadopago" && (
                     <div className="bg-gray-50 rounded-xl p-4 mb-5 text-center text-gray-400 text-sm">
                       <span className="material-symbols-outlined text-[32px] block mb-1">hourglass_empty</span>
                       El cliente aún no ha subido su comprobante
@@ -647,7 +651,7 @@ export default function PaymentsAdminPage() {
                   {selectedOrder.payment_status === "verified" && (
                     <div className="bg-green-50 rounded-xl p-4 text-center text-green-700 font-bold text-sm flex items-center justify-center gap-2">
                       <span className="material-symbols-outlined text-[20px]">verified</span>
-                      Pago verificado — Pedido confirmado
+                      {selectedOrder.payment_method === "mercadopago" ? "Pago acreditado automáticamente por Mercado Pago" : "Pago verificado — Pedido confirmado"}
                     </div>
                   )}
                 </div>
