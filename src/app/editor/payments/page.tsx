@@ -429,25 +429,31 @@ export default function PaymentsAdminPage() {
                     </div>
                     <div className="flex gap-3">
                       <a
-                        href="https://auth.mercadopago.com/authorization?client_id=2674146890242645&response_type=code&platform_id=mp&redirect_uri=https%3A%2F%2Fcloe-app-git-main-kardexia-s-projects.vercel.app%2Fapi%2Fauth%2Fmercadopago%2Fcallback"
+                        href="https://auth.mercadopago.com/authorization?client_id=2674146890242645&response_type=code&platform_id=mp&state=connect&redirect_uri=https%3A%2F%2Fcloe-app-git-main-kardexia-s-projects.vercel.app%2Fapi%2Fauth%2Fmercadopago%2Fcallback"
                         className="flex-1 py-3 border border-[#009EE3] text-[#009EE3] font-bold uppercase tracking-widest text-sm rounded-xl hover:bg-[#009EE3]/5 transition-colors text-center"
                       >
                         Cambiar cuenta
                       </a>
                       <button
                         onClick={async () => {
-                          if (!confirm("Seguro que quieres desvincular esta cuenta?")) return;
+                          if (!confirm("¿Seguro que quieres desvincular esta cuenta de Mercado Pago?")) return;
                           setSaving(true);
-                          await supabase.from("payment_settings").update({ mp_access_token: null, mp_refresh_token: null, mp_user_id: null, mp_account_email: null, enabled: false }).eq("method", "mercadopago");
-                          setMpSettings({ ...mpSettings, mp_access_token: undefined, mp_refresh_token: undefined, mp_user_id: undefined, mp_account_email: undefined, enabled: false });
-                          setSavedMsg("Cuenta desvinculada.");
-                          setTimeout(() => setSavedMsg(""), 3000);
-                          setSaving(false);
+                          try {
+                            const res = await fetch('/api/auth/mercadopago/disconnect', { method: 'POST' });
+                            const data = await res.json();
+                            if (!res.ok) throw new Error(data.error || 'Error al desvincular');
+                            setMpSettings({ ...mpSettings, mp_access_token: undefined, mp_refresh_token: undefined, mp_user_id: undefined, mp_account_email: undefined, enabled: false });
+                            setUrlNotif({ type: 'success', msg: 'Cuenta desvinculada exitosamente.' });
+                          } catch (e: any) {
+                            setUrlNotif({ type: 'error', msg: e.message });
+                          } finally {
+                            setSaving(false);
+                          }
                         }}
                         disabled={saving}
                         className="flex-1 py-3 border border-red-200 text-red-500 font-bold uppercase tracking-widest text-sm rounded-xl hover:bg-red-50 transition-colors disabled:opacity-50"
                       >
-                        Desvincular
+                        {saving ? 'Desvinculando...' : 'Desvincular'}
                       </button>
                     </div>
                   </div>
@@ -461,7 +467,7 @@ export default function PaymentsAdminPage() {
                       </div>
                     </div>
                     <a
-                      href="https://auth.mercadopago.com/authorization?client_id=2674146890242645&response_type=code&platform_id=mp&redirect_uri=https%3A%2F%2Fcloe-app-git-main-kardexia-s-projects.vercel.app%2Fapi%2Fauth%2Fmercadopago%2Fcallback"
+                      href="https://auth.mercadopago.com/authorization?client_id=2674146890242645&response_type=code&platform_id=mp&state=connect&redirect_uri=https%3A%2F%2Fcloe-app-git-main-kardexia-s-projects.vercel.app%2Fapi%2Fauth%2Fmercadopago%2Fcallback"
                       className="block w-full py-3 bg-[#009EE3] text-white font-bold uppercase tracking-widest text-sm rounded-xl hover:bg-[#0089c4] transition-colors text-center"
                     >
                       Conectar con Mercado Pago
