@@ -96,16 +96,15 @@ export async function POST(req: Request) {
         });
       }
 
-      // Use fetch directly instead of SDK to avoid auto_return quirks
+      // Use fetch directly to MP Preferences API
       const prefPayload = {
         items: prefItems,
         payer: shippingAddress?.email ? { email: shippingAddress.email } : undefined,
         back_urls: {
-          success: `${baseUrl}/account/orders?mp_success=true`,
-          failure: `${baseUrl}/checkout?error=payment_failed`,
-          pending: `${baseUrl}/account/orders?mp_pending=true`,
+          success: `${baseUrl}/account/orders`,
+          failure: `${baseUrl}/checkout`,
+          pending: `${baseUrl}/account/orders`,
         },
-        auto_return: 'approved',
         external_reference: order.id,
         notification_url: `${baseUrl}/api/webhooks/mercadopago`,
       };
