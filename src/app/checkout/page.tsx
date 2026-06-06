@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
-import { initMercadoPago, Payment } from '@mercadopago/sdk-react';
 
 const CARRIER_LOGOS: Record<string, string> = {
   FEDEX: "https://upload.wikimedia.org/wikipedia/commons/9/9d/FedEx_Express.svg",
@@ -23,7 +22,7 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false);
   const [quoting, setQuoting] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"spei" | "oxxo" | "mercadopago">("spei");
-  const [mpPublicKey, setMpPublicKey] = useState<string | null>(null);
+  const [mpAvailable, setMpAvailable] = useState(false);
 
   const [address, setAddress] = useState({
     contact: "",
@@ -57,15 +56,14 @@ export default function CheckoutPage() {
   }, [items, router, orderCompleted]);
 
   useEffect(() => {
-    const fetchSettings = async () => {
+    const checkMp = async () => {
       const supabase = createClient();
-      const { data } = await supabase.from('payment_settings').select('public_key').eq('method', 'mercadopago').single();
-      if (data?.public_key) {
-        initMercadoPago(data.public_key, { locale: 'es-MX' });
-        setMpPublicKey(data.public_key);
+      const { data } = await supabase.from('payment_settings').select('mp_access_token, access_token, enabled').eq('method', 'mercadopago').single();
+      if (data?.enabled && (data?.mp_access_token || data?.access_token)) {
+        setMpAvailable(true);
       }
     };
-    fetchSettings();
+    checkMp();
   }, []);
 
   // Autocomplete & Quote when CP is 5 digits
@@ -194,53 +192,15 @@ export default function CheckoutPage() {
       if (!res.ok) throw new Error(data.error || "Error al procesar el pedido");
       
       setOrderCompleted(true);
+      clearCart();
+
+      // Mercado Pago: redirigir a Checkout Pro
+      if (paymentMethod === 'mercadopago' && data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+        return;
+      }
+
       router.push(`/checkout/confirmacion/${data.orderId}?method=${paymentMethod}`);
-      clearCart();
-    } catch (e: any) {
-      alert(e.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleMpSubmit = async ({ formData }: any) => {
-    if (!selectedOptionId && quotes.length > 0) {
-      alert("Por favor selecciona una opción de envío.");
-      return;
-    }
-    const selectedOptObj = quotes.find((q: any) => q.option_id === selectedOptionId);
-
-    setLoading(true);
-    try {
-      const res = await fetch("/api/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          items,
-          totalPrice,
-          shippingCost,
-          totalIva,
-          totalIsr,
-          finalTotal,
-          discountAmount,
-          appliedCoupon,
-          shippingAddress: address,
-          paymentMethod: 'mercadopago',
-          shippingOption: {
-            quote_id: selectedQuoteId,
-            option_id: selectedOptionId,
-            carrier: selectedOptObj?.carrier || "N/A",
-            service: selectedOptObj?.service || "N/A"
-          },
-          mercadopagoData: formData
-        })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Error al procesar el pago con Mercado Pago");
-      
-      setOrderCompleted(true);
-      router.push(`/checkout/confirmacion/${data.orderId}?method=mercadopago`);
-      clearCart();
     } catch (e: any) {
       alert(e.message);
     } finally {
@@ -355,7 +315,7 @@ export default function CheckoutPage() {
                   <span className="bg-[#E4002B] text-white text-xs font-black px-2 py-0.5 rounded">OXXO</span>
                   Depósito en tienda
                 </button>
-                {mpPublicKey && (
+                {mpAvailable && (
                   <button
                     type="button"
                     onClick={() => setPaymentMethod("mercadopago")}
@@ -364,7 +324,7 @@ export default function CheckoutPage() {
                     }`}
                   >
                     <span className="material-symbols-outlined text-[18px]">credit_card</span>
-                    Tarjeta de Crédito / Débito
+                    Tarjeta / Mercado Pago
                   </button>
                 )}
               </div>
@@ -517,40 +477,25 @@ export default function CheckoutPage() {
                 <span className="text-2xl font-bold">${finalTotal.toFixed(2)}</span>
               </div>
 
-              {paymentMethod === 'mercadopago' ? (
-                <div className="mt-4">
-                  <Payment
-                    initialization={{ amount: finalTotal }}
-                    customization={{
-                      paymentMethods: {
-                        creditCard: "all",
-                        debitCard: "all",
-                      },
-                    }}
-                    onSubmit={handleMpSubmit}
-                    onError={(error) => console.error("MP Error:", error)}
-                  />
-                  {loading && <p className="text-center text-sm mt-2 text-gray-500">Procesando pago, por favor espera...</p>}
-                </div>
-              ) : (
-                <button 
-                  type="submit"
-                  disabled={loading || (address.cp.length === 5 && !selectedOptionId)}
-                  className="w-full py-5 bg-primary text-white text-sm font-bold uppercase tracking-widest hover:bg-black transition-colors disabled:opacity-50 flex justify-center items-center gap-2"
-                >
-                  {loading ? (
-                    <>
-                      <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
-                      Procesando...
-                    </>
-                  ) : (
-                    <>
-                      <span className="material-symbols-outlined text-[18px]">lock</span>
-                      Confirmar y Pagar
-                    </>
-                  )}
-                </button>
-              )}
+              <button 
+                type="submit"
+                disabled={loading || (address.cp.length === 5 && !selectedOptionId)}
+                className="w-full py-5 bg-primary text-white text-sm font-bold uppercase tracking-widest hover:bg-black transition-colors disabled:opacity-50 flex justify-center items-center gap-2"
+              >
+                {loading ? (
+                  <>
+                    <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+                    {paymentMethod === 'mercadopago' ? 'Redirigiendo a Mercado Pago...' : 'Procesando...'}
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-[18px]">
+                      {paymentMethod === 'mercadopago' ? 'open_in_new' : 'lock'}
+                    </span>
+                    {paymentMethod === 'mercadopago' ? 'Pagar con Mercado Pago' : 'Confirmar y Pagar'}
+                  </>
+                )}
+              </button>
             </div>
           </div>
 
