@@ -1,6 +1,5 @@
 ﻿"use client";
 import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 type PaymentSettings = {
   id: string;
@@ -47,15 +46,26 @@ export default function PaymentsAdminPage() {
   const [pendingCount, setPendingCount] = useState(0);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [verifying, setVerifying] = useState(false);
+  const [urlNotif, setUrlNotif] = useState<{type: 'success'|'error', msg: string}|null>(null);
 
   useEffect(() => {
     loadData();
   }, []);
 
-  const searchParams = useSearchParams();
-  const urlError = searchParams.get('error');
-  const urlSuccess = searchParams.get('success');
-  const urlMsg = searchParams.get('msg');
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const err = params.get('error');
+    const success = params.get('success');
+    const msg = params.get('msg');
+    if (success === 'mp_connected') {
+      setUrlNotif({ type: 'success', msg: 'Cuenta de Mercado Pago vinculada exitosamente.' });
+      loadData();
+    } else if (err) {
+      setUrlNotif({ type: 'error', msg: msg ? decodeURIComponent(msg) : ('Error: ' + err) });
+    }
+  }, []);
+
 
   const loadData = async () => {
 
