@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+﻿import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 
 export async function GET(request: Request) {
@@ -6,7 +6,7 @@ export async function GET(request: Request) {
   const code = searchParams.get('code');
   const error = searchParams.get('error');
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cloe-kjxx9o184-kardexia-s-projects.vercel.app';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cloe-app-git-main-kardexia-s-projects.vercel.app';
 
   if (error || !code) {
     console.error('MP OAuth error:', error);

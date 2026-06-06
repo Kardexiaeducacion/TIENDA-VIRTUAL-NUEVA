@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+﻿import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 
 export async function POST(req: Request) {
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
       const client = new MPConfig({ accessToken });
       const preference = new Preference(client);
 
-      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cloe-kjxx9o184-kardexia-s-projects.vercel.app';
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cloe-app-git-main-kardexia-s-projects.vercel.app';
 
       const shippingDetails = shippingAddress ? {
         ...shippingAddress,

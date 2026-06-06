@@ -413,7 +413,7 @@ export default function PaymentsAdminPage() {
                     </div>
                     <div className="flex gap-3">
                       <a
-                        href="https://auth.mercadopago.com/authorization?client_id=2674146890242645&response_type=code&platform_id=mp&redirect_uri=https%3A%2F%2Fcloe-mjh62ojrr-kardexia-s-projects.vercel.app%2Fapi%2Fauth%2Fmercadopago%2Fcallback"
+                        href="https://auth.mercadopago.com/authorization?client_id=2674146890242645&response_type=code&platform_id=mp&redirect_uri=https%3A%2F%2Fcloe-app-git-main-kardexia-s-projects.vercel.app%2Fapi%2Fauth%2Fmercadopago%2Fcallback"
                         className="flex-1 py-3 border border-[#009EE3] text-[#009EE3] font-bold uppercase tracking-widest text-sm rounded-xl hover:bg-[#009EE3]/5 transition-colors text-center"
                       >
                         Cambiar cuenta
@@ -445,7 +445,7 @@ export default function PaymentsAdminPage() {
                       </div>
                     </div>
                     <a
-                      href="https://auth.mercadopago.com/authorization?client_id=2674146890242645&response_type=code&platform_id=mp&redirect_uri=https%3A%2F%2Fcloe-mjh62ojrr-kardexia-s-projects.vercel.app%2Fapi%2Fauth%2Fmercadopago%2Fcallback"
+                      href="https://auth.mercadopago.com/authorization?client_id=2674146890242645&response_type=code&platform_id=mp&redirect_uri=https%3A%2F%2Fcloe-app-git-main-kardexia-s-projects.vercel.app%2Fapi%2Fauth%2Fmercadopago%2Fcallback"
                       className="block w-full py-3 bg-[#009EE3] text-white font-bold uppercase tracking-widest text-sm rounded-xl hover:bg-[#0089c4] transition-colors text-center"
                     >
                       Conectar con Mercado Pago
