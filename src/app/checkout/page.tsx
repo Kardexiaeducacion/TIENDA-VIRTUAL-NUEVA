@@ -525,9 +525,6 @@ export default function CheckoutPage() {
                       paymentMethods: {
                         creditCard: "all",
                         debitCard: "all",
-                        ticket: "none",
-                        bankTransfer: "none",
-                        mercadoPago: "none",
                       },
                     }}
                     onSubmit={handleMpSubmit}
