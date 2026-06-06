@@ -96,27 +96,39 @@ export async function POST(req: Request) {
         });
       }
 
-      const prefResponse = await preference.create({
-        body: {
-          items: prefItems,
-          payer: shippingAddress?.email ? { email: shippingAddress.email } : undefined,
-          back_urls: {
-            success: `${baseUrl}/account/orders?mp_success=true`,
-            failure: `${baseUrl}/checkout?error=payment_failed`,
-            pending: `${baseUrl}/account/orders?mp_pending=true`,
-          },
-          auto_return: 'approved',
-          external_reference: order.id,
-          notification_url: `${baseUrl}/api/webhooks/mercadopago`,
-        }
+      // Use fetch directly instead of SDK to avoid auto_return quirks
+      const prefPayload = {
+        items: prefItems,
+        payer: shippingAddress?.email ? { email: shippingAddress.email } : undefined,
+        back_urls: {
+          success: `${baseUrl}/account/orders?mp_success=true`,
+          failure: `${baseUrl}/checkout?error=payment_failed`,
+          pending: `${baseUrl}/account/orders?mp_pending=true`,
+        },
+        auto_return: 'approved',
+        external_reference: order.id,
+        notification_url: `${baseUrl}/api/webhooks/mercadopago`,
+      };
+
+      const prefRes = await fetch('https://api.mercadopago.com/checkout/preferences', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(prefPayload),
       });
 
-      if (!prefResponse.init_point) {
+      const prefData = await prefRes.json();
+
+      if (!prefRes.ok || !prefData.init_point) {
+        console.error('[Checkout] MP preference error:', JSON.stringify(prefData));
         await supabase.from('orders').delete().eq('id', order.id);
-        return NextResponse.json({ error: 'Mercado Pago no devolvió una URL de pago.' }, { status: 500 });
+        const errMsg = prefData.message || prefData.cause?.[0]?.description || 'Error al crear preferencia de Mercado Pago';
+        return NextResponse.json({ error: errMsg }, { status: 500 });
       }
 
-      return NextResponse.json({ success: true, orderId: order.id, checkoutUrl: prefResponse.init_point });
+      return NextResponse.json({ success: true, orderId: order.id, checkoutUrl: prefData.init_point });
     }
     // ─────────────────────────────────────────────────────────────────────────
 
