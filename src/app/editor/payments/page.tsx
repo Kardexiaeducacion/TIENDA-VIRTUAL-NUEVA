@@ -373,7 +373,7 @@ export default function PaymentsAdminPage() {
               </div>
             )}
 
-            {/* Mercado Pago Config */}
+            {/* Mercado Pago Config -- OAuth */}
             {mpSettings && (
               <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
                 <div className="flex items-center justify-between mb-5">
@@ -382,46 +382,77 @@ export default function PaymentsAdminPage() {
                       <span className="material-symbols-outlined text-[#009EE3]">credit_card</span>
                     </div>
                     <div className="ml-1">
-                      <h2 className="font-bold">Mercado Pago (Tarjetas)</h2>
-                      <p className="text-xs text-gray-400 mb-1">Pagos en línea</p>
+                      <h2 className="font-bold">Mercado Pago</h2>
+                      <p className="text-xs text-gray-400 mb-1">Tarjetas, OXXO, Meses sin intereses</p>
                     </div>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
                       checked={mpSettings.enabled}
-                      onChange={e => setMpSettings({ ...mpSettings, enabled: e.target.checked })}
+                      onChange={async e => {
+                        setMpSettings({ ...mpSettings, enabled: e.target.checked });
+                        await supabase.from("payment_settings").update({ enabled: e.target.checked }).eq("method", "mercadopago");
+                      }}
                       className="sr-only peer"
                     />
                     <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
                   </label>
                 </div>
 
-                <div className="space-y-4">
-                  {[
-                    { label: "Public Key (Clave Pública)", field: "public_key" as const, placeholder: "APP_USR-..." },
-                    { label: "Access Token (Token de Acceso)", field: "access_token" as const, placeholder: "APP_USR-..." },
-                  ].map(({ label, field, placeholder }) => (
-                    <div key={field}>
-                      <label className="text-xs font-bold text-gray-500 uppercase">{label}</label>
-                      <input
-                        type="text"
-                        value={mpSettings[field as keyof PaymentSettings] as string || ""}
-                        onChange={e => setMpSettings({ ...mpSettings, [field]: e.target.value })}
-                        placeholder={placeholder}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-black outline-none mt-1 font-mono text-[10px]"
-                      />
+                {mpSettings.mp_access_token ? (
+                  <div className="space-y-4">
+                    <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3">
+                      <span className="material-symbols-outlined text-green-600 text-[24px]">verified</span>
+                      <div>
+                        <p className="font-bold text-green-800 text-sm">Cuenta vinculada</p>
+                        {mpSettings.mp_account_email && (
+                          <p className="text-xs text-green-600 mt-0.5">{mpSettings.mp_account_email}</p>
+                        )}
+                      </div>
                     </div>
-                  ))}
-                </div>
-
-                <button
-                  onClick={() => handleSaveSettings("mercadopago")}
-                  disabled={saving}
-                  className="mt-5 w-full py-3 bg-[#009EE3] text-white font-bold uppercase tracking-widest text-sm rounded-xl hover:bg-[#0089c4] transition-colors disabled:opacity-50"
-                >
-                  {saving ? "Guardando..." : "Guardar configuración Mercado Pago"}
-                </button>
+                    <div className="flex gap-3">
+                      <a
+                        href="https://auth.mercadopago.com/authorization?client_id=2674146890242645&response_type=code&platform_id=mp&redirect_uri=https%3A%2F%2Fcloe-mjh62ojrr-kardexia-s-projects.vercel.app%2Fapi%2Fauth%2Fmercadopago%2Fcallback"
+                        className="flex-1 py-3 border border-[#009EE3] text-[#009EE3] font-bold uppercase tracking-widest text-sm rounded-xl hover:bg-[#009EE3]/5 transition-colors text-center"
+                      >
+                        Cambiar cuenta
+                      </a>
+                      <button
+                        onClick={async () => {
+                          if (!confirm("Seguro que quieres desvincular esta cuenta?")) return;
+                          setSaving(true);
+                          await supabase.from("payment_settings").update({ mp_access_token: null, mp_refresh_token: null, mp_user_id: null, mp_account_email: null, enabled: false }).eq("method", "mercadopago");
+                          setMpSettings({ ...mpSettings, mp_access_token: undefined, mp_refresh_token: undefined, mp_user_id: undefined, mp_account_email: undefined, enabled: false });
+                          setSavedMsg("Cuenta desvinculada.");
+                          setTimeout(() => setSavedMsg(""), 3000);
+                          setSaving(false);
+                        }}
+                        disabled={saving}
+                        className="flex-1 py-3 border border-red-200 text-red-500 font-bold uppercase tracking-widest text-sm rounded-xl hover:bg-red-50 transition-colors disabled:opacity-50"
+                      >
+                        Desvincular
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 flex items-center gap-3">
+                      <span className="material-symbols-outlined text-gray-400 text-[24px]">link_off</span>
+                      <div>
+                        <p className="font-bold text-gray-600 text-sm">Sin cuenta vinculada</p>
+                        <p className="text-xs text-gray-400 mt-0.5">Conecta tu cuenta para recibir pagos con tarjeta.</p>
+                      </div>
+                    </div>
+                    <a
+                      href="https://auth.mercadopago.com/authorization?client_id=2674146890242645&response_type=code&platform_id=mp&redirect_uri=https%3A%2F%2Fcloe-mjh62ojrr-kardexia-s-projects.vercel.app%2Fapi%2Fauth%2Fmercadopago%2Fcallback"
+                      className="block w-full py-3 bg-[#009EE3] text-white font-bold uppercase tracking-widest text-sm rounded-xl hover:bg-[#0089c4] transition-colors text-center"
+                    >
+                      Conectar con Mercado Pago
+                    </a>
+                  </div>
+                )}
+                {savedMsg && <p className="text-green-600 text-xs font-bold mt-3">{savedMsg}</p>}
               </div>
             )}
           </div>
@@ -606,86 +637,3 @@ export default function PaymentsAdminPage() {
     </div>
   );
 }
-
-            {/* Mercado Pago Config -- OAuth */}
-            {mpSettings && (
-              <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-                <div className="flex items-center justify-between mb-5">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-[#009EE3]/10 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
-                      <span className="material-symbols-outlined text-[#009EE3]">credit_card</span>
-                    </div>
-                    <div className="ml-1">
-                      <h2 className="font-bold">Mercado Pago</h2>
-                      <p className="text-xs text-gray-400 mb-1">Tarjetas, OXXO, Meses sin intereses</p>
-                    </div>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={mpSettings.enabled}
-                      onChange={async e => {
-                        setMpSettings({ ...mpSettings, enabled: e.target.checked });
-                        await supabase.from("payment_settings").update({ enabled: e.target.checked }).eq("method", "mercadopago");
-                      }}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-black"></div>
-                  </label>
-                </div>
-
-                {mpSettings.mp_access_token ? (
-                  <div className="space-y-4">
-                    <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3">
-                      <span className="material-symbols-outlined text-green-600 text-[24px]">verified</span>
-                      <div>
-                        <p className="font-bold text-green-800 text-sm">Cuenta vinculada</p>
-                        {mpSettings.mp_account_email && (
-                          <p className="text-xs text-green-600 mt-0.5">{mpSettings.mp_account_email}</p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex gap-3">
-                      <a
-                        href={`https://auth.mercadopago.com/authorization?client_id=2674146890242645&response_type=code&platform_id=mp&redirect_uri=${encodeURIComponent(window.location.origin + '/api/auth/mercadopago/callback')}`}
-                        className="flex-1 py-3 border border-[#009EE3] text-[#009EE3] font-bold uppercase tracking-widest text-sm rounded-xl hover:bg-[#009EE3]/5 transition-colors text-center"
-                      >
-                        Cambiar cuenta
-                      </a>
-                      <button
-                        onClick={async () => {
-                          if (!confirm("Seguro que quieres desvincular esta cuenta?")) return;
-                          setSaving(true);
-                          await supabase.from("payment_settings").update({ mp_access_token: null, mp_refresh_token: null, mp_user_id: null, mp_account_email: null, enabled: false }).eq("method", "mercadopago");
-                          setMpSettings({ ...mpSettings, mp_access_token: undefined, mp_refresh_token: undefined, mp_user_id: undefined, mp_account_email: undefined, enabled: false });
-                          setSavedMsg("Cuenta desvinculada.");
-                          setTimeout(() => setSavedMsg(""), 3000);
-                          setSaving(false);
-                        }}
-                        disabled={saving}
-                        className="flex-1 py-3 border border-red-200 text-red-500 font-bold uppercase tracking-widest text-sm rounded-xl hover:bg-red-50 transition-colors disabled:opacity-50"
-                      >
-                        Desvincular
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 flex items-center gap-3">
-                      <span className="material-symbols-outlined text-gray-400 text-[24px]">link_off</span>
-                      <div>
-                        <p className="font-bold text-gray-600 text-sm">Sin cuenta vinculada</p>
-                        <p className="text-xs text-gray-400 mt-0.5">Conecta tu cuenta para recibir pagos con tarjeta.</p>
-                      </div>
-                    </div>
-                    <a
-                      href={`https://auth.mercadopago.com/authorization?client_id=2674146890242645&response_type=code&platform_id=mp&redirect_uri=${encodeURIComponent(window.location.origin + '/api/auth/mercadopago/callback')}`}
-                      className="block w-full py-3 bg-[#009EE3] text-white font-bold uppercase tracking-widest text-sm rounded-xl hover:bg-[#0089c4] transition-colors text-center"
-                    >
-                      Conectar con Mercado Pago
-                    </a>
-                  </div>
-                )}
-                {savedMsg && <p className="text-green-600 text-xs font-bold mt-3">{savedMsg}</p>}
-              </div>
-            )}
