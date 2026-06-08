@@ -169,7 +169,12 @@ export default function PaymentsAdminPage() {
     }
   };
 
-  const statusBadge = (status: string) => {
+  const statusBadge = (status: string, method?: string) => {
+    if (method === "mercadopago") {
+      if (status === "verified") return <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#009EE3]/10 text-[#009EE3] flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">verified</span>Confirmado MP</span>;
+      if (status === "rejected") return <span className="text-xs font-bold px-3 py-1 rounded-full bg-red-100 text-red-600">Rechazado MP</span>;
+      return <span className="text-xs font-bold px-3 py-1 rounded-full bg-amber-100 text-amber-700">En espera MP</span>;
+    }
     const map: Record<string, { label: string; color: string }> = {
       pending: { label: "Sin comprobante", color: "bg-gray-100 text-gray-500" },
       proof_uploaded: { label: "Comprobante subido", color: "bg-amber-100 text-amber-700" },
@@ -530,7 +535,7 @@ export default function PaymentsAdminPage() {
                           </div>
                           <div className="flex items-center gap-3">
                             <span className="font-bold">${order.total_amount?.toFixed(2)}</span>
-                            {statusBadge(order.payment_status)}
+                            {statusBadge(order.payment_status, order.payment_method)}
                             {order.payment_status === "proof_uploaded" && (
                               <span className="material-symbols-outlined text-amber-500 text-[20px]">notifications_active</span>
                             )}
@@ -577,7 +582,7 @@ export default function PaymentsAdminPage() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">Estado</span>
-                      {statusBadge(selectedOrder.payment_status)}
+                      {statusBadge(selectedOrder.payment_status, selectedOrder.payment_method)}
                     </div>
                     <div className="flex justify-between border-t border-gray-100 pt-3">
                       <span className="text-gray-500 font-bold">Total</span>
@@ -648,10 +653,35 @@ export default function PaymentsAdminPage() {
                     </div>
                   )}
 
+                  {selectedOrder.payment_method === "mercadopago" && selectedOrder.payment_status !== "verified" && selectedOrder.payment_status !== "rejected" && (
+                    <div className="flex flex-col gap-2">
+                      <div className="bg-[#009EE3]/5 border border-[#009EE3]/20 rounded-xl p-3 flex items-center gap-2">
+                        <span className="material-symbols-outlined text-[#009EE3] text-[18px]">info</span>
+                        <p className="text-xs text-[#009EE3] font-medium">Pago en espera de confirmación de Mercado Pago</p>
+                      </div>
+                      <button
+                        onClick={async () => {
+                          setSaving(true);
+                          const { createClient: cc } = await import("@/utils/supabase/client");
+                          const sb = cc();
+                          await sb.from("orders").update({ payment_status: "verified", status: "confirmado" }).eq("id", selectedOrder.id);
+                          setSelectedOrder({ ...selectedOrder, payment_status: "verified", status: "confirmado" });
+                          loadData();
+                          setSaving(false);
+                        }}
+                        disabled={saving}
+                        className="w-full py-3 bg-[#009EE3] text-white font-bold uppercase tracking-widest text-sm rounded-xl hover:bg-[#0089c4] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                        Confirmar pago recibido en MP
+                      </button>
+                    </div>
+                  )}
+
                   {selectedOrder.payment_status === "verified" && (
-                    <div className="bg-green-50 rounded-xl p-4 text-center text-green-700 font-bold text-sm flex items-center justify-center gap-2">
+                    <div className={`rounded-xl p-4 text-center font-bold text-sm flex items-center justify-center gap-2 ${selectedOrder.payment_method === "mercadopago" ? "bg-[#009EE3]/10 text-[#009EE3]" : "bg-green-50 text-green-700"}`}>
                       <span className="material-symbols-outlined text-[20px]">verified</span>
-                      {selectedOrder.payment_method === "mercadopago" ? "Pago acreditado automáticamente por Mercado Pago" : "Pago verificado — Pedido confirmado"}
+                      {selectedOrder.payment_method === "mercadopago" ? "Pago confirmado por Mercado Pago ✓" : "Pago verificado — Pedido confirmado"}
                     </div>
                   )}
                 </div>
