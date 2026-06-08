@@ -146,15 +146,44 @@ export default function AdminOrdersPage() {
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">Método Pago</p>
-                    <p className="text-sm font-bold capitalize">{order.payment_method === "spei" ? "SPEI" : order.payment_method === "oxxo" ? "OXXO" : "—"}</p>
+                    {order.payment_method === "mercadopago" ? (
+                      <span className="inline-flex items-center gap-1 text-sm font-bold text-[#009EE3]">
+                        <span className="material-symbols-outlined text-[16px]">credit_card</span>
+                        Mercado Pago
+                      </span>
+                    ) : order.payment_method === "spei" ? (
+                      <span className="inline-flex items-center gap-1 text-sm font-bold text-blue-600">
+                        <span className="material-symbols-outlined text-[16px]">account_balance</span>
+                        Transferencia
+                      </span>
+                    ) : order.payment_method === "oxxo" ? (
+                      <span className="inline-flex items-center gap-1 text-sm font-bold text-red-600">
+                        <span className="material-symbols-outlined text-[16px]">store</span>
+                        OXXO
+                      </span>
+                    ) : (
+                      <p className="text-sm text-gray-400">—</p>
+                    )}
                   </div>
                   {/* Payment status badge */}
-                  <span className={`text-xs font-bold px-3 py-1 rounded-full ${ps.color}`}>
-                    {ps.label}
-                    {order.payment_status === "proof_uploaded" && (
-                      <span className="ml-1 w-2 h-2 bg-amber-500 rounded-full inline-block animate-pulse" />
-                    )}
-                  </span>
+                  {order.payment_method === "mercadopago" ? (
+                    <span className={`text-xs font-bold px-3 py-1 rounded-full ${
+                      order.payment_status === "verified" ? "bg-[#009EE3]/10 text-[#009EE3]" :
+                      order.payment_status === "rejected" ? "bg-red-100 text-red-600" :
+                      "bg-amber-100 text-amber-700"
+                    }`}>
+                      {order.payment_status === "verified" ? "✓ Confirmado MP" :
+                       order.payment_status === "rejected" ? "Rechazado MP" :
+                       "En espera MP"}
+                    </span>
+                  ) : (
+                    <span className={`text-xs font-bold px-3 py-1 rounded-full ${ps.color}`}>
+                      {ps.label}
+                      {order.payment_status === "proof_uploaded" && (
+                        <span className="ml-1 w-2 h-2 bg-amber-500 rounded-full inline-block animate-pulse" />
+                      )}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-3">
                   <select value={order.status} onChange={(e) => { e.stopPropagation(); updateStatus(order.id, e.target.value); }}
