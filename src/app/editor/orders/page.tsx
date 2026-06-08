@@ -28,9 +28,14 @@ export default function AdminOrdersPage() {
     setLoading(false);
   };
 
-  const updateStatus = async (id: string, newStatus: string) => {
-    const { error } = await supabase.from("orders").update({ status: newStatus }).eq("id", id);
-    if (!error) setOrders(orders.map(o => o.id === id ? { ...o, status: newStatus } : o));
+  const updateStatus = async (id: string, newStatus: string, paymentMethod?: string) => {
+    const updatePayload: any = { status: newStatus };
+    // For MP orders being confirmed manually, also mark payment as verified
+    if (paymentMethod === "mercadopago" && newStatus === "confirmado") {
+      updatePayload.payment_status = "verified";
+    }
+    const { error } = await supabase.from("orders").update(updatePayload).eq("id", id);
+    if (!error) setOrders(orders.map(o => o.id === id ? { ...o, status: newStatus, ...(updatePayload.payment_status ? { payment_status: updatePayload.payment_status } : {}) } : o));
     else alert("Error actualizando estatus");
   };
 
@@ -167,15 +172,19 @@ export default function AdminOrdersPage() {
                   </div>
                   {/* Payment status badge */}
                   {order.payment_method === "mercadopago" ? (
-                    <span className={`text-xs font-bold px-3 py-1 rounded-full ${
-                      order.payment_status === "verified" ? "bg-[#009EE3]/10 text-[#009EE3]" :
-                      order.payment_status === "rejected" ? "bg-red-100 text-red-600" :
-                      "bg-amber-100 text-amber-700"
-                    }`}>
-                      {order.payment_status === "verified" ? "✓ Confirmado MP" :
-                       order.payment_status === "rejected" ? "Rechazado MP" :
-                       "En espera MP"}
-                    </span>
+                    (() => {
+                      const isConfirmed = order.payment_status === "verified" || order.status === "confirmado" || order.status === "etiqueta generada" || order.status === "concluida";
+                      const isRejected = order.payment_status === "rejected" || order.status === "reporte";
+                      return (
+                        <span className={`text-xs font-bold px-3 py-1 rounded-full ${
+                          isConfirmed ? "bg-[#009EE3]/10 text-[#009EE3]" :
+                          isRejected  ? "bg-red-100 text-red-600" :
+                          "bg-amber-100 text-amber-700"
+                        }`}>
+                          {isConfirmed ? "✓ Confirmado MP" : isRejected ? "Rechazado MP" : "En espera MP"}
+                        </span>
+                      );
+                    })()
                   ) : (
                     <span className={`text-xs font-bold px-3 py-1 rounded-full ${ps.color}`}>
                       {ps.label}
@@ -186,7 +195,7 @@ export default function AdminOrdersPage() {
                   )}
                 </div>
                 <div className="flex items-center gap-3">
-                  <select value={order.status} onChange={(e) => { e.stopPropagation(); updateStatus(order.id, e.target.value); }}
+                  <select value={order.status} onChange={(e) => { e.stopPropagation(); updateStatus(order.id, e.target.value, order.payment_method); }}
                     onClick={(e) => e.stopPropagation()}
                     className={`text-[11px] font-bold uppercase rounded-md tracking-wider px-3 py-2 outline-none cursor-pointer border border-transparent transition-colors ${getStatusColor(order.status)}`}>
                     <option value="en proceso">En Proceso</option>
