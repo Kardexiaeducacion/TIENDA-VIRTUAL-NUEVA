@@ -116,7 +116,7 @@ function ProductsTable() {
                     </td>
                     <td className="p-4 text-sm text-gray-600">{product.stock}</td>
                     <td className="p-4 pr-6 text-right">
-                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center justify-end gap-2">
                         <Link href={`/product/${product.id}`} target="_blank" className="w-8 h-8 rounded border border-[#EAEAEA] flex items-center justify-center text-gray-600 hover:text-black hover:border-black transition-all bg-white" title="Ver en tienda">
                           <span className="material-symbols-outlined text-[18px]">visibility</span>
                         </Link>
