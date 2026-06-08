@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import Link from "next/link";
 import Image from "next/image";
 import AccountSidebar from "@/components/AccountSidebar";
@@ -151,25 +151,45 @@ export default function MyOrdersPage() {
                           </div>
                         ))}
                         {/* Método de pago */}
-                        {order.payment_method && (
-                          <div>
+                         <div>
                             <p className="text-xs text-secondary uppercase font-bold">Método de Pago</p>
                             <p className="text-sm font-semibold capitalize flex items-center gap-1">
-                              {order.payment_method === "spei" ? (
-                                <><img src="https://logodownload.org/wp-content/uploads/2019/10/bbva-logo.png" className="h-4 object-contain inline" alt="BBVA" /> SPEI</>
+                              {order.payment_method === "mercadopago" ? (
+                                <span className="inline-flex items-center gap-1.5 text-[#009EE3] font-bold">
+                                  <span className="material-symbols-outlined text-[16px]">credit_card</span>
+                                  Mercado Pago
+                                </span>
+                              ) : order.payment_method === "spei" ? (
+                                <><span className="material-symbols-outlined text-[14px] text-blue-600">account_balance</span> Transferencia SPEI</>
                               ) : (
                                 <><span className="bg-[#E4002B] text-white text-[9px] font-black px-1 rounded">OXXO</span> Depósito</>
                               )}
                             </p>
                           </div>
-                        )}
                       </div>
                       <div className="flex flex-col items-end gap-2">
                         {/* Payment Status Badge */}
-                        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${ps.color}`}>
-                          <span className="material-symbols-outlined text-[14px]">{ps.icon}</span>
-                          {ps.label}
-                        </div>
+                        {order.payment_method === "mercadopago" ? (
+                          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${
+                            (order.payment_status === "verified" || order.status === "confirmado" || order.status === "etiqueta generada" || order.status === "concluida")
+                              ? "bg-[#009EE3]/10 text-[#009EE3]"
+                              : order.payment_status === "rejected" ? "bg-red-50 text-red-600"
+                              : "bg-amber-50 text-amber-700"
+                          }`}>
+                            <span className="material-symbols-outlined text-[14px]">
+                              {(order.payment_status === "verified" || order.status === "confirmado") ? "verified" : order.payment_status === "rejected" ? "cancel" : "schedule"}
+                            </span>
+                            {(order.payment_status === "verified" || order.status === "confirmado" || order.status === "etiqueta generada" || order.status === "concluida")
+                              ? "Pago confirmado por Mercado Pago"
+                              : order.payment_status === "rejected" ? "Pago rechazado"
+                              : "Pago en proceso"}
+                          </div>
+                        ) : (
+                          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${ps.color}`}>
+                            <span className="material-symbols-outlined text-[14px]">{ps.icon}</span>
+                            {ps.label}
+                          </div>
+                        )}
                         {/* Shipping Status */}
                         {(() => {
                           const ss = SHIPPING_STATUS[order.status?.toLowerCase()] || { color: 'bg-gray-100 text-gray-800', icon: 'local_shipping' };
@@ -216,14 +236,54 @@ export default function MyOrdersPage() {
                             );
                           })}
 
-                          {/* Payment Proof Section */}
+                          {/* Payment Proof Section — only for SPEI/OXXO, not for Mercado Pago */}
+                          {order.payment_method === "mercadopago" ? (
+                            <div className={`mt-2 border rounded-xl overflow-hidden ${
+                              (order.payment_status === "verified" || order.status === "confirmado")
+                                ? "border-[#009EE3]/30"
+                                : order.payment_status === "rejected" ? "border-red-200"
+                                : "border-amber-200"
+                            }`}>
+                              <div className={`px-4 py-4 flex items-center gap-3 ${
+                                (order.payment_status === "verified" || order.status === "confirmado")
+                                  ? "bg-[#009EE3]/5"
+                                  : order.payment_status === "rejected" ? "bg-red-50"
+                                  : "bg-amber-50"
+                              }`}>
+                                <span className={`material-symbols-outlined text-2xl ${
+                                  (order.payment_status === "verified" || order.status === "confirmado")
+                                    ? "text-[#009EE3]"
+                                    : order.payment_status === "rejected" ? "text-red-500"
+                                    : "text-amber-500"
+                                }`}>
+                                  {(order.payment_status === "verified" || order.status === "confirmado") ? "verified" : order.payment_status === "rejected" ? "cancel" : "schedule"}
+                                </span>
+                                <div>
+                                  <p className="font-bold text-sm">
+                                    {(order.payment_status === "verified" || order.status === "confirmado" || order.status === "etiqueta generada" || order.status === "concluida")
+                                      ? "¡Compra confirmada!"
+                                      : order.payment_status === "rejected" ? "Pago rechazado"
+                                      : "Pago en proceso"}
+                                  </p>
+                                  <p className="text-xs text-gray-500 mt-0.5">
+                                    {(order.payment_status === "verified" || order.status === "confirmado")
+                                      ? "Tu pago fue procesado exitosamente por Mercado Pago. Estamos preparando tu pedido."
+                                      : order.payment_status === "rejected" ? "Tu pago fue rechazado. Intenta nuevamente con otro método de pago."
+                                      : "Tu pago está siendo procesado. Recibirás una notificación cuando se confirme."}
+                                  </p>
+                                  {order.payment_tracking_key && (
+                                    <p className="text-[11px] font-mono text-gray-400 mt-1">ID de pago: {order.payment_tracking_key}</p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
                           <div className="mt-2 border border-outline-variant rounded-xl overflow-hidden">
                             <div className={`px-4 py-3 flex items-center gap-2 ${ps.color}`}>
                               <span className="material-symbols-outlined text-[18px]">{ps.icon}</span>
                               <span className="font-bold text-sm">{ps.label}</span>
                             </div>
                             <div className="p-4 bg-white space-y-4">
-                              {/* If proof already uploaded */}
                               {(order.payment_tracking_key || order.payment_proof_url) && (
                                 <div className="space-y-3">
                                   {order.payment_tracking_key && (
@@ -243,7 +303,7 @@ export default function MyOrdersPage() {
                                   {order.payment_status === "proof_uploaded" && (
                                     <p className="text-xs text-amber-600 flex items-center gap-1">
                                       <span className="material-symbols-outlined text-[14px]">info</span>
-                                      Tu comprobante está siendo revisado. Te notificaremos cuando sea verificado.
+                                      Tu comprobante está siendo revisado.
                                     </p>
                                   )}
                                   {order.payment_status === "verified" && (
@@ -254,8 +314,6 @@ export default function MyOrdersPage() {
                                   )}
                                 </div>
                               )}
-
-                              {/* If no proof yet — show upload form */}
                               {order.payment_status === "pending" && (
                                 <div className="space-y-3">
                                   <p className="text-sm text-gray-500">Aún no has subido tu comprobante de pago.</p>
@@ -293,6 +351,7 @@ export default function MyOrdersPage() {
                               )}
                             </div>
                           </div>
+                          )}
                         </div>
 
                         {/* Payment Summary */}
