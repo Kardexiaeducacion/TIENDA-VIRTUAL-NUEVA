@@ -29,6 +29,7 @@ export default function MyOrdersPage() {
   const [trackingInputs, setTrackingInputs] = useState<Record<string, string>>({});
   const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const [mpNotif, setMpNotif] = useState<'success'|'pending'|null>(null);
+  const [proofSubmitted, setProofSubmitted] = useState<string | null>(null); // orderId after proof upload
 
   useEffect(() => {
     fetchOrders();
@@ -75,6 +76,7 @@ export default function MyOrdersPage() {
         payment_status: "proof_uploaded",
       }).eq("id", orderId);
       if (error) throw error;
+      setProofSubmitted(orderId);
       await fetchOrders();
     } catch (e: any) {
       alert("Error: " + e.message);
@@ -87,6 +89,60 @@ export default function MyOrdersPage() {
 
   return (
     <div className="bg-background text-on-background font-sans min-h-screen">
+
+      {/* ── Proof Submitted Overlay ─────────────────────────────────────── */}
+      {proofSubmitted && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full mx-4 p-10 flex flex-col items-center text-center animate-in zoom-in-95 duration-300">
+            {/* Animated checkmark */}
+            <div className="relative mb-6">
+              <div className="w-24 h-24 rounded-full bg-amber-50 flex items-center justify-center">
+                <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-amber-500 text-5xl">schedule</span>
+                </div>
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-green-400 flex items-center justify-center">
+                <span className="material-symbols-outlined text-white text-[16px]">check</span>
+              </div>
+            </div>
+
+            <h2 className="text-2xl font-black text-gray-900 mb-2">¡Orden generada!</h2>
+            <p className="text-amber-600 font-bold text-sm mb-1 uppercase tracking-widest">Pago en proceso de aprobación</p>
+            <p className="text-gray-500 text-sm mt-3 leading-relaxed">
+              Recibimos tu comprobante de pago.<br />
+              Verificaremos tu pago y recibirás una notificación cuando sea aprobado.
+            </p>
+
+            <div className="w-full mt-8 bg-amber-50 border border-amber-200 rounded-2xl p-4 text-left space-y-2">
+              <div className="flex items-center gap-2 text-xs font-bold text-amber-700 uppercase tracking-wider">
+                <span className="material-symbols-outlined text-[16px]">info</span>
+                ¿Qué sigue?
+              </div>
+              <ul className="text-xs text-gray-600 space-y-1.5 ml-1">
+                <li className="flex items-start gap-2"><span className="text-amber-400 mt-0.5">›</span> Revisamos tu comprobante (generalmente en menos de 24 hrs)</li>
+                <li className="flex items-start gap-2"><span className="text-amber-400 mt-0.5">›</span> Al aprobar tu pago, tu pedido entra en proceso</li>
+                <li className="flex items-start gap-2"><span className="text-amber-400 mt-0.5">›</span> Puedes ver el estado en "Mis Compras" en cualquier momento</li>
+              </ul>
+            </div>
+
+            <div className="flex gap-3 w-full mt-6">
+              <button
+                onClick={() => setProofSubmitted(null)}
+                className="flex-1 py-3 border border-gray-200 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-50 transition-colors"
+              >
+                Ver mis compras
+              </button>
+              <Link
+                href="/"
+                className="flex-1 py-3 bg-black text-white rounded-xl text-sm font-bold text-center hover:bg-gray-800 transition-colors"
+              >
+                Seguir comprando
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
       <main className="pt-32 pb-20 max-w-[1440px] mx-auto px-20">
         <div className="grid grid-cols-12 gap-8">
           <AccountSidebar />
