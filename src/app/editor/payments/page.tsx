@@ -169,10 +169,12 @@ export default function PaymentsAdminPage() {
     }
   };
 
-  const statusBadge = (status: string, method?: string) => {
+  const statusBadge = (status: string, method?: string, orderStatus?: string) => {
     if (method === "mercadopago") {
-      if (status === "verified") return <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#009EE3]/10 text-[#009EE3] flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">verified</span>Confirmado MP</span>;
-      if (status === "rejected") return <span className="text-xs font-bold px-3 py-1 rounded-full bg-red-100 text-red-600">Rechazado MP</span>;
+      const isConfirmed = status === "verified" || orderStatus === "confirmado" || orderStatus === "etiqueta generada" || orderStatus === "concluida";
+      const isRejected = status === "rejected" || orderStatus === "reporte";
+      if (isConfirmed) return <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#009EE3]/10 text-[#009EE3] flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">verified</span>Confirmado MP</span>;
+      if (isRejected) return <span className="text-xs font-bold px-3 py-1 rounded-full bg-red-100 text-red-600">Rechazado MP</span>;
       return <span className="text-xs font-bold px-3 py-1 rounded-full bg-amber-100 text-amber-700">En espera MP</span>;
     }
     const map: Record<string, { label: string; color: string }> = {
@@ -535,7 +537,7 @@ export default function PaymentsAdminPage() {
                           </div>
                           <div className="flex items-center gap-3">
                             <span className="font-bold">${order.total_amount?.toFixed(2)}</span>
-                            {statusBadge(order.payment_status, order.payment_method)}
+                            {statusBadge(order.payment_status, order.payment_method, order.status)}
                             {order.payment_status === "proof_uploaded" && (
                               <span className="material-symbols-outlined text-amber-500 text-[20px]">notifications_active</span>
                             )}
@@ -582,7 +584,7 @@ export default function PaymentsAdminPage() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">Estado</span>
-                      {statusBadge(selectedOrder.payment_status, selectedOrder.payment_method)}
+                      {statusBadge(selectedOrder.payment_status, selectedOrder.payment_method, selectedOrder.status)}
                     </div>
                     <div className="flex justify-between border-t border-gray-100 pt-3">
                       <span className="text-gray-500 font-bold">Total</span>
@@ -653,7 +655,7 @@ export default function PaymentsAdminPage() {
                     </div>
                   )}
 
-                  {selectedOrder.payment_method === "mercadopago" && selectedOrder.payment_status !== "verified" && selectedOrder.payment_status !== "rejected" && (
+                  {selectedOrder.payment_method === "mercadopago" && selectedOrder.payment_status !== "verified" && selectedOrder.payment_status !== "rejected" && selectedOrder.status !== "confirmado" && selectedOrder.status !== "etiqueta generada" && selectedOrder.status !== "concluida" && selectedOrder.status !== "reporte" && (
                     <div className="flex flex-col gap-2">
                       <div className="bg-[#009EE3]/5 border border-[#009EE3]/20 rounded-xl p-3 flex items-center gap-2">
                         <span className="material-symbols-outlined text-[#009EE3] text-[18px]">info</span>
@@ -678,7 +680,7 @@ export default function PaymentsAdminPage() {
                     </div>
                   )}
 
-                  {selectedOrder.payment_status === "verified" && (
+                  {(selectedOrder.payment_status === "verified" || (selectedOrder.payment_method === "mercadopago" && (selectedOrder.status === "confirmado" || selectedOrder.status === "etiqueta generada" || selectedOrder.status === "concluida"))) && (
                     <div className={`rounded-xl p-4 text-center font-bold text-sm flex items-center justify-center gap-2 ${selectedOrder.payment_method === "mercadopago" ? "bg-[#009EE3]/10 text-[#009EE3]" : "bg-green-50 text-green-700"}`}>
                       <span className="material-symbols-outlined text-[20px]">verified</span>
                       {selectedOrder.payment_method === "mercadopago" ? "Pago confirmado por Mercado Pago ✓" : "Pago verificado — Pedido confirmado"}
