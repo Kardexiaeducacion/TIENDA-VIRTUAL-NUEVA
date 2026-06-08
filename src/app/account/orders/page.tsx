@@ -92,7 +92,7 @@ export default function MyOrdersPage() {
 
       {/* ── Proof Submitted Overlay ─────────────────────────────────────── */}
       {proofSubmitted && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white animate-in fade-in duration-300">
           <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full mx-4 p-10 flex flex-col items-center text-center animate-in zoom-in-95 duration-300">
             {/* Animated checkmark */}
             <div className="relative mb-6">
