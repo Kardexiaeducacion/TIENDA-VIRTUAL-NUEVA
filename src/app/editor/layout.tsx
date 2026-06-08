@@ -38,13 +38,10 @@ export default async function EditorLayout({
         <header className="h-20 bg-white border-b border-[#EAEAEA] flex items-center justify-between px-8 sticky top-0 z-30">
           <AdminHeaderSearch />
           <div className="flex items-center gap-6">
+            <button className="material-symbols-outlined text-gray-400 hover:text-black transition-colors" title="Notificaciones (próximamente)">notifications</button>
             <Link href="/" className="flex items-center gap-2 border border-[#EAEAEA] px-4 py-2 rounded-md text-xs font-bold uppercase tracking-wider hover:bg-gray-50 transition-colors">
               <span className="material-symbols-outlined text-[16px]">open_in_new</span>
               Ver Tienda
-            </Link>
-            <Link href="/editor/products/new" className="flex items-center gap-2 bg-[#1C1C1C] text-white px-5 py-2.5 rounded-md text-xs font-bold uppercase tracking-wider hover:bg-black transition-colors shadow-sm">
-              <span className="material-symbols-outlined text-[18px]">add</span>
-              Nuevo Artículo
             </Link>
           </div>
         </header>
