@@ -430,27 +430,67 @@ export default function MyOrdersPage() {
                             </div>
                           </div>
 
-                          {/* Tracking */}
-                          {(order.tracking_number || order.tracking_url) && (
-                            <div className="mt-6 pt-6 border-t border-outline-variant">
-                              <h3 className="font-bold text-sm uppercase tracking-widest mb-3">Logística</h3>
-                              <div className="bg-blue-50 rounded-lg p-4 text-sm flex flex-col gap-3">
+                          {/* Shipping Info — always visible */}
+                          <div className="mt-6 pt-6 border-t border-outline-variant">
+                            <h3 className="font-bold text-sm uppercase tracking-widest mb-3 flex items-center gap-2">
+                              <span className="material-symbols-outlined text-[18px]">local_shipping</span>
+                              Información de Envío
+                            </h3>
+
+                            {(order.tracking_number || order.tracking_url) ? (
+                              <div className="space-y-3">
+                                {/* Tracking Number */}
                                 {order.tracking_number && (
-                                  <div>
-                                    <p className="text-[10px] text-blue-500 uppercase font-bold mb-0.5">Número de rastreo</p>
-                                    <p className="font-mono font-bold">{order.tracking_number}</p>
+                                  <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
+                                    <p className="text-[10px] text-blue-500 uppercase font-bold mb-1 flex items-center gap-1">
+                                      <span className="material-symbols-outlined text-[12px]">tag</span>
+                                      Número de rastreo
+                                    </p>
+                                    <p className="font-mono font-bold text-sm text-blue-900">{order.tracking_number}</p>
                                   </div>
                                 )}
+
+                                {/* Tracking / Label URL */}
                                 {order.tracking_url && (
-                                  <a href={order.tracking_url} target="_blank" rel="noreferrer" 
-                                    className="w-full py-2.5 bg-blue-600 text-white font-bold uppercase tracking-widest text-xs rounded hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
-                                    <span className="material-symbols-outlined text-[18px]">download</span>
-                                    Descargar Guía de Envío
+                                  <a
+                                    href={order.tracking_url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="w-full py-3 bg-black text-white font-bold uppercase tracking-widest text-xs rounded-xl hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+                                  >
+                                    {order.tracking_url.includes('.pdf') || order.tracking_url.includes('label') ? (
+                                      <><span className="material-symbols-outlined text-[16px]">download</span>Descargar Guía de Envío</>
+                                    ) : (
+                                      <><span className="material-symbols-outlined text-[16px]">track_changes</span>Rastrear mi Paquete</>
+                                    )}
                                   </a>
                                 )}
+
+                                <p className="text-[11px] text-gray-400 text-center">
+                                  Guarda tu número de rastreo para consultar el estado de tu entrega
+                                </p>
                               </div>
-                            </div>
-                          )}
+                            ) : (
+                              /* No tracking yet */
+                              <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 flex items-start gap-3">
+                                <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  <span className="material-symbols-outlined text-gray-500 text-[16px]">inventory_2</span>
+                                </div>
+                                <div>
+                                  <p className="text-sm font-bold text-gray-700">
+                                    {order.status === 'confirmado' || order.status === 'en proceso'
+                                      ? 'Preparando tu pedido'
+                                      : order.status === 'etiqueta generada'
+                                      ? 'Guía generada — número en camino'
+                                      : 'Pendiente de envío'}
+                                  </p>
+                                  <p className="text-xs text-gray-400 mt-0.5">
+                                    Tu número de guía y enlace de rastreo aparecerán aquí cuando tu pedido sea enviado.
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     )}
