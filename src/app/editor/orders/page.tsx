@@ -29,14 +29,25 @@ export default function AdminOrdersPage() {
   };
 
   const updateStatus = async (id: string, newStatus: string, paymentMethod?: string) => {
+    const order = orders.find((o: any) => o.id === id) as any;
     const updatePayload: any = { status: newStatus };
     // For MP orders being confirmed manually, also mark payment as verified
     if (paymentMethod === "mercadopago" && newStatus === "confirmado") {
       updatePayload.payment_status = "verified";
     }
     const { error } = await supabase.from("orders").update(updatePayload).eq("id", id);
-    if (!error) setOrders(orders.map(o => o.id === id ? { ...o, status: newStatus, ...(updatePayload.payment_status ? { payment_status: updatePayload.payment_status } : {}) } : o));
-    else alert("Error actualizando estatus");
+    if (!error) {
+      setOrders(orders.map(o => o.id === id ? { ...o, status: newStatus, ...(updatePayload.payment_status ? { payment_status: updatePayload.payment_status } : {}) } : o));
+      if (order?.user_id) {
+        await supabase.from('notifications').insert({
+          user_id: order.user_id,
+          type: 'order',
+          title: 'Actualización de tu pedido',
+          body: `El estado de tu pedido ha cambiado a: ${newStatus.toUpperCase()}`,
+          order_id: id
+        });
+      }
+    } else alert("Error actualizando estatus");
   };
 
   const verifyPayment = async (id: string) => {
@@ -62,6 +73,7 @@ export default function AdminOrdersPage() {
   };
 
   const uploadShippingLabel = async (id: string, file: File) => {
+    const order = orders.find((o: any) => o.id === id) as any;
     setUploadingLabel(id);
     try {
       const ext = file.name.split(".").pop();
@@ -70,6 +82,17 @@ export default function AdminOrdersPage() {
       if (uploadError) throw uploadError;
       const { data: urlData } = supabase.storage.from("payment-proofs").getPublicUrl(fileName);
       await supabase.from("orders").update({ tracking_url: urlData.publicUrl, status: "etiqueta generada" }).eq("id", id);
+      
+      if (order?.user_id) {
+        await supabase.from('notifications').insert({
+          user_id: order.user_id,
+          type: 'order',
+          title: 'Guía de Envío Lista',
+          body: 'Se ha subido la etiqueta de envío de tu pedido. Revisa los detalles de tu orden.',
+          order_id: id
+        });
+      }
+
       await fetchOrders();
       alert("Etiqueta subida correctamente");
     } catch (e: any) {

@@ -99,6 +99,20 @@ export default function MyOrdersPage() {
         payment_status: "proof_uploaded",
       }).eq("id", orderId);
       if (error) throw error;
+
+      // Notificar al administrador
+      const { data: admins } = await supabase.from('profiles').select('id').eq('role', 'admin');
+      if (admins && admins.length > 0) {
+        const adminNotifs = admins.map(a => ({
+          user_id: a.id,
+          type: 'order',
+          title: 'Nuevo Comprobante de Pago',
+          body: `El cliente ha subido su comprobante para el pedido ${orderId.split('-')[0].toUpperCase()}. Revisa la orden para confirmarla.`,
+          order_id: orderId
+        }));
+        await supabase.from('notifications').insert(adminNotifs);
+      }
+
       setProofSubmitted(orderId);
       await fetchOrders();
     } catch (e: any) {

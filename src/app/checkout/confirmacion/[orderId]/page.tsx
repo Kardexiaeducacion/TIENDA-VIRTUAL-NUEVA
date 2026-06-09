@@ -106,6 +106,19 @@ export default function ConfirmacionPage({ params }: { params: { orderId: string
 
       if (updateError) throw updateError;
 
+      // Notificar al administrador
+      const { data: admins } = await supabase.from('profiles').select('id').eq('role', 'admin');
+      if (admins && admins.length > 0) {
+        const adminNotifs = admins.map(a => ({
+          user_id: a.id,
+          type: 'order',
+          title: 'Nuevo Comprobante de Pago',
+          body: `Un cliente acaba de subir su comprobante para el pedido ${orderId.split('-')[0].toUpperCase()}. Revisa la orden para confirmarla.`,
+          order_id: orderId
+        }));
+        await supabase.from('notifications').insert(adminNotifs);
+      }
+
       setStep("success");
     } catch (e: any) {
       alert("Error al subir el comprobante: " + e.message);
