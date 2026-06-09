@@ -101,10 +101,11 @@ export async function POST(req: Request) {
         items: prefItems,
         payer: shippingAddress?.email ? { email: shippingAddress.email } : undefined,
         back_urls: {
-          success: `${baseUrl}/account/orders?mp_success=true&order_id=${order.id}`,
-          failure: `${baseUrl}/checkout?error=payment_failed`,
-          pending: `${baseUrl}/account/orders?mp_pending=true&order_id=${order.id}`,
+          success: `${baseUrl}/account/orders`,
+          failure: `${baseUrl}/checkout`,
+          pending: `${baseUrl}/account/orders`,
         },
+        auto_return: "approved",
         external_reference: order.id,
         notification_url: `${baseUrl}/api/webhooks/mercadopago`,
       };
