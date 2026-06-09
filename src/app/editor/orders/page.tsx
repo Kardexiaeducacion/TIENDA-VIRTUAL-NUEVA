@@ -251,61 +251,98 @@ export default function AdminOrdersPage() {
                     </div>
                   </div>
 
-                  {/* Column 2: Payment Proof */}
+                  {/* Column 2: Payment Proof / MP Status */}
                   <div>
-                    <h3 className="font-bold text-sm uppercase tracking-widest border-b border-[#EAEAEA] pb-2 mb-4">Comprobante de Pago</h3>
-                    
-                    {hasProof ? (
-                      <div className="space-y-3">
-                        {order.payment_tracking_key && (
-                          <div className="bg-white border border-[#EAEAEA] rounded-md p-3">
-                            <p className="text-xs font-bold text-gray-400 uppercase mb-1">Clave de rastreo del cliente</p>
-                            <p className="font-mono font-bold text-sm break-all">{order.payment_tracking_key}</p>
-                          </div>
-                        )}
-                        {order.payment_proof_url && (
-                          <div>
-                            <p className="text-xs font-bold text-gray-400 uppercase mb-2">Baucher subido por el cliente</p>
-                            <a href={order.payment_proof_url} target="_blank" rel="noopener noreferrer">
-                              <img src={order.payment_proof_url} alt="Comprobante" className="w-full rounded-lg border border-gray-200 hover:opacity-90 transition-opacity cursor-zoom-in max-h-40 object-contain" />
-                              <p className="text-xs text-blue-500 text-center mt-1">Ver imagen completa ↗</p>
-                            </a>
-                          </div>
-                        )}
-                        {order.payment_status === "proof_uploaded" && (
-                          <div className="flex flex-col gap-2 pt-2">
-                            <button onClick={() => verifyPayment(order.id)} disabled={verifying === order.id}
-                              className="w-full py-2.5 bg-green-600 text-white font-bold uppercase tracking-widest text-xs rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
-                              <span className="material-symbols-outlined text-[16px]">check_circle</span>
-                              {verifying === order.id ? "Verificando..." : "Verificar Pago"}
-                            </button>
-                            <button onClick={() => rejectPayment(order.id)}
-                              className="w-full py-2.5 border border-red-200 text-red-500 font-bold uppercase tracking-widest text-xs rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center gap-2">
-                              <span className="material-symbols-outlined text-[16px]">cancel</span>
-                              Rechazar
-                            </button>
-                          </div>
-                        )}
-                        {order.payment_status === "verified" && (
-                          <div className="bg-green-50 rounded-lg p-3 text-center text-green-700 font-bold text-xs flex items-center justify-center gap-2">
-                            <span className="material-symbols-outlined text-[16px]">verified</span>
-                            Pago verificado — Pedido confirmado
-                          </div>
+                    <h3 className="font-bold text-sm uppercase tracking-widest border-b border-[#EAEAEA] pb-2 mb-4">
+                      {order.payment_method === "mercadopago" ? "Estado de Pago" : "Comprobante de Pago"}
+                    </h3>
+
+                    {order.payment_method === "mercadopago" ? (
+                      /* MP: show confirmation status, no voucher needed */
+                      <div className={`rounded-xl p-5 flex flex-col items-center text-center gap-3 ${
+                        (order.payment_status === "verified" || order.status === "confirmado" || order.status === "etiqueta generada" || order.status === "concluida")
+                          ? "bg-[#009EE3]/5 border border-[#009EE3]/20"
+                          : order.payment_status === "rejected" ? "bg-red-50 border border-red-100"
+                          : "bg-amber-50 border border-amber-100"
+                      }`}>
+                        <span className={`material-symbols-outlined text-4xl ${
+                          (order.payment_status === "verified" || order.status === "confirmado") ? "text-[#009EE3]"
+                          : order.payment_status === "rejected" ? "text-red-400"
+                          : "text-amber-400"
+                        }`}>
+                          {(order.payment_status === "verified" || order.status === "confirmado") ? "verified" : order.payment_status === "rejected" ? "cancel" : "schedule"}
+                        </span>
+                        <div>
+                          <p className="font-bold text-sm">
+                            {(order.payment_status === "verified" || order.status === "confirmado" || order.status === "etiqueta generada" || order.status === "concluida")
+                              ? "Pago confirmado por Mercado Pago"
+                              : order.payment_status === "rejected" ? "Pago rechazado"
+                              : "Pago en proceso"}
+                          </p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            {(order.payment_status === "verified" || order.status === "confirmado")
+                              ? "Mercado Pago confirmó este pago automáticamente."
+                              : order.payment_status === "rejected" ? "El pago fue rechazado por MP."
+                              : "Esperando confirmación de Mercado Pago."}
+                          </p>
+                        </div>
+                        {/* Manual confirm button only if still pending */}
+                        {order.payment_status !== "verified" && order.status !== "confirmado" && order.payment_status !== "rejected" && (
+                          <button onClick={() => verifyPayment(order.id)} disabled={verifying === order.id}
+                            className="w-full mt-2 py-2.5 bg-[#009EE3] text-white font-bold uppercase tracking-widest text-xs rounded-lg hover:bg-[#0081c2] transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+                            <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                            {verifying === order.id ? "Confirmando..." : "Confirmar pago MP manualmente"}
+                          </button>
                         )}
                       </div>
                     ) : (
-                      <div className="bg-white border border-[#EAEAEA] rounded-md p-6 text-center text-gray-400">
-                        <span className="material-symbols-outlined text-[36px] block mb-2">hourglass_empty</span>
-                        <p className="text-xs">El cliente aún no ha subido su comprobante</p>
-                        {order.payment_status === "proof_uploaded" && (
-                          <div className="flex flex-col gap-2 mt-3">
-                            <button onClick={() => verifyPayment(order.id)} disabled={verifying === order.id}
-                              className="w-full py-2 bg-green-600 text-white font-bold uppercase tracking-widest text-xs rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50">
-                              {verifying === order.id ? "Verificando..." : "Verificar Pago"}
-                            </button>
+                      /* SPEI / OXXO: show voucher section */
+                      <>
+                        {hasProof ? (
+                          <div className="space-y-3">
+                            {order.payment_tracking_key && (
+                              <div className="bg-white border border-[#EAEAEA] rounded-md p-3">
+                                <p className="text-xs font-bold text-gray-400 uppercase mb-1">Clave de rastreo del cliente</p>
+                                <p className="font-mono font-bold text-sm break-all">{order.payment_tracking_key}</p>
+                              </div>
+                            )}
+                            {order.payment_proof_url && (
+                              <div>
+                                <p className="text-xs font-bold text-gray-400 uppercase mb-2">Baucher subido por el cliente</p>
+                                <a href={order.payment_proof_url} target="_blank" rel="noopener noreferrer">
+                                  <img src={order.payment_proof_url} alt="Comprobante" className="w-full rounded-lg border border-gray-200 hover:opacity-90 transition-opacity cursor-zoom-in max-h-40 object-contain" />
+                                  <p className="text-xs text-blue-500 text-center mt-1">Ver imagen completa ↗</p>
+                                </a>
+                              </div>
+                            )}
+                            {order.payment_status === "proof_uploaded" && (
+                              <div className="flex flex-col gap-2 pt-2">
+                                <button onClick={() => verifyPayment(order.id)} disabled={verifying === order.id}
+                                  className="w-full py-2.5 bg-green-600 text-white font-bold uppercase tracking-widest text-xs rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+                                  <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                                  {verifying === order.id ? "Verificando..." : "Verificar Pago"}
+                                </button>
+                                <button onClick={() => rejectPayment(order.id)}
+                                  className="w-full py-2.5 border border-red-200 text-red-500 font-bold uppercase tracking-widest text-xs rounded-lg hover:bg-red-50 transition-colors flex items-center justify-center gap-2">
+                                  <span className="material-symbols-outlined text-[16px]">cancel</span>
+                                  Rechazar
+                                </button>
+                              </div>
+                            )}
+                            {order.payment_status === "verified" && (
+                              <div className="bg-green-50 rounded-lg p-3 text-center text-green-700 font-bold text-xs flex items-center justify-center gap-2">
+                                <span className="material-symbols-outlined text-[16px]">verified</span>
+                                Pago verificado — Pedido confirmado
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="bg-white border border-[#EAEAEA] rounded-md p-6 text-center text-gray-400">
+                            <span className="material-symbols-outlined text-[36px] block mb-2">hourglass_empty</span>
+                            <p className="text-xs">El cliente aún no ha subido su comprobante</p>
                           </div>
                         )}
-                      </div>
+                      </>
                     )}
                   </div>
 
