@@ -51,21 +51,25 @@ export default function Navbar() {
       <div className="max-w-[1440px] mx-auto px-20 flex items-center justify-between h-full">
         <div className="flex items-center gap-10">
           <Link href="/" className="text-3xl font-extrabold text-primary uppercase tracking-tighter">Cloe</Link>
-          <div className="hidden lg:flex items-center gap-8 relative">
-            <Link href="/" className={`text-sm font-semibold tracking-widest uppercase transition-colors ${pathname === "/" ? "text-primary border-b-2 border-primary pb-2" : "text-secondary hover:text-primary"}`}>Inicio</Link>
+          <div className="hidden lg:flex items-center gap-8 relative h-full">
+            <Link href="/" className={`text-sm font-semibold tracking-widest uppercase transition-all duration-300 relative py-2 flex flex-col items-center justify-center ${pathname === "/" ? "text-primary -translate-y-[3px]" : "text-secondary hover:text-primary"}`}>
+              Inicio
+              {pathname === "/" && <span className="absolute -bottom-1 left-0 w-full h-[2px] bg-primary rounded-full"></span>}
+            </Link>
             
             {categories.map((cat) => {
               const subs = subcategories.filter(s => s.category_id === cat.id);
               const isActive = pathname.startsWith(`/category/${cat.slug}`);
               
               return (
-                <div key={cat.id} className="group relative">
-                  <Link href={`/category/${cat.slug}`} className={`text-sm font-semibold tracking-widest uppercase transition-colors py-8 ${isActive ? "text-primary border-b-2 border-primary" : "text-secondary hover:text-primary"}`}>
+                <div key={cat.id} className="group relative flex items-center h-full">
+                  <Link href={`/category/${cat.slug}`} className={`text-sm font-semibold tracking-widest uppercase transition-all duration-300 relative py-2 flex flex-col items-center justify-center ${isActive ? "text-primary -translate-y-[3px]" : "text-secondary hover:text-primary"}`}>
                     {cat.name}
+                    {isActive && <span className="absolute -bottom-1 left-0 w-full h-[2px] bg-primary rounded-full"></span>}
                   </Link>
                   
                   {subs.length > 0 && (
-                    <div className="absolute top-12 left-0 mt-2 w-48 bg-white border border-outline-variant shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 flex flex-col">
+                    <div className="absolute top-16 left-0 mt-2 w-48 bg-white border border-outline-variant shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 flex flex-col">
                       {subs.map(sub => (
                         <Link key={sub.id} href={`/category/${cat.slug}?sub=${sub.slug}`} className="px-4 py-3 text-sm text-secondary hover:text-primary hover:bg-surface-container transition-colors uppercase tracking-widest">
                           {sub.name}
