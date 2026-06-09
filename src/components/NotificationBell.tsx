@@ -8,7 +8,7 @@ export default function NotificationBell({ userId }: { userId: string | null | u
   const [open, setOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   
-  // If no userId, we still call hook but it returns empty. It's safe.
+  // Call hooks unconditionally
   const { notifs, unreadCount, markAllRead, markRead } = useNotifications(userId, 20, 'bell')
 
   useEffect(() => {
@@ -21,7 +21,7 @@ export default function NotificationBell({ userId }: { userId: string | null | u
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  if (!userId) return null; // Don't render the bell if the user is not logged in
+  if (!userId) return null; // Early return MUST be after all hooks
 
   return (
     <div className="relative flex items-center justify-center" ref={dropdownRef}>
