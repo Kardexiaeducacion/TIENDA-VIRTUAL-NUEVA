@@ -21,6 +21,11 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
   const [category, setCategory] = useState<Category | null>(null);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Filter & Sort states
+  const [maxPrice, setMaxPrice] = useState<number>(3000); // Set high default to show all initially
+  const [sortBy, setSortBy] = useState<string>("Más Recientes");
+
   const supabase = createClient();
   const { items, addToCart, removeFromCart } = useCart();
 
@@ -75,6 +80,17 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
     return <div className="min-h-screen flex items-center justify-center bg-background text-2xl font-bold uppercase">Categoría no encontrada</div>;
   }
 
+  const processedProducts = [...products].filter(product => {
+    return (Number(product.price) || 0) <= maxPrice;
+  }).sort((a, b) => {
+    if (sortBy === "Precio: Mayor a Menor") {
+      return (Number(b.price) || 0) - (Number(a.price) || 0);
+    } else if (sortBy === "Precio: Menor a Mayor") {
+      return (Number(a.price) || 0) - (Number(b.price) || 0);
+    }
+    return 0; // "Más Recientes" keeps original fetch order
+  });
+
   return (
     <div className="bg-background text-on-background font-sans min-h-screen">
 
@@ -119,9 +135,17 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
               <div>
                 <h3 className="text-sm font-bold text-primary uppercase tracking-widest mb-6">Precio</h3>
                 <div className="space-y-2">
-                  <input className="w-full accent-black bg-surface-container h-1" type="range" />
-                  <div className="flex justify-between text-xs text-secondary">
-                    <span>$0</span><span>$1500+</span>
+                  <input 
+                    className="w-full accent-black bg-surface-container h-1 cursor-pointer" 
+                    type="range" 
+                    min="0"
+                    max="5000"
+                    step="100"
+                    value={maxPrice}
+                    onChange={(e) => setMaxPrice(Number(e.target.value))}
+                  />
+                  <div className="flex justify-between text-xs text-secondary font-semibold mt-2">
+                    <span>$0</span><span>${maxPrice}{maxPrice >= 5000 ? "+" : ""}</span>
                   </div>
                 </div>
               </div>
@@ -131,10 +155,14 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
           {/* PRODUCT GRID */}
           <div className="col-span-9">
             <div className="flex justify-between items-center mb-8">
-              <span className="text-xs text-secondary uppercase tracking-wide">{products.length} productos</span>
+              <span className="text-xs text-secondary uppercase tracking-wide">{processedProducts.length} productos</span>
               <div className="flex items-center gap-3">
                 <span className="text-sm font-semibold text-primary uppercase">Ordenar por:</span>
-                <select className="border-none bg-transparent text-sm font-semibold text-primary focus:ring-0 cursor-pointer outline-none">
+                <select 
+                  className="border-none bg-transparent text-sm font-semibold text-primary focus:ring-0 cursor-pointer outline-none"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                >
                   <option>Más Recientes</option>
                   <option>Precio: Mayor a Menor</option>
                   <option>Precio: Menor a Mayor</option>
@@ -142,13 +170,13 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
               </div>
             </div>
             
-            {products.length === 0 ? (
+            {processedProducts.length === 0 ? (
               <div className="py-20 text-center text-gray-500">
                 No se encontraron productos en esta categoría.
               </div>
             ) : (
               <div className="grid grid-cols-3 gap-x-8 gap-y-16">
-                {products.map((product) => {
+                {processedProducts.map((product) => {
                   const productImages = product.images as string[] | undefined;
                   const firstImage = productImages?.[0] || "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800";
                   return (
