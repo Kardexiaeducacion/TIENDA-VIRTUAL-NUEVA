@@ -52,9 +52,9 @@ export default function Navbar() {
         <div className="flex items-center gap-10">
           <Link href="/" className="text-3xl font-extrabold text-primary uppercase tracking-tighter">Cloe</Link>
           <div className="hidden lg:flex items-center gap-8 relative h-full">
-            <Link href="/" className={`text-sm font-semibold tracking-widest uppercase transition-all duration-300 relative py-2 flex flex-col items-center justify-center ${pathname === "/" ? "text-primary -translate-y-[3px]" : "text-secondary hover:text-primary"}`}>
+            <Link href="/" className={`text-sm font-medium tracking-widest uppercase transition-all duration-300 relative py-2 flex flex-col items-center justify-center ${pathname === "/" ? "text-primary -translate-y-[3px]" : "text-secondary hover:text-primary"}`}>
               Inicio
-              {pathname === "/" && <span className="absolute -bottom-1 left-0 w-full h-[2px] bg-primary rounded-full"></span>}
+              {pathname === "/" && <span className="absolute -bottom-1 left-0 w-full h-[1px] bg-primary rounded-full"></span>}
             </Link>
             
             {categories.map((cat) => {
@@ -63,9 +63,9 @@ export default function Navbar() {
               
               return (
                 <div key={cat.id} className="group relative flex items-center h-full">
-                  <Link href={`/category/${cat.slug}`} className={`text-sm font-semibold tracking-widest uppercase transition-all duration-300 relative py-2 flex flex-col items-center justify-center ${isActive ? "text-primary -translate-y-[3px]" : "text-secondary hover:text-primary"}`}>
+                  <Link href={`/category/${cat.slug}`} className={`text-sm font-medium tracking-widest uppercase transition-all duration-300 relative py-2 flex flex-col items-center justify-center ${isActive ? "text-primary -translate-y-[3px]" : "text-secondary hover:text-primary"}`}>
                     {cat.name}
-                    {isActive && <span className="absolute -bottom-1 left-0 w-full h-[2px] bg-primary rounded-full"></span>}
+                    {isActive && <span className="absolute -bottom-1 left-0 w-full h-[1px] bg-primary rounded-full"></span>}
                   </Link>
                   
                   {subs.length > 0 && (
