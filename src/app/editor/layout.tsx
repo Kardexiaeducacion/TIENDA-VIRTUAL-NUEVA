@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import AdminSidebar from "./AdminSidebar";
 import AdminHeaderSearch from "./AdminHeaderSearch";
+import NotificationBell from "@/components/NotificationBell";
 
 export default async function EditorLayout({
   children,
@@ -38,7 +39,7 @@ export default async function EditorLayout({
         <header className="h-20 bg-white border-b border-[#EAEAEA] flex items-center justify-between px-8 sticky top-0 z-30">
           <AdminHeaderSearch />
           <div className="flex items-center gap-6">
-            <button className="material-symbols-outlined text-gray-400 hover:text-black transition-colors" title="Notificaciones (próximamente)">notifications</button>
+            <NotificationBell userId={user.id} />
             <Link href="/" className="flex items-center gap-2 border border-[#EAEAEA] px-4 py-2 rounded-md text-xs font-bold uppercase tracking-wider hover:bg-gray-50 transition-colors">
               <span className="material-symbols-outlined text-[16px]">open_in_new</span>
               Ver Tienda
