@@ -6,6 +6,13 @@ import { createClient } from "@/utils/supabase/client";
 
 export default function HandbagsPage() {
   const [products, setProducts] = useState<Record<string, unknown>[]>([]);
+  
+  // Filter states
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(["Totes"]);
+  const [maxPrice, setMaxPrice] = useState<number>(1500);
+  const [selectedColors, setSelectedColors] = useState<string[]>([]);
+  const [isFiltering, setIsFiltering] = useState(false);
+
   const supabase = createClient();
 
   useEffect(() => {
@@ -16,6 +23,34 @@ export default function HandbagsPage() {
     fetchProducts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const filteredProducts = products.filter(product => {
+    // Check categories
+    const catMatch = selectedCategories.length === 0 || selectedCategories.some(cat => 
+      (product.name as string)?.toLowerCase().includes(cat.toLowerCase()) ||
+      (product.description as string)?.toLowerCase().includes(cat.toLowerCase())
+    );
+    // Check price
+    const priceMatch = (Number(product.price) || 0) <= maxPrice;
+    // Check colors
+    const colorNames: Record<string, string> = {
+      "#000000": "black", "#ba1a1a": "red", "#ffffff": "white", "#c7c6c6": "grey", "#7e7576": "brown"
+    };
+    const colMatch = selectedColors.length === 0 || selectedColors.some(c => 
+      (product.name as string)?.toLowerCase().includes(colorNames[c] || "") ||
+      (product.features as any)?.color?.toLowerCase() === colorNames[c]
+    );
+
+    return catMatch && priceMatch && colMatch;
+  });
+
+  const handleCategoryToggle = (cat: string) => {
+    setSelectedCategories(prev => prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]);
+  };
+
+  const handleColorToggle = (color: string) => {
+    setSelectedColors(prev => prev.includes(color) ? prev.filter(c => c !== color) : [...prev, color]);
+  };
 
   return (
     <div className="bg-background text-on-background font-sans min-h-screen">
@@ -62,10 +97,15 @@ export default function HandbagsPage() {
               <div>
                 <h3 className="text-sm font-bold text-primary uppercase tracking-widest mb-6">Category</h3>
                 <ul className="space-y-3">
-                  {["Totes", "Satchels", "Clutches", "Crossbody"].map((cat, i) => (
+                  {["Totes", "Satchels", "Clutches", "Crossbody"].map((cat) => (
                     <li key={cat}>
                       <label className="flex items-center gap-3 cursor-pointer group">
-                        <input defaultChecked={i === 0} className="border-outline text-primary focus:ring-primary" type="checkbox" />
+                        <input 
+                          checked={selectedCategories.includes(cat)} 
+                          onChange={() => handleCategoryToggle(cat)}
+                          className="border-outline text-primary focus:ring-primary w-4 h-4 rounded-sm" 
+                          type="checkbox" 
+                        />
                         <span className="text-sm font-semibold group-hover:text-primary transition-colors">{cat}</span>
                       </label>
                     </li>
@@ -75,9 +115,17 @@ export default function HandbagsPage() {
               <div>
                 <h3 className="text-sm font-bold text-primary uppercase tracking-widest mb-6">Price</h3>
                 <div className="space-y-2">
-                  <input className="w-full accent-black bg-surface-container h-1" type="range" />
-                  <div className="flex justify-between text-xs text-secondary">
-                    <span>$0</span><span>$1500+</span>
+                  <input 
+                    className="w-full accent-black bg-surface-container h-1 cursor-pointer" 
+                    type="range" 
+                    min="0" 
+                    max="3000" 
+                    step="50"
+                    value={maxPrice}
+                    onChange={(e) => setMaxPrice(Number(e.target.value))}
+                  />
+                  <div className="flex justify-between text-xs text-secondary font-semibold mt-2">
+                    <span>$0</span><span>${maxPrice}{maxPrice >= 3000 ? "+" : ""}</span>
                   </div>
                 </div>
               </div>
@@ -85,18 +133,28 @@ export default function HandbagsPage() {
                 <h3 className="text-sm font-bold text-primary uppercase tracking-widest mb-6">Color</h3>
                 <div className="flex flex-wrap gap-3">
                   {["#000000", "#ba1a1a", "#ffffff", "#c7c6c6", "#7e7576"].map((color) => (
-                    <button key={color} className="w-8 h-8 border border-outline-variant hover:ring-1 hover:ring-offset-2 hover:ring-primary transition-all" style={{ backgroundColor: color }} />
+                    <button 
+                      key={color} 
+                      onClick={() => handleColorToggle(color)}
+                      className={`w-8 h-8 border transition-all ${selectedColors.includes(color) ? "ring-2 ring-offset-2 ring-primary border-transparent" : "border-outline-variant hover:ring-1 hover:ring-offset-2 hover:ring-primary"}`} 
+                      style={{ backgroundColor: color }} 
+                    />
                   ))}
                 </div>
               </div>
-              <button className="w-full py-3 bg-primary text-on-primary text-sm font-semibold uppercase tracking-widest hover:bg-primary-container transition-colors">Apply Filters</button>
+              <button 
+                onClick={() => setIsFiltering(true)}
+                className="w-full py-3 bg-primary text-on-primary text-sm font-semibold uppercase tracking-widest hover:bg-primary-container transition-colors"
+              >
+                {isFiltering ? "Filters Applied" : "Apply Filters"}
+              </button>
             </div>
           </aside>
 
           {/* PRODUCT GRID */}
           <div className="col-span-9">
             <div className="flex justify-between items-center mb-8">
-              <span className="text-xs text-secondary uppercase tracking-wide">Showing 24 of 142 products</span>
+              <span className="text-xs text-secondary uppercase tracking-wide">Showing {filteredProducts.length} of {products.length} products</span>
               <div className="flex items-center gap-3">
                 <span className="text-sm font-semibold text-primary uppercase">Sort by:</span>
                 <select className="border-none bg-transparent text-sm font-semibold text-primary focus:ring-0 cursor-pointer outline-none">
@@ -106,8 +164,16 @@ export default function HandbagsPage() {
                 </select>
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-x-8 gap-y-16">
-              {products.map((product) => (
+            
+            {filteredProducts.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 bg-surface-container-low border border-outline-variant">
+                <span className="material-symbols-outlined text-4xl text-secondary mb-4">search_off</span>
+                <h3 className="text-xl font-bold text-primary mb-2">No products found</h3>
+                <p className="text-secondary text-sm">Try adjusting your filters to see more results.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-x-8 gap-y-16">
+                {filteredProducts.map((product) => (
                 <Link href={`/product/${product.id}`} key={product.id} className="group cursor-pointer">
                   <div className="relative aspect-[3/4] overflow-hidden bg-surface-container mb-3">
                     <Image alt={product.name} src={product.images?.[0] || "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800"} fill className="object-cover transition-transform duration-700 group-hover:scale-105" unoptimized />
@@ -122,6 +188,7 @@ export default function HandbagsPage() {
                 </Link>
               ))}
             </div>
+            )}
           </div>
         </section>
 
