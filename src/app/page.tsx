@@ -1,12 +1,15 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import FavoriteButton from "@/components/FavoriteButton";
 import { useCart } from "@/context/CartContext";
 
 export default function HomePage() {
+  const router = useRouter();
+  const carouselRef = useRef<HTMLDivElement>(null);
   const [products, setProducts] = useState<Record<string, unknown>[]>([]);
   const [banners, setBanners] = useState<Record<string, Record<string, unknown>>>({});
   const supabase = createClient();
@@ -14,7 +17,7 @@ export default function HomePage() {
 
   useEffect(() => {
     async function fetchData() {
-      const { data: prodData } = await supabase.from("products").select("*").neq("is_active", false).order("created_at", { ascending: false }).limit(4);
+      const { data: prodData } = await supabase.from("products").select("*").neq("is_active", false).order("created_at", { ascending: false }).limit(12);
       if (prodData) setProducts(prodData);
 
       const { data: banData } = await supabase.from("banners").select("*");
@@ -151,17 +154,27 @@ export default function HomePage() {
           <div className="flex items-center justify-between mb-12">
             <h2 className="text-4xl font-bold tracking-tight">Tendencias</h2>
             <div className="flex gap-2">
-              <button className="w-10 h-10 flex items-center justify-center border border-outline hover:bg-surface-container transition-colors">
+              <button 
+                onClick={() => carouselRef.current?.scrollBy({ left: -carouselRef.current.offsetWidth, behavior: 'smooth' })}
+                className="w-10 h-10 flex items-center justify-center border border-outline hover:bg-surface-container transition-colors"
+              >
                 <span className="material-symbols-outlined">chevron_left</span>
               </button>
-              <button className="w-10 h-10 flex items-center justify-center border border-outline hover:bg-surface-container transition-colors">
+              <button 
+                onClick={() => carouselRef.current?.scrollBy({ left: carouselRef.current.offsetWidth, behavior: 'smooth' })}
+                className="w-10 h-10 flex items-center justify-center border border-outline hover:bg-surface-container transition-colors"
+              >
                 <span className="material-symbols-outlined">chevron_right</span>
               </button>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div 
+            ref={carouselRef}
+            className="flex overflow-x-auto snap-x snap-mandatory gap-8 pb-8 scrollbar-hide"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
             {products.map((product) => (
-              <Link href={`/product/${product.id}`} key={product.id} className="group">
+              <Link href={`/product/${product.id}`} key={product.id} className="group shrink-0 snap-start w-full md:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)]">
                 <div className="aspect-[3/4] relative overflow-hidden bg-surface-container-low mb-3">
                   <Image
                     alt={product.name as string}
