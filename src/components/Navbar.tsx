@@ -59,7 +59,7 @@ export default function Navbar() {
             
             {categories.map((cat) => {
               const subs = subcategories.filter(s => s.category_id === cat.id);
-              const isActive = pathname.startsWith(`/category/${cat.slug}`);
+              const isActive = pathname === `/category/${cat.slug}` || pathname.startsWith(`/category/${cat.slug}/`);
               
               return (
                 <div key={cat.id} className="group relative flex items-center h-full">
