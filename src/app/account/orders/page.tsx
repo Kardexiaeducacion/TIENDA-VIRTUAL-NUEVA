@@ -35,8 +35,23 @@ export default function MyOrdersPage() {
     fetchOrders();
     if (typeof window !== 'undefined') {
       const p = new URLSearchParams(window.location.search);
-      if (p.get('mp_success') === 'true') setMpNotif('success');
-      else if (p.get('mp_pending') === 'true') setMpNotif('pending');
+      const orderId = p.get('order_id');
+      if (p.get('mp_success') === 'true') {
+        setMpNotif('success');
+        // Confirm the MP order via API (fallback if webhook didn't fire)
+        if (orderId) {
+          fetch('/api/orders/confirm-mp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderId }),
+          }).then(() => {
+            // Reload orders after a short delay to get updated status
+            setTimeout(() => fetchOrders(), 1500);
+          });
+        }
+      } else if (p.get('mp_pending') === 'true') {
+        setMpNotif('pending');
+      }
     }
   }, []);
 
