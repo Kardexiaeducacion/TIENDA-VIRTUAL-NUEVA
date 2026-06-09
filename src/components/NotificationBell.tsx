@@ -24,18 +24,18 @@ export default function NotificationBell({ userId }: { userId: string | null | u
   if (!userId) return null; // Don't render the bell if the user is not logged in
 
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative flex items-center justify-center" ref={dropdownRef}>
       <button
         onClick={() => {
           setOpen(!open)
           if (!open && unreadCount > 0) markAllRead()
         }}
-        className="relative hover:text-secondary transition-colors"
+        className="relative flex items-center justify-center text-primary hover:text-secondary transition-colors"
         title="Notificaciones"
       >
         <span className="material-symbols-outlined">notifications</span>
         {unreadCount > 0 && (
-          <span className="absolute -top-2 -right-2 bg-primary text-on-primary text-[10px] w-4 h-4 flex items-center justify-center rounded-full animate-pulse">
+          <span className="absolute -top-1 -right-1 bg-primary text-on-primary text-[10px] w-4 h-4 flex items-center justify-center rounded-full animate-pulse">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
