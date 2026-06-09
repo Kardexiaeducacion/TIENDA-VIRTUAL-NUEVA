@@ -36,20 +36,28 @@ export default function MyOrdersPage() {
     if (typeof window !== 'undefined') {
       const p = new URLSearchParams(window.location.search);
       const orderId = p.get('order_id');
-      if (p.get('mp_success') === 'true') {
+      // Mercado Pago adds its own query params: status, collection_status, external_reference (which is order.id)
+      const mpStatus = p.get('status') || p.get('collection_status');
+      const externalRef = p.get('external_reference');
+
+      const isSuccess = p.get('mp_success') === 'true' || mpStatus === 'approved';
+      const isPending = p.get('mp_pending') === 'true' || mpStatus === 'pending' || mpStatus === 'in_process';
+      const targetOrderId = orderId || externalRef;
+
+      if (isSuccess) {
         setMpNotif('success');
         // Confirm the MP order via API (fallback if webhook didn't fire)
-        if (orderId) {
+        if (targetOrderId) {
           fetch('/api/orders/confirm-mp', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ orderId }),
+            body: JSON.stringify({ orderId: targetOrderId }),
           }).then(() => {
             // Reload orders after a short delay to get updated status
             setTimeout(() => fetchOrders(), 1500);
           });
         }
-      } else if (p.get('mp_pending') === 'true') {
+      } else if (isPending) {
         setMpNotif('pending');
       }
     }
