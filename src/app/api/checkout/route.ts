@@ -59,6 +59,16 @@ export async function POST(req: Request) {
 
       if (orderError) throw new Error("No se pudo crear la orden: " + orderError.message);
 
+      if (user?.id) {
+        await supabase.from('notifications').insert({
+          user_id: user.id,
+          type: 'order',
+          title: 'Orden Creada (Mercado Pago)',
+          body: 'Hemos registrado tu orden. Esperando que completes el pago...',
+          order_id: order.id
+        });
+      }
+
       if (appliedCoupon?.id) {
         const { data: cData } = await supabase.from('coupons').select('uses_count').eq('id', appliedCoupon.id).single();
         if (cData) await supabase.from('coupons').update({ uses_count: (cData.uses_count || 0) + 1 }).eq('id', appliedCoupon.id);
@@ -188,6 +198,16 @@ export async function POST(req: Request) {
       .single();
 
     if (orderError) throw new Error("No se pudo crear la orden: " + orderError.message);
+
+    if (user?.id) {
+      await supabase.from('notifications').insert({
+        user_id: user.id,
+        type: 'order',
+        title: 'Orden Recibida',
+        body: 'Hemos registrado tu compra con éxito. Por favor realiza tu pago siguiendo las instrucciones.',
+        order_id: order.id
+      });
+    }
 
     if (appliedCoupon?.id) {
       const { data: cData } = await supabase.from('coupons').select('uses_count').eq('id', appliedCoupon.id).single();

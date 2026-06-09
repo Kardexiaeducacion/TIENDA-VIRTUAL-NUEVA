@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     // Only update if still pending (don't override if webhook already set it)
     const { data: order } = await supabase
       .from('orders')
-      .select('payment_status, payment_method')
+      .select('payment_status, payment_method, user_id')
       .eq('id', orderId)
       .single();
 
@@ -27,6 +27,17 @@ export async function POST(req: Request) {
         .from('orders')
         .update({ payment_status: 'verified', status: 'confirmado' })
         .eq('id', orderId);
+        
+      // Crear notificación para el usuario
+      if (order.user_id) {
+        await supabase.from('notifications').insert({
+          user_id: order.user_id,
+          type: 'order',
+          title: '¡Pago Confirmado!',
+          body: 'Hemos recibido tu pago vía Mercado Pago. Tu orden está siendo procesada.',
+          order_id: orderId
+        });
+      }
     }
 
     return NextResponse.json({ success: true });

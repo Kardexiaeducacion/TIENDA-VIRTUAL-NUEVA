@@ -8,6 +8,7 @@ type Category = { id: string; name: string; slug: string };
 type Subcategory = { id: string; category_id: string; name: string; slug: string };
 
 import { useCart } from "@/context/CartContext";
+import NotificationBell from "./NotificationBell";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -21,8 +22,12 @@ export default function Navbar() {
   
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setUserId(data.user?.id || null);
+    });
     async function fetchData() {
       const { data: cats } = await supabase.from("categories").select("*").order("name");
       const { data: subs } = await supabase.from("subcategories").select("*").order("name");
@@ -103,6 +108,7 @@ export default function Navbar() {
           ) : (
             <button onClick={() => { setIsSearchOpen(true); setTimeout(() => searchInputRef.current?.focus(), 100); }} className="material-symbols-outlined text-primary hover:text-secondary transition-colors">search</button>
           )}
+          <NotificationBell userId={userId} />
           <Link href="/account" className="material-symbols-outlined text-primary hover:text-secondary transition-colors">person</Link>
           <Link href="/account/favorites" className="material-symbols-outlined text-primary hover:text-secondary transition-colors">favorite</Link>
           <Link href="/cart" className="relative">
