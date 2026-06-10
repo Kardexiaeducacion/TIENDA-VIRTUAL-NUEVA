@@ -32,7 +32,10 @@ export async function POST(req: Request) {
       const client = new MPConfig({ accessToken });
       const preference = new Preference(client);
 
-      let baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cloe-app-git-main-kardexia-s-projects.vercel.app';
+      let baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cloe-app.vercel.app';
+      if (baseUrl.trim() === '' || baseUrl === 'undefined') {
+        baseUrl = 'https://cloe-app.vercel.app';
+      }
       if (!baseUrl.startsWith('http')) {
         baseUrl = `https://${baseUrl}`;
       }
@@ -128,10 +131,10 @@ export async function POST(req: Request) {
 
         return NextResponse.json({ success: true, orderId: order.id, checkoutUrl: prefData.init_point });
       } catch (err: any) {
-        console.error('[Checkout] MP preference error:', err);
+        console.error('[Checkout] MP preference error:', err, 'Payload:', JSON.stringify(prefPayload));
         await supabase.from('orders').delete().eq('id', order.id);
         const errMsg = err.message || 'Error al crear preferencia de Mercado Pago';
-        return NextResponse.json({ error: errMsg }, { status: 500 });
+        return NextResponse.json({ error: errMsg, debug_payload: prefPayload }, { status: 500 });
       }
     }
     // ─────────────────────────────────────────────────────────────────────────
