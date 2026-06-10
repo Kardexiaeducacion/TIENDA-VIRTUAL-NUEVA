@@ -15,12 +15,9 @@ export default function ResetPasswordPage() {
   const supabase = createClient();
 
   useEffect(() => {
-    // Check if user is actually in a recovery session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
-        setError("El enlace ha caducado o no es válido. Por favor solicita uno nuevo.");
-      }
-    });
+    // El cliente de Supabase puede tardar unos milisegundos en detectar la sesión
+    // desde los parámetros de la URL, por lo que no mostraremos error inmediatamente.
+    // Si el usuario no tiene sesión válida, fallará al intentar guardar.
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
