@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -60,7 +61,12 @@ export default function LoginPage() {
 
             <div className="flex flex-col gap-2">
               <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">Contraseña</label>
-              <input required type="password" className="border border-outline-variant bg-surface p-3 text-base focus:border-primary focus:outline-none" value={password} onChange={(e) => setPassword(e.target.value)} />
+              <div className="relative">
+                <input required type={showPassword ? "text" : "password"} className="w-full border border-outline-variant bg-surface p-3 pr-10 text-base focus:border-primary focus:outline-none" value={password} onChange={(e) => setPassword(e.target.value)} />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary hover:text-primary material-symbols-outlined">
+                  {showPassword ? "visibility_off" : "visibility"}
+                </button>
+              </div>
             </div>
 
             <div className="flex items-center justify-between">

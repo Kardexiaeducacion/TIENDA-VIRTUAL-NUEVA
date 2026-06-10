@@ -12,6 +12,7 @@ export default function RegisterPage() {
     email: "",
     password: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -115,7 +116,12 @@ export default function RegisterPage() {
 
               <div className="flex flex-col gap-2">
                 <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">Contraseña</label>
-                <input required type="password" minLength={6} className="border border-outline-variant bg-surface p-3 text-base focus:border-primary focus:outline-none" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} />
+                <div className="relative">
+                  <input required type={showPassword ? "text" : "password"} minLength={6} className="w-full border border-outline-variant bg-surface p-3 pr-10 text-base focus:border-primary focus:outline-none" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary hover:text-primary material-symbols-outlined">
+                    {showPassword ? "visibility_off" : "visibility"}
+                  </button>
+                </div>
               </div>
             </div>
 
