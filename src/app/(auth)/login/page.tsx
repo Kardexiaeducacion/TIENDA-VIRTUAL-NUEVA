@@ -74,7 +74,7 @@ export default function LoginPage() {
                 <input type="checkbox" className="w-4 h-4 border-outline text-primary focus:ring-0" />
                 <span className="text-sm text-secondary">Recordarme</span>
               </label>
-              <Link href="#" className="text-sm text-primary font-bold hover:underline">¿Olvidaste tu contraseña?</Link>
+              <Link href="/forgot-password" className="text-sm text-primary font-bold hover:underline">¿Olvidaste tu contraseña?</Link>
             </div>
 
             <button disabled={loading} type="submit" className="w-full py-4 bg-primary text-on-primary text-sm font-bold uppercase tracking-widest hover:bg-primary-container transition-colors disabled:opacity-50 mt-4">
