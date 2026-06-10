@@ -15,9 +15,16 @@ export default function ResetPasswordPage() {
   const supabase = createClient();
 
   useEffect(() => {
-    // El cliente de Supabase puede tardar unos milisegundos en detectar la sesión
-    // desde los parámetros de la URL, por lo que no mostraremos error inmediatamente.
-    // Si el usuario no tiene sesión válida, fallará al intentar guardar.
+    // Intercambiar el código de PKCE por una sesión válida si viene en la URL
+    const url = new URL(window.location.href);
+    const code = url.searchParams.get('code');
+    if (code) {
+      supabase.auth.exchangeCodeForSession(code).then(({ error: exchangeError }) => {
+        if (exchangeError) {
+          console.error("Error al intercambiar código:", exchangeError);
+        }
+      });
+    }
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
