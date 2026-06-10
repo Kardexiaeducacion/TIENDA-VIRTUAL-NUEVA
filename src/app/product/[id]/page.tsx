@@ -71,7 +71,27 @@ export default function ProductPage() {
     );
   }
 
-  const productImages = product.images?.length > 0 ? product.images : defaultImages;
+  let parsedImages = defaultImages;
+  if (product.images) {
+    try {
+      parsedImages = typeof product.images === 'string' ? JSON.parse(product.images) : product.images;
+      if (!Array.isArray(parsedImages) || parsedImages.length === 0) parsedImages = defaultImages;
+    } catch (e) {
+      parsedImages = defaultImages;
+    }
+  }
+  const productImages = parsedImages;
+
+  let parsedVariants: any[] = [];
+  if (product.variants) {
+    try {
+      parsedVariants = typeof product.variants === 'string' ? JSON.parse(product.variants) : product.variants;
+      if (!Array.isArray(parsedVariants)) parsedVariants = [];
+    } catch (e) {
+      parsedVariants = [];
+    }
+  }
+  product.variants = parsedVariants;
 
   return (
     <div className="bg-background text-on-background font-sans">
