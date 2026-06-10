@@ -32,7 +32,10 @@ export async function POST(req: Request) {
       const client = new MPConfig({ accessToken });
       const preference = new Preference(client);
 
-      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cloe-app-git-main-kardexia-s-projects.vercel.app';
+      let baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cloe-app-git-main-kardexia-s-projects.vercel.app';
+      if (!baseUrl.startsWith('http')) {
+        baseUrl = `https://${baseUrl}`;
+      }
 
       const shippingDetails = shippingAddress ? {
         ...shippingAddress,
