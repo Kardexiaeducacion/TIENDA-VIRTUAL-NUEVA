@@ -3,11 +3,15 @@
 import { useState, useEffect, useRef } from 'react'
 import { timeAgo, useNotifications } from '@/hooks/useNotifications'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 export default function NotificationBell({ userId }: { userId: string | null | undefined }) {
   const [open, setOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   
+  const pathname = usePathname()
+  const isAdminPath = pathname?.startsWith('/editor')
+
   // Call hooks unconditionally
   const { notifs, unreadCount, markAllRead, markRead } = useNotifications(userId, 20, 'bell')
 
@@ -69,7 +73,15 @@ export default function NotificationBell({ userId }: { userId: string | null | u
                 </div>
               ) : (
                 notifs.map((n) => {
-                  const href = n.order_id ? `/account/orders/${n.order_id}` : '#';
+                  // Determinar el enlace seguro para evitar el 404
+                  let href = '#';
+                  if (n.type === 'order' || n.order_id) {
+                    href = isAdminPath ? '/editor/orders' : '/account/orders';
+                  } else if (n.type === 'qa') {
+                    // QA podría ir al producto si tuvieramos el product_id, por ahora se queda en el editor si es admin
+                    href = isAdminPath ? '/editor/orders' : '/';
+                  }
+
                   return (
                     <Link 
                       href={href}
