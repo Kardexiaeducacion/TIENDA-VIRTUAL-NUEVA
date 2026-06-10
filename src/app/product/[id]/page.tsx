@@ -58,7 +58,6 @@ export default function ProductPage() {
   if (product.is_active === false) {
     return (
       <div className="bg-background text-on-background font-sans">
-        <Navbar />
         <main className="min-h-screen flex flex-col justify-center items-center pt-20">
           <span className="material-symbols-outlined text-6xl text-gray-300 mb-4">inventory_2</span>
           <h1 className="text-2xl font-bold mb-2">Producto no disponible</h1>
@@ -95,8 +94,6 @@ export default function ProductPage() {
 
   return (
     <div className="bg-background text-on-background font-sans">
-      {/* NAV */}
-      <Navbar />
 
       <main className="pt-20">
         <div className="max-w-[1440px] mx-auto px-20 py-20">

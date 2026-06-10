@@ -31,7 +31,6 @@ export default function HelpCenterPage() {
 
   return (
     <div className="bg-background text-on-background font-sans min-h-screen flex flex-col">
-      <Navbar />
       
       {/* HEADER */}
       <header className="pt-32 pb-16 bg-surface-container border-b border-outline-variant text-center">
