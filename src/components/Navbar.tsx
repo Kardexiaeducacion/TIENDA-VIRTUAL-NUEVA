@@ -28,6 +28,11 @@ export default function Navbar() {
     supabase.auth.getUser().then(({ data }) => {
       setUserId(data.user?.id || null);
     });
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setUserId(session?.user?.id || null);
+    });
+
     async function fetchData() {
       const { data: cats } = await supabase.from("categories").select("*").order("name");
       const { data: subs } = await supabase.from("subcategories").select("*").order("name");
@@ -35,6 +40,10 @@ export default function Navbar() {
       if (subs) setSubcategories(subs);
     }
     fetchData();
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, [supabase]);
 
   // Hide Navbar in editor, login, register, etc.
