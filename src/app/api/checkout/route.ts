@@ -32,7 +32,14 @@ export async function POST(req: Request) {
       const client = new MPConfig({ accessToken });
       const preference = new Preference(client);
 
-      let baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cloe-app.vercel.app';
+      let baseUrl = req.headers.get('origin') || process.env.NEXT_PUBLIC_SITE_URL || 'https://cloe-app.vercel.app';
+      
+      // If Vercel env var is accidentally set to localhost in production/preview, override it
+      if (baseUrl.includes('localhost') && req.headers.get('host') && !req.headers.get('host')?.includes('localhost')) {
+        const protocol = req.headers.get('x-forwarded-proto') || 'https';
+        baseUrl = `${protocol}://${req.headers.get('host')}`;
+      }
+
       if (baseUrl.trim() === '' || baseUrl === 'undefined') {
         baseUrl = 'https://cloe-app.vercel.app';
       }
