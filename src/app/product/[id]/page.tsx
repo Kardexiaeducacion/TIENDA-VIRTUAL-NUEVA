@@ -91,7 +91,7 @@ export default function ProductPage() {
       parsedVariants = [];
     }
   }
-  product.variants = parsedVariants;
+  const productVariants = parsedVariants;
 
   return (
     <div className="bg-background text-on-background font-sans">
@@ -105,7 +105,7 @@ export default function ProductPage() {
             <div className="col-span-12 lg:col-span-7">
               <div className="flex flex-col gap-6">
                 <div className="aspect-[4/5] bg-surface-container-low overflow-hidden border border-outline-variant relative group">
-                  <Image alt={product.name} src={productImages[activeImg]} fill className="object-cover transition-transform duration-700 group-hover:scale-105" unoptimized />
+                  <Image alt={product.name as string} src={productImages[activeImg]} fill className="object-cover transition-transform duration-700 group-hover:scale-105" unoptimized />
                 </div>
                 <div className="grid grid-cols-4 gap-4">
                   {productImages.map((img: string, i: number) => (
@@ -131,11 +131,11 @@ export default function ProductPage() {
                 </div>
 
                 {/* VARIANTS */}
-                {(product.variants as any[])?.length > 0 && (
+                {productVariants.length > 0 && (
                   <div className="pt-4 border-t border-outline-variant">
                     <span className="text-sm font-bold uppercase block mb-3">Selecciona una Opción:</span>
                     <div className="flex flex-wrap gap-2">
-                      {(product.variants as any[]).map(variant => (
+                      {productVariants.map(variant => (
                         <button
                           key={variant.id}
                           onClick={() => setSelectedVariant(variant)}
@@ -156,7 +156,7 @@ export default function ProductPage() {
                 {/* CTA */}
                 <div className="flex flex-col gap-4 pt-4">
                   {(() => {
-                    const hasVariants = (product.variants as any[])?.length > 0;
+                    const hasVariants = productVariants.length > 0;
                     const stock = hasVariants 
                       ? (selectedVariant ? selectedVariant.stock : (product.stock as number || 0))
                       : (product.stock as number || 0);
