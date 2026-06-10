@@ -207,9 +207,32 @@ export default function ProductPage() {
                 {/* SHARE */}
                 <div className="flex items-center gap-4 pt-2">
                   <span className="text-xs font-semibold text-secondary uppercase tracking-widest">Compartir:</span>
-                  <button className="material-symbols-outlined text-secondary hover:text-primary transition-colors text-xl">share</button>
-                  <button className="text-secondary hover:text-primary transition-colors text-sm font-semibold">WhatsApp</button>
-                  <button className="text-secondary hover:text-primary transition-colors text-sm font-semibold">Facebook</button>
+                  <button 
+                    onClick={() => {
+                      if (navigator.share) {
+                        navigator.share({ title: product.name as string, url: window.location.href }).catch(console.error);
+                      } else {
+                        navigator.clipboard.writeText(window.location.href);
+                        alert('Enlace copiado al portapapeles');
+                      }
+                    }}
+                    title="Compartir"
+                    className="material-symbols-outlined text-secondary hover:text-primary transition-colors text-xl"
+                  >
+                    share
+                  </button>
+                  <button 
+                    onClick={() => window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent('Mira este increíble producto: ' + product.name + ' - ' + window.location.href)}`, '_blank')}
+                    className="text-secondary hover:text-primary transition-colors text-sm font-semibold"
+                  >
+                    WhatsApp
+                  </button>
+                  <button 
+                    onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank')}
+                    className="text-secondary hover:text-primary transition-colors text-sm font-semibold"
+                  >
+                    Facebook
+                  </button>
                 </div>
 
                 {/* COLLAPSIBLES */}
