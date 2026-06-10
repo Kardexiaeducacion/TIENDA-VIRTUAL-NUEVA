@@ -218,29 +218,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* JOIN THE LIST */}
-        <section className="bg-surface-container-low py-20 border-t border-b border-outline-variant">
-          <div className="max-w-[1440px] mx-auto px-20">
-            <div className="grid grid-cols-12 items-center gap-8">
-              <div className="col-span-12 lg:col-span-6">
-                <h2 className="text-4xl font-medium tracking-normal text-primary mb-4">Únete a la Lista</h2>
-                <p className="text-xl text-secondary leading-relaxed">Suscríbete para recibir acceso exclusivo a novedades, eventos privados y contenido editorial.</p>
-              </div>
-              <div className="col-span-12 lg:col-span-6">
-                <form className="flex flex-col sm:flex-row gap-4" onSubmit={(e) => e.preventDefault()}>
-                  <input
-                    className="flex-grow bg-transparent border-b-2 border-primary py-4 px-2 outline-none text-base focus:border-secondary transition-colors"
-                    placeholder="Correo Electrónico" required type="email"
-                  />
-                  <button className="bg-primary text-white px-10 py-4 text-sm font-semibold hover:bg-primary-container transition-colors uppercase tracking-widest whitespace-nowrap" type="submit">
-                    Suscribirse
-                  </button>
-                </form>
-                <p className="text-xs text-secondary mt-4">Al registrarte, aceptas nuestra <a className="underline" href="#">Política de Privacidad</a>.</p>
-              </div>
-            </div>
-          </div>
-        </section>
       </main>
 
     </div>
