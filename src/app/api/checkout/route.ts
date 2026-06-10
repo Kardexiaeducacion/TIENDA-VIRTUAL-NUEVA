@@ -102,7 +102,7 @@ export async function POST(req: Request) {
         });
       }
 
-      // Use fetch directly to MP Preferences API
+      // Use MP SDK to create preference
       const prefPayload = {
         items: prefItems,
         payer: shippingAddress?.email ? { email: shippingAddress.email } : undefined,
@@ -116,25 +116,20 @@ export async function POST(req: Request) {
         notification_url: `${baseUrl}/api/webhooks/mercadopago`,
       };
 
-      const prefRes = await fetch('https://api.mercadopago.com/checkout/preferences', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(prefPayload),
-      });
+      try {
+        const prefData = await preference.create({ body: prefPayload as any });
+        
+        if (!prefData.init_point) {
+          throw new Error('Error al crear preferencia de Mercado Pago: init_point nulo');
+        }
 
-      const prefData = await prefRes.json();
-
-      if (!prefRes.ok || !prefData.init_point) {
-        console.error('[Checkout] MP preference error:', JSON.stringify(prefData));
+        return NextResponse.json({ success: true, orderId: order.id, checkoutUrl: prefData.init_point });
+      } catch (err: any) {
+        console.error('[Checkout] MP preference error:', err);
         await supabase.from('orders').delete().eq('id', order.id);
-        const errMsg = prefData.message || prefData.cause?.[0]?.description || 'Error al crear preferencia de Mercado Pago';
+        const errMsg = err.message || 'Error al crear preferencia de Mercado Pago';
         return NextResponse.json({ error: errMsg }, { status: 500 });
       }
-
-      return NextResponse.json({ success: true, orderId: order.id, checkoutUrl: prefData.init_point });
     }
     // ─────────────────────────────────────────────────────────────────────────
 
