@@ -8,7 +8,12 @@ export default function ProductQA({ productId }: { productId: string }) {
   const [loading, setLoading] = useState(false);
   const supabase = createClient();
 
+  const [session, setSession] = useState<any>(null);
+
   useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
     fetchQuestions();
   }, [productId]);
 
@@ -22,7 +27,7 @@ export default function ProductQA({ productId }: { productId: string }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newQuestion.trim()) return;
+    if (!newQuestion.trim() || !session) return;
 
     setLoading(true);
     try {
@@ -49,25 +54,34 @@ export default function ProductQA({ productId }: { productId: string }) {
       <h3 className="text-xl font-bold uppercase mb-6">Preguntas y Respuestas</h3>
       
       {/* Formulario de nueva pregunta */}
-      <form onSubmit={handleSubmit} className="mb-8">
-        <label className="block text-sm font-bold text-secondary mb-2 uppercase">¿Tienes alguna duda sobre este producto?</label>
-        <div className="flex flex-col sm:flex-row gap-4">
-          <input 
-            type="text" 
-            className="flex-1 bg-surface-container border border-outline-variant p-3 outline-none focus:border-primary"
-            placeholder="Escribe tu pregunta aquí..."
-            value={newQuestion}
-            onChange={(e) => setNewQuestion(e.target.value)}
-          />
-          <button 
-            type="submit" 
-            disabled={loading}
-            className="px-6 py-3 bg-primary text-white font-bold uppercase text-sm tracking-widest hover:bg-black disabled:opacity-50 transition-colors"
-          >
-            {loading ? "Enviando..." : "Preguntar"}
-          </button>
+      {session ? (
+        <form onSubmit={handleSubmit} className="mb-8">
+          <label className="block text-sm font-bold text-secondary mb-2 uppercase">¿Tienes alguna duda sobre este producto?</label>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <input 
+              type="text" 
+              className="flex-1 bg-surface-container border border-outline-variant p-3 outline-none focus:border-primary"
+              placeholder="Escribe tu pregunta aquí..."
+              value={newQuestion}
+              onChange={(e) => setNewQuestion(e.target.value)}
+            />
+            <button 
+              type="submit" 
+              disabled={loading}
+              className="px-6 py-3 bg-primary text-white font-bold uppercase text-sm tracking-widest hover:bg-black disabled:opacity-50 transition-colors"
+            >
+              {loading ? "Enviando..." : "Preguntar"}
+            </button>
+          </div>
+        </form>
+      ) : (
+        <div className="mb-8 bg-surface-container-low p-6 text-center border border-outline-variant flex flex-col items-center justify-center">
+          <p className="text-sm font-semibold text-primary mb-4 uppercase tracking-widest">Debes iniciar sesión para preguntar</p>
+          <a href="/login" className="px-6 py-3 bg-primary text-white font-bold uppercase text-xs tracking-widest hover:bg-black transition-colors inline-block">
+            Iniciar Sesión
+          </a>
         </div>
-      </form>
+      )}
 
       {/* Lista de preguntas */}
       <div className="space-y-6">

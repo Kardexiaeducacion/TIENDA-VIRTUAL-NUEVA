@@ -33,8 +33,12 @@ export default function ProductPage() {
   const [detailsOpen, setDetailsOpen] = useState(true);
   const [shippingOpen, setShippingOpen] = useState(false);
   const [selectedVariant, setSelectedVariant] = useState<any>(null);
+  const [session, setSession] = useState<any>(null);
 
   useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
     async function fetchProduct() {
       if (id) {
         const { data } = await supabase.from("products").select("*").eq("id", id).single();
@@ -168,6 +172,10 @@ export default function ProductPage() {
                         </div>
                         <button 
                           onClick={() => {
+                            if (!session) {
+                              window.location.href = "/login";
+                              return;
+                            }
                             if (isOutOfStock) return;
                             if (hasVariants && !selectedVariant) {
                               alert("Por favor, selecciona una opción antes de añadir al carrito.");
@@ -183,20 +191,24 @@ export default function ProductPage() {
                               addToCart(product, 1, selectedVariant);
                             }
                           }}
-                          disabled={isOutOfStock}
+                          disabled={isOutOfStock && !!session}
                           className={`w-full py-5 text-sm font-semibold uppercase tracking-widest transition-all duration-300 border border-primary ${
-                            isOutOfStock 
-                              ? "bg-surface-container text-secondary border-outline-variant cursor-not-allowed opacity-50"
-                              : items.some((i: any) => i.id === `${product.id}_${selectedVariant?.id || 'base'}`)
-                                ? "bg-primary text-white hover:bg-black"
-                                : "bg-transparent text-primary hover:bg-surface-container-low"
+                            !session
+                              ? "bg-primary text-white hover:bg-black"
+                              : isOutOfStock 
+                                ? "bg-surface-container text-secondary border-outline-variant cursor-not-allowed opacity-50"
+                                : items.some((i: any) => i.id === `${product.id}_${selectedVariant?.id || 'base'}`)
+                                  ? "bg-primary text-white hover:bg-black"
+                                  : "bg-transparent text-primary hover:bg-surface-container-low"
                           }`}
                         >
-                          {isOutOfStock 
-                            ? "Agotado"
-                            : items.some((i: any) => i.id === `${product.id}_${selectedVariant?.id || 'base'}`) 
-                              ? "Quitar del Carrito" 
-                              : "Añadir al Carrito"}
+                          {!session 
+                            ? "Inicia Sesión para Comprar"
+                            : isOutOfStock 
+                              ? "Agotado"
+                              : items.some((i: any) => i.id === `${product.id}_${selectedVariant?.id || 'base'}`) 
+                                ? "Quitar del Carrito" 
+                                : "Añadir al Carrito"}
                         </button>
                       </>
                     );
