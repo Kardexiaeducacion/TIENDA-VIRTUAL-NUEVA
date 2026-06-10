@@ -35,53 +35,67 @@ export default function NotificationBell({ userId }: { userId: string | null | u
       >
         <span className="material-symbols-outlined">notifications</span>
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-primary text-on-primary text-[10px] w-4 h-4 flex items-center justify-center rounded-full animate-pulse">
+          <span className="absolute -top-1 -right-1 bg-black text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full animate-pulse border border-white">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-4 w-80 bg-surface border border-outline-variant rounded-xl shadow-2xl z-50 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-outline-variant bg-surface-container-low">
-            <span className="font-semibold text-xs uppercase text-primary tracking-wider">
-              Notificaciones
-            </span>
-            {unreadCount > 0 && (
-              <button
-                onClick={markAllRead}
-                className="text-[10px] text-secondary font-semibold uppercase hover:underline"
-              >
-                Marcar leídas
-              </button>
-            )}
-          </div>
+        <div className="absolute top-[calc(100%+16px)] right-0 w-80 lg:w-96 bg-white border border-[#EAEAEA] rounded-xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] z-[100]">
+          {/* Triángulo superior */}
+          <div className="absolute -top-2 right-[10px] w-4 h-4 bg-white border-l border-t border-[#EAEAEA] transform rotate-45 rounded-tl-[3px]" />
+          
+          <div className="relative bg-white rounded-xl overflow-hidden flex flex-col max-h-[400px]">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[#EAEAEA] bg-gray-50/50">
+              <span className="font-bold text-xs uppercase text-black tracking-widest">
+                Notificaciones
+              </span>
+              {unreadCount > 0 && (
+                <button
+                  onClick={markAllRead}
+                  className="text-[10px] text-gray-500 font-bold uppercase tracking-wider hover:text-black transition-colors"
+                >
+                  Marcar leídas
+                </button>
+              )}
+            </div>
 
-          <div className="max-h-80 overflow-y-auto divide-y divide-outline-variant">
-            {notifs.length === 0 ? (
-              <div className="py-8 text-center flex flex-col items-center">
-                <span className="material-symbols-outlined text-3xl text-outline mb-2">notifications_none</span>
-                <p className="text-xs text-secondary">Sin notificaciones</p>
-              </div>
-            ) : (
-              notifs.map((n) => {
-                const href = n.order_id ? `/account/orders/${n.order_id}` : '#';
-                return (
-                  <Link 
-                    href={href}
-                    key={n.id}
-                    onClick={() => markRead(n.id)}
-                    className={`block px-4 py-3 cursor-pointer hover:bg-surface-container transition-colors ${
-                      !n.is_read ? 'bg-primary/5 border-l-2 border-primary' : ''
-                    }`}
-                  >
-                    <p className="text-sm font-semibold text-primary leading-tight">{n.title}</p>
-                    <p className="text-xs text-secondary mt-1 leading-snug">{n.body}</p>
-                    <p className="text-[10px] text-outline mt-2">{timeAgo(n.created_at)}</p>
-                  </Link>
-                );
-              })
-            )}
+            <div className="overflow-y-auto flex-1 divide-y divide-[#EAEAEA] bg-white">
+              {notifs.length === 0 ? (
+                <div className="py-12 text-center flex flex-col items-center justify-center">
+                  <span className="material-symbols-outlined text-4xl text-gray-300 mb-3">notifications_paused</span>
+                  <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Sin notificaciones</p>
+                </div>
+              ) : (
+                notifs.map((n) => {
+                  const href = n.order_id ? `/account/orders/${n.order_id}` : '#';
+                  return (
+                    <Link 
+                      href={href}
+                      key={n.id}
+                      onClick={() => {
+                        markRead(n.id);
+                        setOpen(false);
+                      }}
+                      className={`block px-5 py-4 cursor-pointer hover:bg-gray-50 transition-colors relative group ${
+                        !n.is_read ? 'bg-[#F9FAFB]' : ''
+                      }`}
+                    >
+                      {!n.is_read && (
+                        <span className="absolute left-0 top-0 bottom-0 w-1 bg-black"></span>
+                      )}
+                      <p className="text-[13px] font-bold text-gray-900 leading-tight mb-1">{n.title}</p>
+                      <p className="text-[12px] text-gray-500 leading-relaxed mb-2 pr-2">{n.body}</p>
+                      <div className="flex items-center text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                        <span className="material-symbols-outlined text-[12px] mr-1">schedule</span>
+                        {timeAgo(n.created_at)}
+                      </div>
+                    </Link>
+                  );
+                })
+              )}
+            </div>
           </div>
         </div>
       )}
