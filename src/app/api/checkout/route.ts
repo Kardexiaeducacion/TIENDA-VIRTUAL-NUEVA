@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { notifyUser, notifyAdmins } from '@/utils/notifications';
 
 export async function POST(req: Request) {
   try {
@@ -60,14 +61,9 @@ export async function POST(req: Request) {
       if (orderError) throw new Error("No se pudo crear la orden: " + orderError.message);
 
       if (user?.id) {
-        await supabase.from('notifications').insert({
-          user_id: user.id,
-          type: 'order',
-          title: 'Orden Creada (Mercado Pago)',
-          body: 'Hemos registrado tu orden. Esperando que completes el pago...',
-          order_id: order.id
-        });
+        await notifyUser(user.id, 'order', 'Orden Creada (Mercado Pago)', 'Hemos registrado tu orden. Esperando que completes el pago...', order.id);
       }
+      await notifyAdmins('order', 'Nueva Orden Iniciada (Mercado Pago)', `Un cliente ha iniciado un pago por $${finalTotal}. (ID: ${order.id})`, order.id);
 
       if (appliedCoupon?.id) {
         const { data: cData } = await supabase.from('coupons').select('uses_count').eq('id', appliedCoupon.id).single();
@@ -200,14 +196,9 @@ export async function POST(req: Request) {
     if (orderError) throw new Error("No se pudo crear la orden: " + orderError.message);
 
     if (user?.id) {
-      await supabase.from('notifications').insert({
-        user_id: user.id,
-        type: 'order',
-        title: 'Orden Recibida',
-        body: 'Hemos registrado tu compra con éxito. Por favor realiza tu pago siguiendo las instrucciones.',
-        order_id: order.id
-      });
+      await notifyUser(user.id, 'order', 'Pago Pendiente', 'Hemos registrado tu compra con éxito. Por favor realiza tu pago para enviar tu pedido.', order.id);
     }
+    await notifyAdmins('order', 'Nueva Orden (Transferencia/OXXO)', `Un cliente realizó un pedido por $${finalTotal} pendiente de pago. (ID: ${order.id})`, order.id);
 
     if (appliedCoupon?.id) {
       const { data: cData } = await supabase.from('coupons').select('uses_count').eq('id', appliedCoupon.id).single();

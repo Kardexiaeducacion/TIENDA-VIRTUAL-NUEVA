@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { createClient } from "@/utils/supabase/client";
+import { sendNotification } from "@/app/actions/notifications";
 
 const PAYMENT_STATUS: Record<string, { label: string; color: string }> = {
   pending:        { label: "Sin comprobante",       color: "bg-gray-100 text-gray-500" },
@@ -39,13 +40,7 @@ export default function AdminOrdersPage() {
     if (!error) {
       setOrders(orders.map(o => o.id === id ? { ...o, status: newStatus, ...(updatePayload.payment_status ? { payment_status: updatePayload.payment_status } : {}) } : o));
       if (order?.user_id) {
-        await supabase.from('notifications').insert({
-          user_id: order.user_id,
-          type: 'order',
-          title: 'Actualización de tu pedido',
-          body: `El estado de tu pedido ha cambiado a: ${newStatus.toUpperCase()}`,
-          order_id: id
-        });
+        await sendNotification(order.user_id, 'order', 'Actualización de tu pedido', `El estado de tu pedido ha cambiado a: ${newStatus.toUpperCase()}`, id);
       }
     } else alert("Error actualizando estatus");
   };
@@ -84,13 +79,7 @@ export default function AdminOrdersPage() {
       await supabase.from("orders").update({ tracking_url: urlData.publicUrl, status: "etiqueta generada" }).eq("id", id);
       
       if (order?.user_id) {
-        await supabase.from('notifications').insert({
-          user_id: order.user_id,
-          type: 'order',
-          title: 'Guía de Envío Lista',
-          body: 'Se ha subido la etiqueta de envío de tu pedido. Revisa los detalles de tu orden.',
-          order_id: id
-        });
+        await sendNotification(order.user_id, 'order', 'Guía de Envío Lista', 'Se ha subido la etiqueta de envío de tu pedido. Revisa los detalles de tu orden.', id);
       }
 
       await fetchOrders();

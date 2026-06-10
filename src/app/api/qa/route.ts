@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
+import { notifyUser, notifyAdmins } from '@/utils/notifications';
 
 export async function GET(req: Request) {
   const supabase = await createClient();
@@ -57,16 +58,7 @@ export async function POST(req: Request) {
     if (error) throw error;
 
     // Notificar a los administradores
-    const { data: admins } = await supabase.from('profiles').select('id').eq('role', 'admin');
-    if (admins && admins.length > 0) {
-      const adminNotifs = admins.map(a => ({
-        user_id: a.id,
-        type: 'qa',
-        title: 'Nueva Pregunta',
-        body: `${userName} ha preguntado: "${question.substring(0, 50)}..."`
-      }));
-      await supabase.from('notifications').insert(adminNotifs);
-    }
+    await notifyAdmins('qa', 'Nueva Pregunta', `${userName} ha preguntado: "${question.substring(0, 50)}..."`);
 
     return NextResponse.json({ success: true, question: data });
   } catch (error: any) {
@@ -94,12 +86,7 @@ export async function PATCH(req: Request) {
 
     // Notificar al usuario que preguntó
     if (data.user_id) {
-      await supabase.from('notifications').insert({
-        user_id: data.user_id,
-        type: 'qa',
-        title: '¡Respondieron tu pregunta!',
-        body: `Tu pregunta ha sido respondida: "${answer.substring(0, 50)}..."`
-      });
+      await notifyUser(data.user_id, 'qa', '¡Respondieron tu pregunta!', `Tu pregunta ha sido respondida: "${answer.substring(0, 50)}..."`);
     }
 
     return NextResponse.json({ success: true, question: data });

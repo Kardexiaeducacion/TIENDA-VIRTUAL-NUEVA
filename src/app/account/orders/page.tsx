@@ -4,6 +4,7 @@ import Image from "next/image";
 import AccountSidebar from "@/components/AccountSidebar";
 import { useEffect, useState, useRef } from "react";
 import { createClient } from "@/utils/supabase/client";
+import { sendAdminNotification } from "@/app/actions/notifications";
 
 const PAYMENT_STATUS: Record<string, { label: string; color: string; icon: string }> = {
   pending:        { label: "Sin comprobante",           color: "bg-gray-100 text-gray-600",   icon: "hourglass_empty" },
@@ -101,17 +102,7 @@ export default function MyOrdersPage() {
       if (error) throw error;
 
       // Notificar al administrador
-      const { data: admins } = await supabase.from('profiles').select('id').eq('role', 'admin');
-      if (admins && admins.length > 0) {
-        const adminNotifs = admins.map(a => ({
-          user_id: a.id,
-          type: 'order',
-          title: 'Nuevo Comprobante de Pago',
-          body: `El cliente ha subido su comprobante para el pedido ${orderId.split('-')[0].toUpperCase()}. Revisa la orden para confirmarla.`,
-          order_id: orderId
-        }));
-        await supabase.from('notifications').insert(adminNotifs);
-      }
+      await sendAdminNotification('order', 'Nuevo Comprobante de Pago', `El cliente ha subido su comprobante para el pedido ${orderId.split('-')[0].toUpperCase()}. Revisa la orden para confirmarla.`, orderId);
 
       setProofSubmitted(orderId);
       await fetchOrders();
