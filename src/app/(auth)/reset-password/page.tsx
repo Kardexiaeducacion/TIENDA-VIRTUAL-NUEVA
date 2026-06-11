@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { createClient } from "@/utils/supabase/client";
+import { createBrowserClient } from "@supabase/ssr";
 import { useRouter } from "next/navigation";
 
 function ResetPasswordForm() {
@@ -12,7 +12,17 @@ function ResetPasswordForm() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
+  
+  // Custom client with implicit flow
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      auth: {
+        flowType: 'implicit',
+      }
+    }
+  );
 
   useEffect(() => {
     const hash = window.location.hash;

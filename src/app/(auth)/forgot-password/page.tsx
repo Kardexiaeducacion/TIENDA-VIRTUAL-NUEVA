@@ -1,14 +1,24 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { createClient } from "@/utils/supabase/client";
+import { createBrowserClient } from "@supabase/ssr";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const supabase = createClient();
+  
+  // Custom client with implicit flow to bypass PKCE cross-browser issues
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      auth: {
+        flowType: 'implicit',
+      }
+    }
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
