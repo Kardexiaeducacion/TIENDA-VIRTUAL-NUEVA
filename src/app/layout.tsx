@@ -10,6 +10,7 @@ export const metadata: Metadata = {
 import { CartProvider } from "@/context/CartContext";
 import FloatingChatWidget from "@/components/FloatingChatWidget";
 import Footer from "@/components/Footer";
+import RecoveryRedirect from "@/components/RecoveryRedirect";
 
 export default function RootLayout({
   children,
@@ -25,6 +26,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet" />
       </head>
       <body className="bg-background text-on-background">
+        <RecoveryRedirect />
         <CartProvider>
           <Navbar />
           <div className="flex-1 flex flex-col min-h-screen">
