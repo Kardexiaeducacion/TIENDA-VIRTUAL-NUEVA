@@ -16,10 +16,9 @@ export default function ForgotPasswordPage() {
     setError(null);
     setSuccess(false);
 
-    // redirectTo must go through /auth/callback?next=/reset-password
-    // This is the correct PKCE flow: the server callback exchanges the code,
-    // then redirects the user to /reset-password where they can set a new password.
-    const redirectTo = `${window.location.origin}/auth/callback?next=/reset-password`;
+    // redirectTo must go through our dedicated reset callback route
+    // This server route exchanges the code, then hardcodes a redirect to /reset-password
+    const redirectTo = `${window.location.origin}/auth/reset-callback`;
 
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo,
