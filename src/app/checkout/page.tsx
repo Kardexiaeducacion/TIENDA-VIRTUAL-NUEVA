@@ -391,10 +391,10 @@ export default function CheckoutPage() {
               <div className="space-y-4 mb-6 max-h-[300px] overflow-y-auto pr-2">
                 {items.map(item => (
                   <div key={item.id} className="flex gap-4 items-center">
-                    <div className="w-16 h-20 relative bg-surface-container shrink-0 border border-outline-variant">
-                      <Image src={item.image} alt={item.name} fill className="object-cover" unoptimized />
-                      <span className="absolute -top-2 -right-2 bg-black text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold">{item.quantity}</span>
-                    </div>
+                    <Link href={`/product/${item.productId}`} className="w-16 h-20 relative bg-surface-container shrink-0 border border-outline-variant block hover:opacity-80 transition-opacity">
+                      <Image src={item.image} alt={item.name} fill className="object-cover" />
+                      <span className="absolute -top-2 -right-2 bg-black text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold z-10">{item.quantity}</span>
+                    </Link>
                     <div className="flex-1">
                       <p className="text-sm font-bold truncate">{item.name}</p>
                       {item.variantName && <p className="text-xs text-secondary">{item.variantName}</p>}

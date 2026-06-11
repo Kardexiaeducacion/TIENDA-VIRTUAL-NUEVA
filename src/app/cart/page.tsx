@@ -47,9 +47,9 @@ export default function CartPage() {
                 
                 {/* Product Info */}
                 <div className="md:col-span-6 flex gap-6">
-                  <div className="w-24 h-32 relative bg-surface-container shrink-0">
-                    <Image src={item.image} alt={item.name} fill className="object-cover" unoptimized />
-                  </div>
+                  <Link href={`/product/${item.productId}`} className="w-24 h-32 relative bg-surface-container shrink-0 block hover:opacity-80 transition-opacity">
+                    <Image src={item.image} alt={item.name} fill className="object-cover" />
+                  </Link>
                   <div className="flex flex-col justify-center">
                     <Link href={`/product/${item.productId}`} className="text-lg font-bold hover:underline mb-1">
                       {item.name}
@@ -139,7 +139,7 @@ export default function CartPage() {
 
               <Link 
                 href="/checkout"
-                className="w-full py-5 bg-primary text-white text-sm font-bold uppercase tracking-widest hover:bg-black transition-colors block text-center"
+                className="w-full py-5 bg-primary text-white text-sm font-bold uppercase tracking-widest hover:bg-black hover:-translate-y-1 hover:shadow-lg transition-all duration-300 block text-center shadow-md"
               >
                 Proceder al Pago
               </Link>

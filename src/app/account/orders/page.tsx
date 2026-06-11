@@ -303,9 +303,9 @@ export default function MyOrdersPage() {
                             return (
                               <div key={idx} className="flex items-start justify-between">
                                 <div className="flex space-x-6">
-                                  <div className="relative w-20 h-20 flex-shrink-0">
-                                    <Image alt={item.name || "Producto"} src={image} fill className="object-cover border border-outline-variant rounded-lg" unoptimized />
-                                  </div>
+                                  <Link href={`/product/${item.productId}`} className="relative w-20 h-20 flex-shrink-0 block hover:opacity-80 transition-opacity">
+                                    <Image alt={item.name || "Producto"} src={image} fill className="object-cover border border-outline-variant rounded-lg" />
+                                  </Link>
                                   <div className="flex flex-col justify-center">
                                     <h3 className="text-base font-bold text-primary">{item.name || "Producto"}</h3>
                                     {item.variantName && <p className="text-xs font-medium text-gray-500 mt-1">{item.variantName}</p>}

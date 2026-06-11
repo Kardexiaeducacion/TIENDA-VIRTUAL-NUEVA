@@ -14,7 +14,7 @@ export default async function CustomPage({ params }: { params: { slug: string } 
     <div className="pt-32 pb-20 max-w-[1000px] mx-auto px-8 md:px-20 animate-in fade-in duration-500">
       {page.image_url && (
         <div className="relative w-full h-[300px] md:h-[400px] mb-12 overflow-hidden bg-surface-container">
-          <Image src={page.image_url} alt={page.title} fill className="object-cover" unoptimized />
+          <Image src={page.image_url} alt={page.title} fill className="object-cover" />
         </div>
       )}
       

@@ -176,7 +176,7 @@ export default function HandbagsPage() {
                 {filteredProducts.map((product) => (
                 <Link href={`/product/${product.id}`} key={product.id} className="group cursor-pointer">
                   <div className="relative aspect-[3/4] overflow-hidden bg-surface-container mb-3">
-                    <Image alt={product.name} src={product.images?.[0] || "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800"} fill className="object-cover transition-transform duration-700 group-hover:scale-105" unoptimized />
+                    <Image alt={product.name} src={product.images?.[0] || "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800"} fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
                     <div className="absolute bottom-0 left-0 w-full bg-white/90 backdrop-blur-sm py-4 text-center text-sm font-semibold uppercase tracking-widest translate-y-full group-hover:translate-y-0 transition-transform duration-300 hover:bg-primary hover:text-on-primary">
                       Quick View
                     </div>
@@ -196,7 +196,7 @@ export default function HandbagsPage() {
         <section className="max-w-[1440px] mx-auto px-20 mb-20">
           <div className="relative h-[500px] w-full overflow-hidden flex items-center group">
             <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-500 z-10" />
-            <Image alt="The Art of Carrying" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgAA5p5MNPqaLW2_U5qENetd6WUpA2s2iOlOw4x0UuDd_sUBnGmZ2faLy96LHUGC1tuuhIqw906i7AZggnKc94G6_dVG_Pp0e_5TM5S8HOqKhTG77cgz3aeAeFLswB6kvnPdIfWa6oNzJajHIgtJyLiadHyRRkyBwcW73X7erewGGDvDPqlLMdM79FyF8XwQEF33VSTkOf6aK3m4irmkuAJgDEYO8RVI6yzgAi2NTl8IWCcCAnpuPr6-kG6WjLdqkvAUdOGs9Zj_X9" fill className="object-cover transition-transform duration-[2000ms] group-hover:scale-105" unoptimized />
+            <Image alt="The Art of Carrying" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgAA5p5MNPqaLW2_U5qENetd6WUpA2s2iOlOw4x0UuDd_sUBnGmZ2faLy96LHUGC1tuuhIqw906i7AZggnKc94G6_dVG_Pp0e_5TM5S8HOqKhTG77cgz3aeAeFLswB6kvnPdIfWa6oNzJajHIgtJyLiadHyRRkyBwcW73X7erewGGDvDPqlLMdM79FyF8XwQEF33VSTkOf6aK3m4irmkuAJgDEYO8RVI6yzgAi2NTl8IWCcCAnpuPr6-kG6WjLdqkvAUdOGs9Zj_X9" fill className="object-cover transition-transform duration-[2000ms] group-hover:scale-105" />
             <div className="relative z-20 px-20 text-white max-w-2xl">
               <span className="text-sm font-semibold uppercase tracking-[0.3em] mb-4 block">Limited Collection</span>
               <h2 className="text-6xl font-bold leading-none mb-6">The Art of Carrying</h2>

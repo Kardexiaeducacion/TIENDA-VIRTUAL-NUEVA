@@ -308,7 +308,7 @@ export default function EditProductPage() {
               <div className="flex gap-4 overflow-x-auto py-2">
                 {existingImages.map((src, idx) => (
                   <div key={`exist-${idx}`} className="relative w-24 h-24 flex-shrink-0 rounded-md overflow-hidden border border-[#EAEAEA]">
-                    <Image src={src} alt="Existente" fill className="object-cover" unoptimized />
+                    <Image src={src} alt="Existente" fill className="object-cover" />
                     <button type="button" onClick={() => removeExistingImage(idx)} className="absolute top-1 right-1 bg-white rounded-full w-6 h-6 flex items-center justify-center text-red-500 shadow-sm hover:bg-red-50 transition-colors">
                       <span className="material-symbols-outlined text-[14px]">close</span>
                     </button>
@@ -316,7 +316,7 @@ export default function EditProductPage() {
                 ))}
                 {previews.map((src, idx) => (
                   <div key={`new-${idx}`} className="relative w-24 h-24 flex-shrink-0 rounded-md overflow-hidden border border-green-500">
-                    <Image src={src} alt="Preview" fill className="object-cover" unoptimized />
+                    <Image src={src} alt="Preview" fill className="object-cover" />
                     <button type="button" onClick={() => removeNewFile(idx)} className="absolute top-1 right-1 bg-white rounded-full w-6 h-6 flex items-center justify-center text-red-500 shadow-sm hover:bg-red-50 transition-colors">
                       <span className="material-symbols-outlined text-[14px]">close</span>
                     </button>

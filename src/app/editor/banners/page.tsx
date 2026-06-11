@@ -115,7 +115,7 @@ export default function BannersPage() {
         {banners.map((banner) => (
           <div key={banner.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm flex flex-col">
             <div className="aspect-video relative bg-gray-100">
-              <Image src={banner.image_url} alt={banner.section} fill className="object-cover" unoptimized />
+              <Image src={banner.image_url} alt={banner.section} fill className="object-cover" />
             </div>
             <div className="p-5 flex-1 flex flex-col">
               <span className="text-xs font-bold text-[#ba1a1a] uppercase tracking-wider mb-1">
@@ -149,7 +149,7 @@ export default function BannersPage() {
                 <div className="flex flex-col items-center justify-center w-full">
                   <label htmlFor="banner-file" className="flex flex-col items-center justify-center w-full h-40 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 relative overflow-hidden">
                     {preview || editingBanner.image_url ? (
-                      <Image src={preview || editingBanner.image_url} alt="Preview" fill className="object-cover opacity-50" unoptimized />
+                      <Image src={preview || editingBanner.image_url} alt="Preview" fill className="object-cover opacity-50" />
                     ) : null}
                     <div className="flex flex-col items-center justify-center pt-5 pb-6 relative z-10">
                       <span className="material-symbols-outlined text-4xl text-gray-600 mb-2 drop-shadow-md">cloud_upload</span>

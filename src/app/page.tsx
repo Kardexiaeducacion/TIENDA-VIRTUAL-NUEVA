@@ -1,42 +1,23 @@
-"use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { createClient } from "@/utils/supabase/client";
-import FavoriteButton from "@/components/FavoriteButton";
-import { useCart } from "@/context/CartContext";
+import { createClient } from "@/utils/supabase/server";
+import TrendingCarousel from "@/components/TrendingCarousel";
 
-export default function HomePage() {
-  const router = useRouter();
-  const carouselRef = useRef<HTMLDivElement>(null);
-  const [products, setProducts] = useState<Record<string, unknown>[]>([]);
-  const [banners, setBanners] = useState<Record<string, Record<string, unknown>>>({});
-  const supabase = createClient();
-  const { items, addToCart, removeFromCart } = useCart();
+export default async function HomePage() {
+  const supabase = await createClient();
 
-  useEffect(() => {
-    async function fetchData() {
-      const { data: prodData } = await supabase.from("products").select("*").neq("is_active", false).order("created_at", { ascending: false }).limit(12);
-      if (prodData) setProducts(prodData);
+  const { data: prodData } = await supabase.from("products").select("*").neq("is_active", false).order("created_at", { ascending: false }).limit(12);
 
-      const { data: banData } = await supabase.from("banners").select("*");
-      if (banData) {
-        const banObj = banData.reduce((acc: Record<string, Record<string, unknown>>, curr: Record<string, unknown>) => {
-          acc[curr.section as string] = curr;
-          return acc;
-        }, {});
-        setBanners(banObj);
-      }
-    }
-    fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const { data: banData } = await supabase.from("banners").select("*");
+  const banners: Record<string, Record<string, unknown>> = {};
+  if (banData) {
+    banData.forEach((curr: Record<string, unknown>) => {
+      banners[curr.section as string] = curr;
+    });
+  }
 
   return (
     <div className="bg-background text-on-background font-sans">
-
-
       <main className="mt-20">
         {/* HERO */}
         <section className="relative w-full h-[90vh] overflow-hidden bg-surface-container">
@@ -44,7 +25,7 @@ export default function HomePage() {
             <Image
               alt={banners['hero']?.title as string || "Campaign Hero"}
               src={banners['hero']?.image_url as string || "https://lh3.googleusercontent.com/aida/ADBb0ui2sG7W4QW_Ljn_heyx-0-p7qNeJm6B-6JnxUbYdWEdkY7Zskp4lA4lsye2Vzeb6I-JyvyxEOkcY8Bpht9cRqNipnV0JSE8UnV45g7Prlm6ENDG8UWeD9tTaOsdmcX_N1_UfKMQ__ybTxv8wW7QuTN10axNgkD1A11zw_jtGdEEybg3V_aYRzCPZ2sR5qoUSTdvvTmuF1kUf7j5OvdZScqPbipqF4aau9kgQOtH1LoRijE1mPM3jU9Qzuwh"}
-              fill className="object-cover object-center" unoptimized priority
+              fill className="object-cover object-center" priority
             />
             <div className="absolute inset-0 bg-gradient-to-r from-white/40 via-transparent to-transparent" />
           </div>
@@ -80,7 +61,7 @@ export default function HomePage() {
                 <Image
                   alt="Premium Handbags Collection"
                   src={banners['category_handbags']?.image_url as string || "https://lh3.googleusercontent.com/aida/ADBb0ugjbPyixeRauJe0OfGwmJdqgCnX56IqvPi5JiTtdLvDvexhkoOfZ36Xr42zEkMIAU4jgLHboIyk3jFUTizTaeptdsTj2a4CI9mmF7x5UNj4JBcqQE83GZo6eyuX4YFr6Tfk0D9Y1HaK9JvvRPZ5AwhPpR5FdGiNYrmX08ZCvPb_IzZfR-TDZ0DgvRMMUWncPgH1AlXpFE9hjMrqgjCqZTmNPACcpaNo0eaD9GBC7tqy94iYRV8SfGjigmM9"}
-                  fill className="object-cover transition-transform duration-700 group-hover:scale-105" unoptimized
+                  fill className="object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-colors duration-300" />
                 <div className="absolute bottom-10 left-10 text-white">
@@ -96,7 +77,7 @@ export default function HomePage() {
                   <Image
                     alt="Durable Designer Luggage"
                     src={banners['category_luggage']?.image_url as string || "https://lh3.googleusercontent.com/aida/ADBb0uhc8GHbds5co_BPboOA41MvSYlGWiz3-S2jDikp7i9ez_pr9LacPUzeNv_pGP_CK8l3btrH8Ow1zffApzbqQhjjkHVIbLU4Qv9Y8pxmRHc4-nXN0pbmXzUx9yiJi4mCBuc3F9Aw5MpMNsk9VYV175Hney7iq__3VQxdr_z_6CK6UJ2AIc_tOOcE18fewEPciyKER-Al4UuBvThkX-i6rHgTyns-fcs7YqA-DxzENeE2IXPar3ZXIBPb4N0"}
-                    fill className="object-cover transition-transform duration-700 group-hover:scale-105" unoptimized
+                    fill className="object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
                   <div className="absolute bottom-6 left-6">
@@ -111,7 +92,7 @@ export default function HomePage() {
                     <Image
                       alt="Luxury Accessories"
                       src={banners['category_accessories']?.image_url as string || "https://lh3.googleusercontent.com/aida/ADBb0uj_fTD_OOrWfu1JL-xzC26MivraWGMoUPCYuSORArNGFjvViUz6re7pFhmmIjWLsC3Gbsdvd5y7zCChkLy0ZPh5iVJrDAH6zLxTC57wV-SDKXslLLUy3-91RxZAm3cjXfL00Q-2UqbxvwIb_QvVuD1UzVV7Tt8zyPn6dLLBPreVTDrNpeYb_e-n8-fVZpR-zL7FVndZT-DwbIaFcCll-YAEVm5vBZ8vEkXPUBFiuoja3Ra0G643SiPTvW4"}
-                      fill className="object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-110" unoptimized
+                      fill className="object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-110"
                     />
                   </div>
                   <div className="relative z-10">
@@ -131,7 +112,7 @@ export default function HomePage() {
             <Image
               alt="Whimsical Limited Edition"
               src={banners['limited_edition']?.image_url as string || "https://lh3.googleusercontent.com/aida/ADBb0ugCvuL3sSd2ER-Tf66oGRNrOBGuaInCYGxlud7suG51GxsXeCoCxAgExKoXXVLhwB9CVQ7rtnkdjrmCgMZvbm8Z37RSuQEwSmrPaj99rToyyPTYrjnMi8QijNgqtH0KgKb6G_GOtg4TTFO8nP03HlB2Paq0VmrFKqFr2iW6vWMuTw5ZnRGCpGV-Ou1x5P8ZvR7yez3-0aojdQ84ck_aR3C41LcvLCtoTL09P4-H5-Q2Ci9c3PaNZUiXyWKD"}
-              fill className="object-cover" unoptimized
+              fill className="object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-l from-white/60 via-transparent to-transparent" />
           </div>
@@ -150,76 +131,9 @@ export default function HomePage() {
         </section>
 
         {/* TRENDING NOW */}
-        <section className="max-w-[1440px] mx-auto px-20 py-20">
-          <div className="flex items-center justify-between mb-12">
-            <h2 className="text-4xl font-medium tracking-normal text-primary">Tendencias</h2>
-            <div className="flex gap-2">
-              <button 
-                onClick={() => carouselRef.current?.scrollBy({ left: -carouselRef.current.offsetWidth, behavior: 'smooth' })}
-                className="w-10 h-10 flex items-center justify-center border border-outline hover:bg-surface-container transition-colors"
-              >
-                <span className="material-symbols-outlined">chevron_left</span>
-              </button>
-              <button 
-                onClick={() => carouselRef.current?.scrollBy({ left: carouselRef.current.offsetWidth, behavior: 'smooth' })}
-                className="w-10 h-10 flex items-center justify-center border border-outline hover:bg-surface-container transition-colors"
-              >
-                <span className="material-symbols-outlined">chevron_right</span>
-              </button>
-            </div>
-          </div>
-          <div 
-            ref={carouselRef}
-            className="flex overflow-x-auto snap-x snap-mandatory gap-8 pb-8 scrollbar-hide"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          >
-            {products.map((product) => (
-              <Link href={`/product/${product.id}`} key={product.id} className="group shrink-0 snap-start w-full md:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)]">
-                <div className="aspect-[3/4] relative overflow-hidden bg-surface-container-low mb-3">
-                  <Image
-                    alt={product.name as string}
-                    src={(product.images as string[])?.[0] || "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800"}
-                    fill className="object-cover transition-transform duration-500 group-hover:scale-105" unoptimized
-                  />
-                  <FavoriteButton productId={product.id as string} />
-                  <button 
-                    onClick={(e) => {
-                      e.preventDefault();
-                      const hasVariants = (product.variants as any[])?.length > 0;
-                      if (hasVariants) {
-                        router.push(`/product/${product.id}`);
-                        return;
-                      }
-                      const cartItemId = `${product.id}_base`;
-                      const isInCart = items.some((i: any) => i.id === cartItemId);
-                      if (isInCart) {
-                        removeFromCart(cartItemId);
-                      } else {
-                        addToCart(product);
-                      }
-                    }}
-                    className={`absolute bottom-0 left-0 w-full py-4 text-center text-xs font-semibold uppercase tracking-widest translate-y-full group-hover:translate-y-0 transition-all duration-300 ${
-                      items.some((i: any) => i.id === `${product.id}_base`)
-                        ? "bg-primary text-white"
-                        : "bg-white/90 backdrop-blur-sm hover:bg-primary hover:text-on-primary"
-                    }`}
-                  >
-                    {(product.variants as any[])?.length > 0
-                      ? "VER OPCIONES"
-                      : items.some((i: any) => i.id === `${product.id}_base`) 
-                        ? "EN CARRITO (QUITAR)" 
-                        : "VISTA RÁPIDA / AGREGAR"}
-                  </button>
-                </div>
-                <h4 className="text-sm font-medium text-primary mb-1">{product.name}</h4>
-                <p className="text-sm text-secondary mb-2">${Number(product.price).toFixed(2)}</p>
-              </Link>
-            ))}
-          </div>
-        </section>
+        <TrendingCarousel products={prodData || []} />
 
       </main>
-
     </div>
   );
 }

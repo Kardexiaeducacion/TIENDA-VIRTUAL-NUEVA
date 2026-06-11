@@ -106,7 +106,7 @@ export default function ProductPage() {
             <div className="col-span-12 lg:col-span-7">
               <div className="flex flex-col gap-6">
                 <div className="aspect-[4/5] bg-surface-container-low overflow-hidden border border-outline-variant relative group">
-                  <Image alt={product.name as string} src={productImages[activeImg]} fill className="object-cover transition-transform duration-700 group-hover:scale-105" unoptimized />
+                  <Image alt={product.name as string} src={productImages[activeImg]} fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
                 </div>
                 <div className="grid grid-cols-4 gap-4">
                   {productImages.map((img: string, i: number) => (
@@ -115,7 +115,7 @@ export default function ProductPage() {
                       onClick={() => setActiveImg(i)}
                       className={`aspect-square bg-surface-container overflow-hidden border-2 transition-colors ${i === activeImg ? "border-primary" : "border-outline-variant hover:border-primary"}`}
                     >
-                      <Image alt={`View ${i + 1}`} src={img} width={120} height={120} className="w-full h-full object-cover" unoptimized />
+                      <Image alt={`View ${i + 1}`} src={img} width={120} height={120} className="w-full h-full object-cover" />
                     </button>
                   ))}
                 </div>
@@ -192,14 +192,14 @@ export default function ProductPage() {
                             }
                           }}
                           disabled={isOutOfStock && !!session}
-                          className={`w-full py-5 text-sm font-semibold uppercase tracking-widest transition-all duration-300 border border-primary ${
+                          className={`w-full py-5 text-sm font-bold uppercase tracking-widest transition-all duration-300 border border-primary shadow-sm hover:shadow-md ${
                             !session
                               ? "bg-primary text-white hover:bg-black"
                               : isOutOfStock 
                                 ? "bg-surface-container text-secondary border-outline-variant cursor-not-allowed opacity-50"
                                 : items.some((i: any) => i.id === `${product.id}_${selectedVariant?.id || 'base'}`)
-                                  ? "bg-primary text-white hover:bg-black"
-                                  : "bg-transparent text-primary hover:bg-surface-container-low"
+                                  ? "bg-transparent text-primary hover:bg-surface-container-low"
+                                  : "bg-primary text-white hover:bg-black hover:-translate-y-1"
                           }`}
                         >
                           {!session 
@@ -309,7 +309,7 @@ export default function ProductPage() {
               {related.map((item) => (
                 <Link href="/product/2" key={item.name} className="group cursor-pointer">
                   <div className="aspect-square bg-surface-container border border-outline-variant overflow-hidden mb-4 relative">
-                    <Image alt={item.name} src={item.img} fill className="object-cover group-hover:scale-105 transition-transform duration-500" unoptimized />
+                    <Image alt={item.name} src={item.img} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                     <div className="absolute bottom-0 left-0 w-full p-4 translate-y-full group-hover:translate-y-0 bg-white/90 backdrop-blur-sm transition-transform duration-300 border-t border-outline-variant">
                       <button className="w-full py-2 bg-primary text-on-primary text-xs font-semibold uppercase">Agregar</button>
                     </div>

@@ -92,7 +92,7 @@ function SearchContent() {
                 <div key={product.id as string} className="group cursor-pointer">
                   <div className="relative aspect-[3/4] overflow-hidden bg-surface-container mb-3 rounded-xl">
                     <Link href={`/product/${product.id}`}>
-                      <Image alt={product.name as string} src={firstImage} fill className="object-cover transition-transform duration-700 group-hover:scale-105" unoptimized />
+                      <Image alt={product.name as string} src={firstImage} fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
                     </Link>
                     <FavoriteButton productId={product.id as string} />
                     <button 

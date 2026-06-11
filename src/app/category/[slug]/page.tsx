@@ -182,7 +182,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                   return (
                     <Link href={`/product/${product.id}`} key={product.id as string} className="group cursor-pointer">
                       <div className="relative aspect-[3/4] overflow-hidden bg-surface-container mb-3 rounded-xl">
-                        <Image alt={product.name as string} src={firstImage} fill className="object-cover transition-transform duration-700 group-hover:scale-105" unoptimized />
+                        <Image alt={product.name as string} src={firstImage} fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
                         <FavoriteButton productId={product.id as string} />
                         <button 
                           onClick={(e) => {

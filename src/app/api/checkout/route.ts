@@ -1,16 +1,58 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
 import { notifyUser, notifyAdmins } from '@/utils/notifications';
+import { z } from 'zod';
+
+const checkoutSchema = z.object({
+  items: z.array(z.object({
+    id: z.string().optional(),
+    productId: z.string().optional(),
+    variantId: z.string().optional(),
+    name: z.string().optional(),
+    title: z.string().optional(),
+    price: z.number().min(0, "El precio no puede ser negativo"),
+    quantity: z.number().int().min(1, "La cantidad debe ser mayor a 0")
+  })).min(1, "El carrito está vacío"),
+  shippingCost: z.number().min(0).optional(),
+  finalTotal: z.number().min(0, "El total no puede ser negativo"),
+  discountAmount: z.number().min(0).optional(),
+  appliedCoupon: z.object({
+    id: z.string(),
+    code: z.string()
+  }).optional().nullable(),
+  shippingOption: z.object({
+    carrier: z.string().optional(),
+    service: z.string().optional(),
+    option_id: z.string().optional(),
+    quote_id: z.string().optional()
+  }).optional().nullable(),
+  shippingAddress: z.object({
+    email: z.string().email("Email inválido"),
+    contact: z.string().min(1, "Nombre de contacto requerido"),
+    phone: z.string().min(1, "Teléfono requerido"),
+    street: z.string().min(1, "Calle requerida"),
+    num_ext: z.string().min(1, "Número exterior requerido"),
+    num_int: z.string().optional(),
+    colony: z.string().min(1, "Colonia requerida"),
+    city: z.string().min(1, "Ciudad requerida"),
+    state: z.string().min(1, "Estado requerido"),
+    cp: z.string().min(4, "Código postal inválido"),
+    reference: z.string().optional()
+  }).optional().nullable(),
+  paymentMethod: z.string().optional()
+});
 
 export async function POST(req: Request) {
   try {
     const supabase = await createClient();
-    const body = await req.json();
-    const { items, shippingCost, finalTotal, discountAmount, appliedCoupon, shippingAddress, shippingOption, paymentMethod } = body;
-
-    if (!items || items.length === 0) {
-      return NextResponse.json({ error: "El carrito está vacío" }, { status: 400 });
+    const rawBody = await req.json();
+    
+    const parsed = checkoutSchema.safeParse(rawBody);
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Datos de checkout inválidos o incompletos", details: parsed.error.format() }, { status: 400 });
     }
+
+    const { items, shippingCost, finalTotal, discountAmount, appliedCoupon, shippingAddress, shippingOption, paymentMethod } = parsed.data;
 
     const { data: { user } } = await supabase.auth.getUser();
     const { data: settings } = await supabase.from('store_settings').select('*').limit(1).single();
@@ -169,7 +211,19 @@ export async function POST(req: Request) {
           option_id: shippingOption.option_id,
           reference: `ORD-${Date.now()}`,
           sender,
-          receiver: { contact: shippingAddress.contact, email: shippingAddress.email, phone: shippingAddress.phone, street: shippingAddress.street, num_ext: shippingAddress.num_ext, num_int: shippingAddress.num_int || "", colony: shippingAddress.colony, city: shippingAddress.city, state: shippingAddress.state, cp: shippingAddress.cp, reference: shippingAddress.reference || "S/N" },
+          receiver: { 
+            contact: shippingAddress?.contact || "N/A", 
+            email: shippingAddress?.email || "N/A", 
+            phone: shippingAddress?.phone || "N/A", 
+            street: shippingAddress?.street || "N/A", 
+            num_ext: shippingAddress?.num_ext || "N/A", 
+            num_int: shippingAddress?.num_int || "", 
+            colony: shippingAddress?.colony || "N/A", 
+            city: shippingAddress?.city || "N/A", 
+            state: shippingAddress?.state || "N/A", 
+            cp: shippingAddress?.cp || "N/A", 
+            reference: shippingAddress?.reference || "S/N" 
+          },
           package: { description: "Compra en tienda online", content: items.map((i: any) => i.name).join(", ") },
           insurance: { enabled: false, declared_value: 0 }
         })

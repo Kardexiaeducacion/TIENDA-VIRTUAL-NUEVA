@@ -111,7 +111,7 @@ export default function AdminCustomPages() {
                 />
                 {imageUrl && (
                   <div className="mt-4 relative w-full h-48 rounded-md overflow-hidden bg-gray-100 border border-[#EAEAEA]">
-                    <Image src={imageUrl} alt="Preview" fill className="object-cover" unoptimized />
+                    <Image src={imageUrl} alt="Preview" fill className="object-cover" />
                   </div>
                 )}
               </div>

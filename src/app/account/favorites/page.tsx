@@ -93,7 +93,7 @@ export default function FavoritesPage() {
                     <div key={fav.id} className="group relative">
                       <div className="relative aspect-[3/4] overflow-hidden bg-surface-container mb-4 rounded-xl">
                         <Link href={`/product/${product.id}`}>
-                          <Image alt={product.name} src={image} fill className="object-cover transition-transform duration-700 group-hover:scale-105" unoptimized />
+                          <Image alt={product.name} src={image} fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
                         </Link>
                         <button 
                           onClick={() => removeFavorite(fav.id)}
