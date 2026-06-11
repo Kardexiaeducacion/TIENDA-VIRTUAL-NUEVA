@@ -1,24 +1,14 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { createBrowserClient } from "@supabase/ssr";
+import { createClient } from "@/utils/supabase/client";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  
-  // Custom client with implicit flow to bypass PKCE cross-browser issues
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      auth: {
-        flowType: 'implicit',
-      }
-    }
-  );
+  const supabase = createClient();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,9 +16,13 @@ export default function ForgotPasswordPage() {
     setError(null);
     setSuccess(false);
 
-    // Call Supabase reset password
+    // redirectTo must go through /auth/callback?next=/reset-password
+    // This is the correct PKCE flow: the server callback exchanges the code,
+    // then redirects the user to /reset-password where they can set a new password.
+    const redirectTo = `${window.location.origin}/auth/callback?next=/reset-password`;
+
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin,
+      redirectTo,
     });
 
     if (resetError) {

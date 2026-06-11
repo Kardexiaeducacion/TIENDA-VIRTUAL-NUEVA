@@ -1,9 +1,14 @@
 "use client";
 import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { createBrowserClient } from "@supabase/ssr";
+import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 
+/**
+ * The /auth/callback server route already exchanged the PKCE code and established
+ * a session before redirecting here. So when this page loads, the user ALREADY has
+ * a valid Supabase session. We simply call updateUser({ password }) with that session.
+ */
 function ResetPasswordForm() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -11,50 +16,19 @@ function ResetPasswordForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [sessionReady, setSessionReady] = useState(false);
   const router = useRouter();
-  
-  // Custom client with implicit flow
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      auth: {
-        flowType: 'implicit',
-      }
-    }
-  );
+  const supabase = createClient();
 
   useEffect(() => {
-    const hash = window.location.hash;
-    const searchParams = new URLSearchParams(window.location.search);
-    const code = searchParams.get('code');
-
-    if (code) {
-      console.log("Found PKCE code in URL");
-      supabase.auth.exchangeCodeForSession(code).then(({ error: exchangeError }) => {
-        if (exchangeError) {
-          setError(`Error validando enlace (Código): ${exchangeError.message}. Intenta pedir uno nuevo.`);
-        } else {
-          console.log("Successfully exchanged PKCE code for session");
-        }
-      });
-    } else if (hash && hash.includes("access_token")) {
-      console.log("Found access_token in URL hash (Implicit flow)");
-      // Supabase's createBrowserClient should automatically pick this up.
-      // But let's listen to the auth state change to be sure.
-      supabase.auth.onAuthStateChange((event, session) => {
-        if (event === 'PASSWORD_RECOVERY') {
-          console.log("Password recovery session established!");
-        }
-      });
-    } else {
-      // Check if session is already established
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        if (!session) {
-          setError("No se detectó un enlace de recuperación válido. Por favor solicita uno nuevo.");
-        }
-      });
-    }
+    // Verify a session exists (the callback should have set one already)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setSessionReady(true);
+      } else {
+        setError("No se encontró una sesión de recuperación válida. Por favor solicita un nuevo enlace.");
+      }
+    });
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -63,16 +37,18 @@ function ResetPasswordForm() {
       setError("Las contraseñas no coinciden.");
       return;
     }
-    
+    if (password.length < 6) {
+      setError("La contraseña debe tener al menos 6 caracteres.");
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
-    const { error: updateError } = await supabase.auth.updateUser({
-      password: password
-    });
+    const { error: updateError } = await supabase.auth.updateUser({ password });
 
     if (updateError) {
-      setError(`Error al guardar: ${updateError.message}. Por favor pide un nuevo enlace.`);
+      setError(`Error al guardar la contraseña: ${updateError.message}`);
       setLoading(false);
       return;
     }
@@ -80,12 +56,27 @@ function ResetPasswordForm() {
     setSuccess(true);
     setLoading(false);
 
-    // Redirect to account dashboard after 2 seconds
+    // Sign out so they log in fresh with the new password
+    await supabase.auth.signOut();
+
     setTimeout(() => {
-      router.push("/account");
+      router.push("/login");
       router.refresh();
-    }, 2000);
+    }, 2500);
   };
+
+  if (error && !sessionReady) {
+    return (
+      <div className="text-center">
+        <div className="mb-6 p-4 bg-error-container text-on-error-container text-sm font-semibold rounded">
+          {error}
+        </div>
+        <Link href="/forgot-password" className="inline-block w-full py-4 bg-primary text-on-primary text-sm font-bold uppercase tracking-widest text-center hover:bg-primary-container transition-colors">
+          Solicitar Nuevo Enlace
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -98,7 +89,7 @@ function ResetPasswordForm() {
       {success ? (
         <div className="text-center">
           <div className="mb-6 p-4 bg-green-100 text-green-800 border border-green-200 text-sm font-semibold rounded">
-            ¡Contraseña actualizada exitosamente! Redirigiendo a tu cuenta...
+            ✓ ¡Contraseña actualizada exitosamente! Redirigiendo al inicio de sesión...
           </div>
         </div>
       ) : (
@@ -106,8 +97,20 @@ function ResetPasswordForm() {
           <div className="flex flex-col gap-2">
             <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">Nueva Contraseña</label>
             <div className="relative">
-              <input required minLength={6} type={showPassword ? "text" : "password"} className="w-full border border-outline-variant bg-surface p-3 pr-10 text-base focus:border-primary focus:outline-none" value={password} onChange={(e) => setPassword(e.target.value)} />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary hover:text-primary material-symbols-outlined">
+              <input
+                required
+                minLength={6}
+                type={showPassword ? "text" : "password"}
+                className="w-full border border-outline-variant bg-surface p-3 pr-10 text-base focus:border-primary focus:outline-none"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Mínimo 6 caracteres"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary hover:text-primary material-symbols-outlined"
+              >
                 {showPassword ? "visibility_off" : "visibility"}
               </button>
             </div>
@@ -115,11 +118,23 @@ function ResetPasswordForm() {
 
           <div className="flex flex-col gap-2">
             <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">Confirmar Contraseña</label>
-            <input required minLength={6} type={showPassword ? "text" : "password"} className="w-full border border-outline-variant bg-surface p-3 text-base focus:border-primary focus:outline-none" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+            <input
+              required
+              minLength={6}
+              type={showPassword ? "text" : "password"}
+              className="w-full border border-outline-variant bg-surface p-3 text-base focus:border-primary focus:outline-none"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Repite tu nueva contraseña"
+            />
           </div>
 
-          <button disabled={loading || error !== null} type="submit" className="w-full py-4 bg-primary text-on-primary text-sm font-bold uppercase tracking-widest hover:bg-primary-container transition-colors disabled:opacity-50 mt-4">
-            {loading ? "Actualizando..." : "Guardar Contraseña"}
+          <button
+            disabled={loading || !sessionReady}
+            type="submit"
+            className="w-full py-4 bg-primary text-on-primary text-sm font-bold uppercase tracking-widest hover:bg-primary-container transition-colors disabled:opacity-50 mt-4"
+          >
+            {loading ? "Guardando..." : "Guardar Nueva Contraseña"}
           </button>
         </form>
       )}
@@ -140,7 +155,7 @@ export default function ResetPasswordPage() {
             <h1 className="text-3xl font-bold text-primary mb-2">Nueva Contraseña</h1>
             <p className="text-sm text-secondary">Por favor ingresa tu nueva contraseña.</p>
           </div>
-          <Suspense fallback={<div>Cargando...</div>}>
+          <Suspense fallback={<div className="text-center text-secondary">Verificando sesión...</div>}>
             <ResetPasswordForm />
           </Suspense>
         </div>
