@@ -13,13 +13,29 @@ export default function ProductReviews({ productId }: { productId: string }) {
   const [errorMsg, setErrorMsg] = useState("");
   const supabase = createClient();
   const [session, setSession] = useState<any>(null);
+  const [canReview, setCanReview] = useState(false);
+  const [cannotReviewReason, setCannotReviewReason] = useState("");
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
+      if (session) {
+        checkEligibility();
+      }
     });
     fetchReviews();
   }, [productId]);
+
+  const checkEligibility = async () => {
+    const res = await fetch(`/api/reviews/can-review?productId=${productId}`);
+    const data = await res.json();
+    if (data.canReview) {
+      setCanReview(true);
+    } else {
+      setCanReview(false);
+      setCannotReviewReason(data.reason);
+    }
+  };
 
   const fetchReviews = async () => {
     const res = await fetch(`/api/reviews?productId=${productId}`);
@@ -109,61 +125,92 @@ export default function ProductReviews({ productId }: { productId: string }) {
           {session ? (
             <div className="bg-surface-container p-6 rounded-lg border border-outline-variant">
               <h4 className="text-sm font-bold uppercase mb-4">Deja tu opinión</h4>
-              <p className="text-xs text-secondary mb-6">Solo los clientes que hayan comprado este producto pueden dejar una reseña.</p>
               
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-bold text-secondary uppercase mb-2">Calificación</label>
-                  <div className="flex gap-2">
-                    {[1, 2, 3, 4, 5].map(star => (
-                      <button 
-                        key={star} 
-                        type="button"
-                        onClick={() => setRating(star)}
-                        className={`material-symbols-outlined text-2xl transition-colors ${rating >= star ? 'text-amber-500' : 'text-gray-300'}`}
-                      >
-                        star
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-secondary uppercase mb-2">Comentario (Opcional)</label>
-                  <textarea 
-                    rows={3} 
-                    className="w-full bg-background border border-outline-variant p-3 outline-none focus:border-primary resize-none text-sm"
-                    placeholder="¿Qué te pareció el producto?"
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-secondary uppercase mb-2">Fotografía (Opcional)</label>
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    onChange={handleFileChange}
-                    className="text-xs text-secondary file:mr-4 file:py-2 file:px-4 file:border-0 file:text-xs file:font-bold file:bg-primary file:text-white hover:file:bg-black cursor-pointer"
-                  />
-                  {preview && (
-                    <div className="mt-3 relative w-24 h-24 border border-outline-variant">
-                      <Image src={preview} alt="Preview" fill className="object-cover" />
+              {canReview ? (
+                <>
+                  <p className="text-xs text-secondary mb-6">Comparte tu experiencia con otros clientes.</p>
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-bold text-secondary uppercase mb-2">Calificación</label>
+                      <div className="flex gap-2">
+                        {[1, 2, 3, 4, 5].map(star => (
+                          <button 
+                            key={star} 
+                            type="button"
+                            onClick={() => setRating(star)}
+                            className={`material-symbols-outlined text-2xl transition-colors ${rating >= star ? 'text-amber-500' : 'text-gray-300'}`}
+                          >
+                            star
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  )}
+
+                    <div>
+                      <label className="block text-xs font-bold text-secondary uppercase mb-2">Comentario (Opcional)</label>
+                      <textarea 
+                        rows={3} 
+                        className="w-full bg-background border border-outline-variant p-3 outline-none focus:border-primary resize-none text-sm"
+                        placeholder="¿Qué te pareció el producto?"
+                        value={comment}
+                        onChange={(e) => setComment(e.target.value)}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-secondary uppercase mb-2">Fotografía (Opcional)</label>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={handleFileChange}
+                        className="text-xs text-secondary file:mr-4 file:py-2 file:px-4 file:border-0 file:text-xs file:font-bold file:bg-primary file:text-white hover:file:bg-black cursor-pointer"
+                      />
+                      {preview && (
+                        <div className="mt-4 relative w-32 h-32">
+                          <Image src={preview} alt="Preview" fill className="object-cover border border-outline-variant" />
+                          <button 
+                            type="button" 
+                            onClick={() => { setImageFile(null); setPreview(""); }}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {errorMsg && <p className="text-red-500 text-sm font-semibold">{errorMsg}</p>}
+
+                    <button 
+                      type="submit" 
+                      disabled={loading}
+                      className="w-full py-3 bg-primary text-white text-sm font-bold uppercase tracking-widest hover:bg-black transition-colors disabled:opacity-50"
+                    >
+                      {loading ? 'Enviando...' : 'Publicar Reseña'}
+                    </button>
+                  </form>
+                </>
+              ) : (
+                <div className="bg-background border border-outline-variant p-6 text-center rounded">
+                  <span className="material-symbols-outlined text-4xl text-gray-400 mb-2">
+                    {cannotReviewReason === 'already_reviewed' ? 'star_half' : 'shopping_bag'}
+                  </span>
+                  <p className="text-sm font-semibold text-primary mb-1">
+                    {cannotReviewReason === 'already_reviewed' 
+                      ? 'Ya calificaste este producto' 
+                      : cannotReviewReason === 'not_completed'
+                        ? 'Pedido en proceso'
+                        : 'Aún no compras este producto'}
+                  </p>
+                  <p className="text-xs text-secondary">
+                    {cannotReviewReason === 'already_reviewed' 
+                      ? 'Gracias por haber compartido tu experiencia.' 
+                      : cannotReviewReason === 'not_completed'
+                        ? 'Podrás dejar tu reseña cuando el pedido haya sido marcado como "concluido".'
+                        : 'Solo los clientes que han comprado y recibido este producto pueden dejar una reseña.'}
+                  </p>
                 </div>
-
-                {errorMsg && <p className="text-error font-semibold text-xs">{errorMsg}</p>}
-
-                <button 
-                  type="submit" 
-                  disabled={loading}
-                  className="w-full mt-4 px-6 py-4 bg-primary text-white font-bold uppercase text-xs tracking-widest hover:bg-black disabled:opacity-50 transition-colors"
-                >
-                  {loading ? "Enviando..." : "Enviar Reseña"}
-                </button>
-              </form>
+              )}
             </div>
           ) : (
             <div className="bg-surface-container-low p-8 text-center border border-outline-variant flex flex-col items-center justify-center">

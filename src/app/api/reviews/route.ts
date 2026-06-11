@@ -37,10 +37,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Debes iniciar sesión para dejar una reseña" }, { status: 401 });
     }
 
-    // Verify if user purchased the product
+    // Verify if user purchased the product AND the order is concluded
     const { data: orders, error: ordersError } = await supabase
       .from('orders')
-      .select('items')
+      .select('items, status')
       .eq('user_id', user.id);
 
     if (ordersError) throw ordersError;
@@ -48,18 +48,20 @@ export async function POST(req: Request) {
     let hasPurchased = false;
     if (orders && orders.length > 0) {
       for (const order of orders) {
-        if (order.items && Array.isArray(order.items)) {
-          const found = order.items.find((item: any) => item.productId === productId);
-          if (found) {
-            hasPurchased = true;
-            break;
+        if (order.status === 'concluida') {
+          if (order.items && Array.isArray(order.items)) {
+            const found = order.items.find((item: any) => item.productId === productId);
+            if (found) {
+              hasPurchased = true;
+              break;
+            }
           }
         }
       }
     }
 
     if (!hasPurchased) {
-      return NextResponse.json({ error: "Solo los clientes que han comprado este producto pueden dejar una reseña" }, { status: 403 });
+      return NextResponse.json({ error: "Solo los clientes que han comprado este producto y su pedido está 'concluido' pueden dejar una reseña" }, { status: 403 });
     }
 
     // Check if already reviewed
