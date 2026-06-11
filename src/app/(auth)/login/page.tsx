@@ -10,8 +10,17 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const searchParams = useSearchParams();
   const router = useRouter();
   const supabase = createClient();
+
+  useEffect(() => {
+    // Check if there is an error in URL
+    const errorParam = searchParams.get('error');
+    if (errorParam === 'invalid_link') {
+      setError('El enlace de seguridad es inválido o ya expiró (algunos correos abren los enlaces automáticamente por seguridad). Por favor solicita uno nuevo e inténtalo pronto.');
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
