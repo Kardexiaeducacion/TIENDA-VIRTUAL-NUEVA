@@ -14,18 +14,7 @@ export default function ResetPasswordPage() {
   const router = useRouter();
   const supabase = createClient();
 
-  useEffect(() => {
-    // Intercambiar el código de PKCE por una sesión válida si viene en la URL
-    const url = new URL(window.location.href);
-    const code = url.searchParams.get('code');
-    if (code) {
-      supabase.auth.exchangeCodeForSession(code).then(({ error: exchangeError }) => {
-        if (exchangeError) {
-          console.error("Error al intercambiar código:", exchangeError);
-        }
-      });
-    }
-  }, []);
+  // La validación se hace directamente al intentar guardar la contraseña.
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
