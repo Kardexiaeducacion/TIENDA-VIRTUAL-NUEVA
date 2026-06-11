@@ -1,4 +1,4 @@
-"use client";
+ï»¿"use client";
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 type PaymentSettings = {
@@ -193,7 +193,7 @@ export default function PaymentsAdminPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-black uppercase tracking-tighter">Pagos</h1>
-            <p className="text-sm text-gray-500 mt-1">Configura métodos de pago y verifica comprobantes</p>
+            <p className="text-sm text-gray-500 mt-1">Configura mÃ©todos de pago y verifica comprobantes</p>
           </div>
           {pendingCount > 0 && (
             <div className="bg-amber-100 border border-amber-200 rounded-xl px-4 py-2 flex items-center gap-2">
@@ -213,7 +213,7 @@ export default function PaymentsAdminPage() {
           >
             <span className="flex items-center gap-2">
               <span className="material-symbols-outlined text-[18px]">settings</span>
-              Configuración
+              ConfiguraciÃ³n
             </span>
           </button>
           <button
@@ -307,7 +307,7 @@ export default function PaymentsAdminPage() {
                   </div>
 
                   {[
-                    { label: "CLABE interbancaria (18 dígitos)", field: "clabe" as const, placeholder: "012 840 01234567890 1" },
+                    { label: "CLABE interbancaria (18 dÃ­gitos)", field: "clabe" as const, placeholder: "012 840 01234567890 1" },
                     { label: "Nombre del beneficiario", field: "beneficiary" as const, placeholder: "Tu Nombre o Empresa S.A." },
                     { label: "Instrucciones adicionales", field: "instructions" as const, placeholder: "Ej. Incluye la referencia para identificar tu pago." },
                   ].map(({ label, field, placeholder }) => (
@@ -330,7 +330,7 @@ export default function PaymentsAdminPage() {
                   disabled={saving}
                   className="mt-5 w-full py-3 bg-black text-white font-bold uppercase tracking-widest text-sm rounded-xl hover:bg-gray-800 transition-colors disabled:opacity-50"
                 >
-                  {saving ? "Guardando..." : "Guardar configuración SPEI"}
+                  {saving ? "Guardando..." : "Guardar configuraciÃ³n SPEI"}
                 </button>
               </div>
             )}
@@ -348,7 +348,7 @@ export default function PaymentsAdminPage() {
                       )}
                     </div>
                     <div className="ml-1">
-                      <h2 className="font-bold">Depósito en OXXO</h2>
+                      <h2 className="font-bold">DepÃ³sito en OXXO</h2>
                       <p className="text-xs text-gray-400 mb-1">Pago en tienda</p>
                       <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded text-[10px] font-bold text-gray-600 transition-colors inline-block">
                         {saving ? "Subiendo..." : "Cambiar Logo"}
@@ -369,9 +369,9 @@ export default function PaymentsAdminPage() {
 
                 <div className="space-y-4">
                   {[
-                    { label: "N° de convenio / Cuenta", field: "account_number" as const, placeholder: "00000000000" },
+                    { label: "NÂ° de convenio / Cuenta", field: "account_number" as const, placeholder: "00000000000" },
                     { label: "Nombre del beneficiario", field: "beneficiary" as const, placeholder: "Tu Nombre o Empresa S.A." },
-                    { label: "Instrucciones adicionales", field: "instructions" as const, placeholder: "Ej. Realiza el depósito en cualquier tienda OXXO." },
+                    { label: "Instrucciones adicionales", field: "instructions" as const, placeholder: "Ej. Realiza el depÃ³sito en cualquier tienda OXXO." },
                   ].map(({ label, field, placeholder }) => (
                     <div key={field}>
                       <label className="text-xs font-bold text-gray-500 uppercase">{label}</label>
@@ -391,7 +391,7 @@ export default function PaymentsAdminPage() {
                   disabled={saving}
                   className="mt-5 w-full py-3 bg-black text-white font-bold uppercase tracking-widest text-sm rounded-xl hover:bg-gray-800 transition-colors disabled:opacity-50"
                 >
-                  {saving ? "Guardando..." : "Guardar configuración OXXO"}
+                  {saving ? "Guardando..." : "Guardar configuraciÃ³n OXXO"}
                 </button>
               </div>
             )}
@@ -443,7 +443,7 @@ export default function PaymentsAdminPage() {
                       </a>
                       <button
                         onClick={async () => {
-                          if (!confirm("¿Seguro que quieres desvincular esta cuenta de Mercado Pago?")) return;
+                          if (!confirm("Â¿Seguro que quieres desvincular esta cuenta de Mercado Pago?")) return;
                           setSaving(true);
                           try {
                             const res = await fetch('/api/auth/mercadopago/disconnect', { method: 'POST' });
@@ -500,7 +500,7 @@ export default function PaymentsAdminPage() {
               ) : orders.length === 0 ? (
                 <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
                   <span className="material-symbols-outlined text-gray-200 text-[64px]">receipt_long</span>
-                  <p className="text-gray-400 mt-4">No hay pagos reportados aún</p>
+                  <p className="text-gray-400 mt-4">No hay pagos reportados aÃºn</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -577,7 +577,7 @@ export default function PaymentsAdminPage() {
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Método</span>
+                      <span className="text-gray-500">MÃ©todo</span>
                       <span className="font-bold capitalize">
                         {selectedOrder.payment_method === "spei" ? "SPEI / Transferencia" : selectedOrder.payment_method === "mercadopago" ? "Mercado Pago ?" : "OXXO"}
                       </span>
@@ -631,7 +631,7 @@ export default function PaymentsAdminPage() {
                   {!selectedOrder.payment_tracking_key && !selectedOrder.payment_proof_url && selectedOrder.payment_method !== "mercadopago" && (
                     <div className="bg-gray-50 rounded-xl p-4 mb-5 text-center text-gray-400 text-sm">
                       <span className="material-symbols-outlined text-[32px] block mb-1">hourglass_empty</span>
-                      El cliente aún no ha subido su comprobante
+                      El cliente aÃºn no ha subido su comprobante
                     </div>
                   )}
 
@@ -659,7 +659,7 @@ export default function PaymentsAdminPage() {
                     <div className="flex flex-col gap-2">
                       <div className="bg-[#009EE3]/5 border border-[#009EE3]/20 rounded-xl p-3 flex items-center gap-2">
                         <span className="material-symbols-outlined text-[#009EE3] text-[18px]">info</span>
-                        <p className="text-xs text-[#009EE3] font-medium">Pago en espera de confirmación de Mercado Pago</p>
+                        <p className="text-xs text-[#009EE3] font-medium">Pago en espera de confirmaciÃ³n de Mercado Pago</p>
                       </div>
                       <button
                         onClick={async () => {
@@ -683,7 +683,7 @@ export default function PaymentsAdminPage() {
                   {(selectedOrder.payment_status === "verified" || (selectedOrder.payment_method === "mercadopago" && (selectedOrder.status === "confirmado" || selectedOrder.status === "etiqueta generada" || selectedOrder.status === "concluida"))) && (
                     <div className={`rounded-xl p-4 text-center font-bold text-sm flex items-center justify-center gap-2 ${selectedOrder.payment_method === "mercadopago" ? "bg-[#009EE3]/10 text-[#009EE3]" : "bg-green-50 text-green-700"}`}>
                       <span className="material-symbols-outlined text-[20px]">verified</span>
-                      {selectedOrder.payment_method === "mercadopago" ? "Pago confirmado por Mercado Pago ?" : "Pago verificado — Pedido confirmado"}
+                      {selectedOrder.payment_method === "mercadopago" ? "Pago confirmado por Mercado Pago ?" : "Pago verificado â€” Pedido confirmado"}
                     </div>
                   )}
                 </div>
@@ -695,3 +695,4 @@ export default function PaymentsAdminPage() {
     </div>
   );
 }
+
