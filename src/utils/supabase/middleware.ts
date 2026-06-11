@@ -64,8 +64,11 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // Redirect logged-in users away from auth pages
-  if ((request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/register')) && user) {
+  // Redirect logged-in users away from auth pages, but NOT from reset-password
+  // (which requires an active recovery session to update the password)
+  const isAuthPage = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/register')
+  const isResetPage = request.nextUrl.pathname.startsWith('/reset-password')
+  if (isAuthPage && !isResetPage && user) {
       const url = request.nextUrl.clone()
       url.pathname = '/account'
       return NextResponse.redirect(url)
