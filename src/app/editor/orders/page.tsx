@@ -105,7 +105,7 @@ export default function AdminOrdersPage() {
   const filtered = orders.filter((order: any) => {
     const idStr = (order.id as string).split("-")[0].toUpperCase();
     let addressInfo: any = null;
-    try { addressInfo = order.shipping_address ? JSON.parse(order.shipping_address) : null; } catch (e) {}
+    try { addressInfo = order.shipping_address ? JSON.parse(order.shipping_address) : null; } catch {}
     const nameStr = (addressInfo?.contact || "").toLowerCase();
     const q = searchQuery.toLowerCase();
     return idStr.includes(q) || nameStr.includes(q);
@@ -135,7 +135,7 @@ export default function AdminOrdersPage() {
         ) : filtered.map((order: any) => {
           const isExpanded = expandedOrderId === order.id;
           let addressInfo: any = null;
-          try { addressInfo = order.shipping_address ? JSON.parse(order.shipping_address) : null; } catch (e) {}
+          try { addressInfo = order.shipping_address ? JSON.parse(order.shipping_address) : null; } catch {}
           const ps = PAYMENT_STATUS[order.payment_status] || PAYMENT_STATUS.pending;
           const hasProof = order.payment_tracking_key || order.payment_proof_url;
 

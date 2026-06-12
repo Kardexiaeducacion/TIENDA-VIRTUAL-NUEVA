@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import { createClient } from "@/utils/supabase/client";
 
 export default function AdminHelpCenter() {
   const [articles, setArticles] = useState<Record<string, unknown>[]>([]);
@@ -10,7 +9,6 @@ export default function AdminHelpCenter() {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   
-  const supabase = createClient();
 
   useEffect(() => {
     fetchArticles();

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 type PaymentSettings = {
@@ -195,12 +195,20 @@ export default function PaymentsAdminPage() {
             <h1 className="text-3xl font-black uppercase tracking-tighter">Pagos</h1>
             <p className="text-sm text-gray-500 mt-1">Configura métodos de pago y verifica comprobantes</p>
           </div>
-          {pendingCount > 0 && (
-            <div className="bg-amber-100 border border-amber-200 rounded-xl px-4 py-2 flex items-center gap-2">
-              <span className="material-symbols-outlined text-amber-600 text-[20px]">notifications_active</span>
-              <span className="font-bold text-amber-700 text-sm">{pendingCount} comprobante{pendingCount > 1 ? "s" : ""} pendiente{pendingCount > 1 ? "s" : ""}</span>
-            </div>
-          )}
+          <div className="flex gap-4 items-center">
+            {urlNotif && (
+              <div className={`border rounded-xl px-4 py-2 flex items-center gap-2 text-sm font-bold ${urlNotif.type === 'success' ? 'bg-green-100 border-green-200 text-green-700' : 'bg-red-100 border-red-200 text-red-700'}`}>
+                <span className="material-symbols-outlined text-[20px]">{urlNotif.type === 'success' ? 'check_circle' : 'error'}</span>
+                <span>{urlNotif.msg}</span>
+              </div>
+            )}
+            {pendingCount > 0 && (
+              <div className="bg-amber-100 border border-amber-200 rounded-xl px-4 py-2 flex items-center gap-2">
+                <span className="material-symbols-outlined text-amber-600 text-[20px]">notifications_active</span>
+                <span className="font-bold text-amber-700 text-sm">{pendingCount} comprobante{pendingCount > 1 ? "s" : ""} pendiente{pendingCount > 1 ? "s" : ""}</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Tabs */}
