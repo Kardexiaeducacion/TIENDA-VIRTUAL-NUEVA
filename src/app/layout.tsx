@@ -4,11 +4,11 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 
 export const metadata: Metadata = {
-  title: "Cloe | Premium Fashion & Accessories",
-  description: "High-end accessories and luggage for the modern world. Precision craft meets timeless elegance.",
+  title: "Cloe | Moda, Accesorios y Equipaje de Lujo Exclusivo",
+  description: "Eleva tu estilo con nuestras colecciones de accesorios, bolsos y equipaje premium. Diseño atemporal y calidad inigualable para quienes exigen lo mejor.",
   openGraph: {
-    title: "Cloe | Premium Fashion & Accessories",
-    description: "High-end accessories and luggage for the modern world. Precision craft meets timeless elegance.",
+    title: "Cloe | Moda, Accesorios y Equipaje de Lujo Exclusivo",
+    description: "Eleva tu estilo con nuestras colecciones exclusivas. Descubre nuestra nueva temporada.",
     url: "https://cloe-app.vercel.app/",
     siteName: "Cloe",
     images: [
@@ -24,8 +24,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Cloe | Premium Fashion & Accessories",
-    description: "High-end accessories and luggage for the modern world. Precision craft meets timeless elegance.",
+    title: "Cloe | Colección Exclusiva",
+    description: "Eleva tu estilo con nuestras colecciones de accesorios, bolsos y equipaje premium.",
     images: ["https://cloe-app.vercel.app/og-image.jpg"],
   },
 };

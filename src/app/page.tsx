@@ -3,6 +3,8 @@ import Link from "next/link";
 import { createClient } from "@/utils/supabase/server";
 import TrendingCarousel from "@/components/TrendingCarousel";
 
+export const revalidate = 3600; // ISR caché por 1 hora
+
 export default async function HomePage() {
   const supabase = await createClient();
 
