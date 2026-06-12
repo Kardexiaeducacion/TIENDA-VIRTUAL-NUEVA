@@ -29,14 +29,14 @@ const checkoutSchema = z.object({
   shippingAddress: z.object({
     email: z.string().email("Email inválido"),
     contact: z.string().min(1, "Nombre de contacto requerido"),
-    phone: z.string().min(1, "Teléfono requerido"),
+    phone: z.string().regex(/^\d{10}$/, "El teléfono debe tener 10 dígitos numéricos"),
     street: z.string().min(1, "Calle requerida"),
     num_ext: z.string().min(1, "Número exterior requerido"),
     num_int: z.string().optional(),
     colony: z.string().min(1, "Colonia requerida"),
     city: z.string().min(1, "Ciudad requerida"),
     state: z.string().min(1, "Estado requerido"),
-    cp: z.string().min(4, "Código postal inválido"),
+    cp: z.string().regex(/^\d{5}$/, "El código postal debe tener 5 dígitos"),
     reference: z.string().optional()
   }).optional().nullable(),
   paymentMethod: z.string().optional()

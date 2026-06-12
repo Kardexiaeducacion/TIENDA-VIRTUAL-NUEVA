@@ -237,8 +237,8 @@ export default function CheckoutPage() {
                 </div>
                 <div>
                   <label className="text-xs font-bold text-gray-500 uppercase">Teléfono (10 dígitos)</label>
-                  <input required type="tel" className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none mt-1" 
-                    value={address.phone} onChange={e => setAddress({...address, phone: e.target.value})} />
+                  <input required type="tel" pattern="[0-9]{10}" maxLength={10} minLength={10} title="El teléfono debe tener 10 dígitos numéricos" className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none mt-1" 
+                    value={address.phone} onChange={e => setAddress({...address, phone: e.target.value.replace(/\D/g, '')})} />
                 </div>
               </div>
             </div>
@@ -248,8 +248,8 @@ export default function CheckoutPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="text-xs font-bold text-gray-500 uppercase">Código Postal</label>
-                  <input required type="text" maxLength={5} className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none mt-1" 
-                    value={address.cp} onChange={e => setAddress({...address, cp: e.target.value})} placeholder="Ej. 64000" />
+                  <input required type="text" pattern="[0-9]{5}" maxLength={5} minLength={5} title="El código postal debe tener 5 dígitos" className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none mt-1" 
+                    value={address.cp} onChange={e => setAddress({...address, cp: e.target.value.replace(/\D/g, '')})} placeholder="Ej. 64000" />
                 </div>
                 <div className="md:col-span-2">
                   <label className="text-xs font-bold text-gray-500 uppercase">Calle</label>
