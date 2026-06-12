@@ -144,9 +144,20 @@ export default function CartPage() {
                 Proceder al Pago
               </Link>
               
-              <div className="mt-6 flex items-center justify-center gap-2 text-secondary text-xs">
-                <span className="material-symbols-outlined text-sm">lock</span>
-                Pago seguro y encriptado
+              <div className="mt-8 flex flex-col items-center gap-4 bg-surface px-4 py-6 border border-outline-variant">
+                <div className="flex items-center gap-2 text-primary text-xs font-bold uppercase tracking-widest">
+                  <span className="material-symbols-outlined text-lg text-green-700">verified_user</span>
+                  <span className="text-green-700">Checkout 100% Seguro</span>
+                </div>
+                <div className="flex items-center justify-center gap-6 opacity-80 mix-blend-multiply">
+                  <Image src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" alt="Visa" width={45} height={15} className="object-contain" />
+                  <Image src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" width={35} height={20} className="object-contain" />
+                  <Image src="https://http2.mlstatic.com/frontend-assets/ui-navigation/5.19.5/mercadopago/logo__large.png" alt="Mercado Pago" width={70} height={20} className="object-contain" />
+                </div>
+                <div className="flex flex-col items-center text-[10px] text-secondary text-center gap-1 uppercase tracking-wider mt-2">
+                  <div className="flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">local_shipping</span> Envío Gratis desde $1,500</div>
+                  <div className="flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">assignment_return</span> 30 Días para Devoluciones</div>
+                </div>
               </div>
             </div>
           </div>
