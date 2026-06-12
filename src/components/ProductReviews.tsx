@@ -1,10 +1,10 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/utils/supabase/client";
 import Image from "next/image";
 
 export default function ProductReviews({ productId }: { productId: string }) {
-  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(false);
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
@@ -12,7 +12,7 @@ export default function ProductReviews({ productId }: { productId: string }) {
   const [preview, setPreview] = useState<string>("");
   const [errorMsg, setErrorMsg] = useState("");
   const supabase = createClient();
-  const [session, setSession] = useState<any>(null);
+  const [session, setSession] = useState<Record<string, unknown> | null>(null);
   const [canReview, setCanReview] = useState(false);
   const [cannotReviewReason, setCannotReviewReason] = useState("");
 
@@ -24,9 +24,9 @@ export default function ProductReviews({ productId }: { productId: string }) {
       }
     });
     fetchReviews();
-  }, [productId]);
+  }, [productId, checkEligibility, fetchReviews, supabase.auth]);
 
-  const checkEligibility = async () => {
+  const checkEligibility = useCallback(async () => {
     const res = await fetch(`/api/reviews/can-review?productId=${productId}`);
     const data = await res.json();
     if (data.canReview) {
@@ -35,15 +35,15 @@ export default function ProductReviews({ productId }: { productId: string }) {
       setCanReview(false);
       setCannotReviewReason(data.reason);
     }
-  };
+  }, [productId]);
 
-  const fetchReviews = async () => {
+  const fetchReviews = useCallback(async () => {
     const res = await fetch(`/api/reviews?productId=${productId}`);
     const data = await res.json();
     if (data.success) {
       setReviews(data.reviews);
     }
-  };
+  }, [productId]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -95,8 +95,8 @@ export default function ProductReviews({ productId }: { productId: string }) {
       setPreview("");
       fetchReviews();
       alert("¡Gracias por tu reseña!");
-    } catch (e: any) {
-      setErrorMsg(e.message);
+    } catch (e: unknown) {
+      setErrorMsg((e as Error).message);
     } finally {
       setLoading(false);
     }

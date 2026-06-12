@@ -4,7 +4,7 @@ import { createClient } from "@/utils/supabase/client";
 
 export default function AdminPhysicalStores() {
   const supabase = createClient();
-  const [stores, setStores] = useState<any[]>([]);
+  const [stores, setStores] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Form State for new/edit

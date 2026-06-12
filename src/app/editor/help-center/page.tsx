@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 
 export default function AdminHelpCenter() {
-  const [articles, setArticles] = useState<any[]>([]);
+  const [articles, setArticles] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
   
   const [category, setCategory] = useState("Envíos");

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, use } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
@@ -86,7 +86,6 @@ function SearchContent() {
             {products.map((product) => {
               const productImages = product.images as string[] | undefined;
               const firstImage = productImages?.[0] || "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800";
-              const isInCart = items.some((i: any) => i.id === product.id);
               
               return (
                 <div key={product.id as string} className="group cursor-pointer">
@@ -98,28 +97,29 @@ function SearchContent() {
                     <button 
                       onClick={(e) => {
                         e.preventDefault();
-                        const hasVariants = (product.variants as any[])?.length > 0;
+                        const hasVariants = (product.variants as Record<string, unknown>[])?.length > 0;
                         if (hasVariants) {
                           router.push(`/product/${product.id}`);
                           return;
                         }
                         const cartItemId = `${product.id}_base`;
-                        const isInCart = items.some((i: any) => i.id === cartItemId);
+                        const isInCart = items.some((i) => i.id === cartItemId);
                         if (isInCart) {
                           removeFromCart(cartItemId);
                         } else {
-                          addToCart(product);
+                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                          addToCart(product as any);
                         }
                       }}
                       className={`absolute bottom-0 left-0 w-full py-4 text-center text-xs font-semibold uppercase tracking-widest translate-y-full group-hover:translate-y-0 transition-all duration-300 ${
-                        items.some((i: any) => i.id === `${product.id}_base`)
+                        items.some((i) => i.id === `${product.id}_base`)
                           ? "bg-primary text-white"
                           : "bg-white/90 backdrop-blur-sm hover:bg-primary hover:text-on-primary"
                       }`}
                     >
-                      {(product.variants as any[])?.length > 0
+                      {(product.variants as Record<string, unknown>[])?.length > 0
                         ? "VER OPCIONES"
-                        : items.some((i: any) => i.id === `${product.id}_base`) 
+                        : items.some((i) => i.id === `${product.id}_base`) 
                           ? "EN CARRITO (QUITAR)" 
                           : "VISTA RÁPIDA / AGREGAR"}
                     </button>

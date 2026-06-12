@@ -3,12 +3,12 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 
 export default function ProductQA({ productId }: { productId: string }) {
-  const [questions, setQuestions] = useState<any[]>([]);
+  const [questions, setQuestions] = useState<Record<string, unknown>[]>([]);
   const [newQuestion, setNewQuestion] = useState("");
   const [loading, setLoading] = useState(false);
   const supabase = createClient();
 
-  const [session, setSession] = useState<any>(null);
+  const [session, setSession] = useState<Record<string, unknown> | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -42,8 +42,8 @@ export default function ProductQA({ productId }: { productId: string }) {
       setNewQuestion("");
       fetchQuestions(); // Refresh
       alert("Tu pregunta ha sido enviada. Te responderemos pronto.");
-    } catch (e: any) {
-      alert(e.message);
+    } catch (e: unknown) {
+      alert((e as Error).message);
     } finally {
       setLoading(false);
     }

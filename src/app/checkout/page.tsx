@@ -38,13 +38,13 @@ export default function CheckoutPage() {
     reference: ""
   });
 
-  const [quotes, setQuotes] = useState<any[]>([]);
+  const [quotes, setQuotes] = useState<Record<string, unknown>[]>([]);
   const [selectedQuoteId, setSelectedQuoteId] = useState("");
   const [selectedOptionId, setSelectedOptionId] = useState("");
   const [shippingCost, setShippingCost] = useState(0);
 
   const [couponCode, setCouponCode] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
+  const [appliedCoupon, setAppliedCoupon] = useState<Record<string, unknown> | null>(null);
   const [couponError, setCouponError] = useState("");
   const [applyingCoupon, setApplyingCoupon] = useState(false);
   const [orderCompleted, setOrderCompleted] = useState(false);

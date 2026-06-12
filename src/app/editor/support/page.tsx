@@ -1,11 +1,11 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { createClient } from "@/utils/supabase/client";
 
 export default function AdminSupportChat() {
-  const [chats, setChats] = useState<any[]>([]);
-  const [activeChat, setActiveChat] = useState<any>(null);
-  const [messages, setMessages] = useState<any[]>([]);
+  const [chats, setChats] = useState<Record<string, unknown>[]>([]);
+  const [activeChat, setActiveChat] = useState<Record<string, unknown> | null>(null);
+  const [messages, setMessages] = useState<Record<string, unknown>[]>([]);
   const [inputText, setInputText] = useState("");
   const [loadingChats, setLoadingChats] = useState(true);
   
@@ -23,7 +23,7 @@ export default function AdminSupportChat() {
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, []);
+  }, [fetchChats, supabase]);
 
   useEffect(() => {
     if (activeChat) {
@@ -47,9 +47,9 @@ export default function AdminSupportChat() {
 
       return () => { supabase.removeChannel(channel); };
     }
-  }, [activeChat]);
+  }, [activeChat, fetchMessages, supabase]);
 
-  const fetchChats = async () => {
+  const fetchChats = useCallback(async () => {
     const { data } = await supabase
       .from('support_chats')
       .select('*')
@@ -57,9 +57,9 @@ export default function AdminSupportChat() {
     
     if (data) setChats(data);
     setLoadingChats(false);
-  };
+  }, [supabase]);
 
-  const fetchMessages = async (chatId: string) => {
+  const fetchMessages = useCallback(async (chatId: string) => {
     const { data } = await supabase
       .from('chat_messages')
       .select('*')
@@ -70,7 +70,7 @@ export default function AdminSupportChat() {
       setMessages(data);
       scrollToBottom();
     }
-  };
+  }, [supabase]);
 
   const scrollToBottom = () => {
     setTimeout(() => {

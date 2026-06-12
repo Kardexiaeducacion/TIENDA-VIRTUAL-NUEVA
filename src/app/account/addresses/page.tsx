@@ -5,7 +5,7 @@ import { createClient } from "@/utils/supabase/client";
 
 export default function AddressesPage() {
   const supabase = createClient();
-  const [addresses, setAddresses] = useState<any[]>([]);
+  const [addresses, setAddresses] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
   const [message, setMessage] = useState({ type: '', text: '' });

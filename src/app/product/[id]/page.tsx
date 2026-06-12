@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
-import Navbar from "@/components/Navbar";
 import FavoriteTextButton from "@/components/FavoriteTextButton";
 import { useCart } from "@/context/CartContext";
 import ProductQA from "@/components/ProductQA";
@@ -32,8 +31,8 @@ export default function ProductPage() {
   const [activeImg, setActiveImg] = useState(0);
   const [detailsOpen, setDetailsOpen] = useState(true);
   const [shippingOpen, setShippingOpen] = useState(false);
-  const [selectedVariant, setSelectedVariant] = useState<any>(null);
-  const [session, setSession] = useState<any>(null);
+  const [selectedVariant, setSelectedVariant] = useState<Record<string, unknown> | null>(null);
+  const [session, setSession] = useState<Record<string, unknown> | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -79,7 +78,7 @@ export default function ProductPage() {
     try {
       parsedImages = typeof product.images === 'string' ? JSON.parse(product.images) : product.images;
       if (!Array.isArray(parsedImages) || parsedImages.length === 0) parsedImages = defaultImages;
-    } catch (e) {
+    } catch {
       parsedImages = defaultImages;
     }
   }
@@ -90,7 +89,7 @@ export default function ProductPage() {
     try {
       parsedVariants = typeof product.variants === 'string' ? JSON.parse(product.variants) : product.variants;
       if (!Array.isArray(parsedVariants)) parsedVariants = [];
-    } catch (e) {
+    } catch {
       parsedVariants = [];
     }
   }

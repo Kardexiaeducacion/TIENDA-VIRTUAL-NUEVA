@@ -1,9 +1,9 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/utils/supabase/client";
 
 export default function AdminQAPage() {
-  const [questions, setQuestions] = useState<any[]>([]);
+  const [questions, setQuestions] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyText, setReplyText] = useState("");
@@ -11,9 +11,9 @@ export default function AdminQAPage() {
 
   useEffect(() => {
     fetchQuestions();
-  }, []);
+  }, [fetchQuestions]);
 
-  const fetchQuestions = async () => {
+  const fetchQuestions = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from('product_questions')
@@ -24,7 +24,7 @@ export default function AdminQAPage() {
       setQuestions(data);
     }
     setLoading(false);
-  };
+  }, [supabase]);
 
   const handleReply = async (id: string) => {
     if (!replyText.trim()) return;

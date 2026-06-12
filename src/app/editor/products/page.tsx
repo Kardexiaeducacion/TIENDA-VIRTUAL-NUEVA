@@ -9,17 +9,16 @@ function ProductsTable() {
   const supabase = createClient();
   const searchParams = useSearchParams();
   const q = searchParams?.get("q") || "";
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchProducts = async () => {
-    setLoading(true);
-    const { data } = await supabase.from("products").select("*").order("created_at", { ascending: false });
-    if (data) setProducts(data);
-    setLoading(false);
-  };
-
   useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      const { data } = await supabase.from("products").select("*").order("created_at", { ascending: false });
+      if (data) setProducts(data);
+      setLoading(false);
+    };
     fetchProducts();
   }, [supabase]);
 

@@ -15,9 +15,19 @@ export type CartItem = {
   isrPercentage: number;
 };
 
+export type Product = {
+  id: string;
+  name: string;
+  price: number | string;
+  shipping_cost?: number | string;
+  images?: string[];
+  iva_percentage?: number | string;
+  isr_percentage?: number | string;
+};
+
 type CartContextType = {
   items: CartItem[];
-  addToCart: (product: any, quantity?: number, variant?: { id: string, name: string }) => void;
+  addToCart: (product: Product, quantity?: number, variant?: { id: string, name: string }) => void;
   removeFromCart: (cartItemId: string) => void;
   updateQuantity: (cartItemId: string, quantity: number) => void;
   clearCart: () => void;
@@ -54,7 +64,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [items, isInitialized]);
 
-  const addToCart = (product: any, quantity = 1, variant?: { id: string, name: string }) => {
+  const addToCart = (product: Product, quantity = 1, variant?: { id: string, name: string }) => {
     setItems(prev => {
       const cartItemId = `${product.id}_${variant?.id || 'base'}`;
       const existing = prev.find(item => item.id === cartItemId);

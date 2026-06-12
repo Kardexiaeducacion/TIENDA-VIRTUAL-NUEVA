@@ -5,9 +5,9 @@ import Image from "next/image";
 
 export default function AdminCustomPages() {
   const supabase = createClient();
-  const [pages, setPages] = useState<any[]>([]);
+  const [pages, setPages] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedPage, setSelectedPage] = useState<any>(null);
+  const [selectedPage, setSelectedPage] = useState<Record<string, unknown> | null>(null);
   
   // Form State
   const [title, setTitle] = useState("");

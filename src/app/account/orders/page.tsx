@@ -23,7 +23,7 @@ const SHIPPING_STATUS: Record<string, { color: string; icon: string }> = {
 
 export default function MyOrdersPage() {
   const supabase = createClient();
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [uploadingId, setUploadingId] = useState<string | null>(null);

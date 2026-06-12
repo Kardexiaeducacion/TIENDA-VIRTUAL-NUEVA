@@ -94,24 +94,12 @@ export default function EditProductPage() {
             return val;
           };
 
-          const model = getAndRemove("Modelo");
-          const material = getAndRemove("Material");
-          const color = getAndRemove("Color");
-          const peso = getAndRemove("Peso")?.replace(" kg", "");
-          
-          let pw="", ph="", pl="";
-          const prodMedidas = getAndRemove("Medidas del Producto");
-          if (prodMedidas) {
-            const parts = prodMedidas.match(/(\d+)/g);
-            if (parts && parts.length >= 3) { pw = parts[0]; ph = parts[1]; pl = parts[2]; }
-          }
-          
-          let sw="", sh="", sl="";
-          const shipMedidas = getAndRemove("Medidas de Envío");
-          if (shipMedidas) {
-            const parts = shipMedidas.match(/(\d+)/g);
-            if (parts && parts.length >= 3) { sw = parts[0]; sh = parts[1]; sl = parts[2]; }
-          }
+          getAndRemove("Modelo");
+          getAndRemove("Material");
+          getAndRemove("Color");
+          getAndRemove("Peso");
+          getAndRemove("Medidas del Producto");
+          getAndRemove("Medidas de Envío");
 
           const loadedFeatures = Array.isArray(product.features) ? product.features : 
           (typeof product.features === "object" && product.features !== null ? 

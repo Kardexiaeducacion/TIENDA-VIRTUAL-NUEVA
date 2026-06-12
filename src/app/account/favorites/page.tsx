@@ -7,7 +7,7 @@ import { createClient } from "@/utils/supabase/client";
 
 export default function FavoritesPage() {
   const supabase = createClient();
-  const [favorites, setFavorites] = useState<any[]>([]);
+  const [favorites, setFavorites] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
 

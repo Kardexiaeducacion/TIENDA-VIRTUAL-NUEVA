@@ -1,12 +1,12 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { usePathname } from "next/navigation";
 
 export default function FloatingChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
-  const [chat, setChat] = useState<any>(null);
-  const [messages, setMessages] = useState<any[]>([]);
+  const [chat, setChat] = useState<Record<string, unknown> | null>(null);
+  const [messages, setMessages] = useState<Record<string, unknown>[]>([]);
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -18,7 +18,7 @@ export default function FloatingChatWidget() {
     if (isOpen && !chat) {
       initChat();
     }
-  }, [isOpen]);
+  }, [isOpen, chat, initChat]);
 
   useEffect(() => {
     if (chat) {
@@ -41,9 +41,9 @@ export default function FloatingChatWidget() {
         supabase.removeChannel(channel);
       };
     }
-  }, [chat]);
+  }, [chat, fetchMessages, supabase]);
 
-  const initChat = async () => {
+  const initChat = useCallback(async () => {
     setLoading(true);
     const res = await fetch("/api/chat");
     const data = await res.json();
@@ -56,9 +56,9 @@ export default function FloatingChatWidget() {
       }
     }
     setLoading(false);
-  };
+  }, []);
 
-  const fetchMessages = async () => {
+  const fetchMessages = useCallback(async () => {
     const { data } = await supabase
       .from('chat_messages')
       .select('*')
@@ -69,7 +69,7 @@ export default function FloatingChatWidget() {
       setMessages(data);
       scrollToBottom();
     }
-  };
+  }, [chat, supabase]);
 
   const scrollToBottom = () => {
     setTimeout(() => {

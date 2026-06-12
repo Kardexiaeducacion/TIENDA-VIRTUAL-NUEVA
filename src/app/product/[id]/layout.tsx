@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     if (Array.isArray(parsedImages) && parsedImages.length > 0) {
       images.push(parsedImages[0]);
     }
-  } catch(e) {}
+  } catch {}
   
   return {
     title: `${product.name} | Cloe`,
@@ -54,7 +54,7 @@ export default async function ProductLayout({
     let images: string[] = [];
     try {
       images = typeof product.images === 'string' ? JSON.parse(product.images) : product.images || [];
-    } catch(e) {}
+    } catch {}
 
     schemaOrg = {
       "@context": "https://schema.org",
