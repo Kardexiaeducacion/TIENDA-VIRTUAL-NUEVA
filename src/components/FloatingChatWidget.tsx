@@ -14,34 +14,11 @@ export default function FloatingChatWidget() {
   const supabase = createClient();
   const pathname = usePathname();
 
-  useEffect(() => {
-    if (isOpen && !chat) {
-      initChat();
-    }
-  }, [isOpen, chat, initChat]);
-
-  useEffect(() => {
-    if (chat) {
-      fetchMessages();
-      
-      // Suscripción en tiempo real a los mensajes de este chat
-      const channel = supabase.channel(`chat_${chat.id}`)
-        .on('postgres_changes', { 
-          event: 'INSERT', 
-          schema: 'public', 
-          table: 'chat_messages',
-          filter: `chat_id=eq.${chat.id}` 
-        }, payload => {
-          setMessages(prev => [...prev, payload.new]);
-          scrollToBottom();
-        })
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    }
-  }, [chat, fetchMessages, supabase]);
+  const scrollToBottom = () => {
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+  };
 
   const initChat = useCallback(async () => {
     setLoading(true);
@@ -71,11 +48,34 @@ export default function FloatingChatWidget() {
     }
   }, [chat, supabase]);
 
-  const scrollToBottom = () => {
-    setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
-  };
+  useEffect(() => {
+    if (isOpen && !chat) {
+      initChat();
+    }
+  }, [isOpen, chat, initChat]);
+
+  useEffect(() => {
+    if (chat) {
+      fetchMessages();
+      
+      // Suscripción en tiempo real a los mensajes de este chat
+      const channel = supabase.channel(`chat_${chat.id}`)
+        .on('postgres_changes', { 
+          event: 'INSERT', 
+          schema: 'public', 
+          table: 'chat_messages',
+          filter: `chat_id=eq.${chat.id}` 
+        }, payload => {
+          setMessages(prev => [...prev, payload.new]);
+          scrollToBottom();
+        })
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [chat, fetchMessages, supabase]);
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
