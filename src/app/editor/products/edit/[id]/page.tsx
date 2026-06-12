@@ -94,12 +94,14 @@ export default function EditProductPage() {
             return val;
           };
 
+          // Remove known structural keys from features so they don't appear as free-form attributes
           getAndRemove("Modelo");
           getAndRemove("Material");
           getAndRemove("Color");
           getAndRemove("Peso");
           getAndRemove("Medidas del Producto");
           getAndRemove("Medidas de Envío");
+
 
           const loadedFeatures = Array.isArray(product.features) ? product.features : 
           (typeof product.features === "object" && product.features !== null ? 

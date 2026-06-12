@@ -118,9 +118,9 @@ export default function Navbar() {
             <button onClick={() => { setIsSearchOpen(true); setTimeout(() => searchInputRef.current?.focus(), 100); }} className="material-symbols-outlined text-primary hover:text-secondary transition-colors">search</button>
           )}
           <NotificationBell userId={userId} />
-          <Link href="/account" className="material-symbols-outlined text-primary hover:text-secondary transition-colors">person</Link>
-          <Link href="/account/favorites" className="material-symbols-outlined text-primary hover:text-secondary transition-colors">favorite</Link>
-          <Link href="/cart" className="relative">
+          <Link href="/account" aria-label="Mi cuenta" className="material-symbols-outlined text-primary hover:text-secondary transition-colors">person</Link>
+          <Link href="/account/favorites" aria-label="Mis favoritos" className="material-symbols-outlined text-primary hover:text-secondary transition-colors">favorite</Link>
+          <Link href="/cart" className="relative" aria-label="Ver carrito">
             <button className="material-symbols-outlined text-primary hover:text-secondary transition-colors">shopping_cart</button>
             {totalItems > 0 && (
               <span className="absolute -top-2 -right-2 bg-primary text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full">

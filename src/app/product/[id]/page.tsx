@@ -13,13 +13,6 @@ const defaultImages = [
   "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800",
 ];
 
-const related = [
-  { name: "Tote Bag Edition", price: "$1,290.00", img: "https://lh3.googleusercontent.com/aida/ADBb0uju1fFs4ma-OQzjplOHYau1v136qUHm_3Ww41kjvhlCgXnfseVtFOmu3BzNy9NMJy6dYiFWLv1hNPLj8b4Bmnmp5GBEST1jOMt31OMKgSWa9IjJtdlXeNRuTt0AEL8d8nMx9VPYTFnd7-7ct223ezwPT-XcKQme9fsssHvWjWJsg0b5PQb8Udn3rf4d2G4-s1gSGAUjBRGlwsnHu9TiSaSpSSkkWlFfBnllgxNb0zCgQ6GKFaoEP4o2AFT8" },
-  { name: "Satchel Premium", price: "$3,450.00", img: "https://lh3.googleusercontent.com/aida/ADBb0uj_fTD_OOrWfu1JL-xzC26MivraWGMoUPCYuSORArNGFjvViUz6re7pFhmmIjWLsC3Gbsdvd5y7zCChkLy0ZPh5iVJrDAH6zLxTC57wV-SDKXslLLUy3-91RxZAm3cjXfL00Q-2UqbxvwIb_QvVuD1UzVV7Tt8zyPn6dLLBPreVTDrNpeYb_e-n8-fVZpR-zL7FVndZT-DwbIaFcCll-YAEVm5vBZ8vEkXPUBFiuoja3Ra0G643SiPTvW4" },
-  { name: "Clutch Noir", price: "$890.00", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuC2VIs7ItAqyvYI9z3jXpkF1Gf7sR9em8HQwXXbntXqIjQNi1oYa2W9I-FIeKJ0bT9woziuvt0SsTpZOaH_TSM5vOcFzeoq0_RlDUnM7DRx_Fxz2cDks_7oUuRVWJEPkIpi_O_LSmCQ96wX332aImX2clrwWvNXTF7YaRR3mFVU5-K9_Or-nlV8ABqL2eHEPuVx14PX2oVS2EByTeRneUGoKhutN7YeWiXSoVnQ9x9Wo31XCgmplnCWRsRO6DWmGuSihCr8dtjhfzv5" },
-  { name: "Mini Crossbody Red", price: "$1,990.00", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBAcg_AwJCGAL6eAawrH4nJkDUYXMFgO4l405yjxMD6zC4-A7HePWX5Cp8qnvVgkan4L6BCwym9BL9Bxznn1guDlSUBQ-RuUqLTY_sTGYtjKipTYzI5bZaWenEnQmxQ0JA-thkSyXkVAkURB9ztTYsIcq0fNN5ftO6yvteQ-X9Th7Wo286ZT46gPfOH9CI_Gbr900c6UWR2L5qhR1gL7_yaXvqMNpUbMF6ibXhWhzSnWduVPvgXiWcTjbOqh0A4yA0kmPgwkvGpwNov" },
-];
-
 export default function ProductPage() {
   const params = useParams();
   const id = params?.id as string;
@@ -301,66 +294,9 @@ export default function ProductPage() {
             <ProductReviews productId={id} />
           </div>
 
-          {/* YOU MAY ALSO LIKE */}
-          <section className="mt-20 pt-20 border-t border-outline-variant">
-            <h2 className="text-4xl font-bold text-primary mb-12 uppercase tracking-tight">También te podría gustar</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {related.map((item) => (
-                <Link href="/product/2" key={item.name} className="group cursor-pointer">
-                  <div className="aspect-square bg-surface-container border border-outline-variant overflow-hidden mb-4 relative">
-                    <Image alt={item.name} src={item.img} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-                    <div className="absolute bottom-0 left-0 w-full p-4 translate-y-full group-hover:translate-y-0 bg-white/90 backdrop-blur-sm transition-transform duration-300 border-t border-outline-variant">
-                      <button className="w-full py-2 bg-primary text-on-primary text-xs font-semibold uppercase">Agregar</button>
-                    </div>
-                  </div>
-                  <h3 className="text-sm font-bold uppercase group-hover:underline">{item.name}</h3>
-                  <p className="text-secondary text-base mt-1">{item.price}</p>
-                </Link>
-              ))}
-            </div>
-          </section>
         </div>
       </main>
-
-      {/* FOOTER */}
-      <footer className="w-full py-20 bg-surface-container border-t border-outline-variant mt-20">
-        <div className="max-w-[1440px] mx-auto px-20 grid grid-cols-12 gap-8">
-          <div className="col-span-12 lg:col-span-4 mb-8 lg:mb-0">
-            <Link href="/" className="text-2xl font-bold text-primary uppercase block mb-6 tracking-tighter">Cloe</Link>
-            <p className="text-base text-secondary max-w-xs mb-8 leading-relaxed">Elevando la moda con estética editorial de autoridad desde 1988.</p>
-            <div className="flex gap-6">
-              {["public", "share", "alternate_email"].map((icon) => (
-                <span key={icon} className="material-symbols-outlined text-secondary cursor-pointer hover:text-primary transition-colors">{icon}</span>
-              ))}
-            </div>
-          </div>
-          {[
-            { title: "Tienda", links: ["Novedades", "Bolsas", "Zapatos", "Accesorios"] },
-            { title: "Soporte", links: ["Centro de Ayuda", "Política de Envíos", "Devoluciones", "Contáctanos"] },
-          ].map((col) => (
-            <div key={col.title} className="col-span-6 lg:col-span-2">
-              <h5 className="text-sm font-semibold text-primary uppercase tracking-widest mb-6">{col.title}</h5>
-              <ul className="space-y-3">
-                {col.links.map((l) => (<li key={l}><a href="#" className="text-sm text-secondary hover:text-primary transition-colors">{l}</a></li>))}
-              </ul>
-            </div>
-          ))}
-          <div className="col-span-12 lg:col-span-4 mt-8 lg:mt-0">
-            <h5 className="text-sm font-semibold text-primary uppercase tracking-widest mb-6">Mantente Inspirado</h5>
-            <p className="text-sm text-secondary mb-4">Regístrate para recibir acceso anticipado y actualizaciones.</p>
-            <div className="flex border-b border-primary py-2">
-              <input className="bg-transparent border-none outline-none text-sm w-full" placeholder="Correo Electrónico" type="email" />
-              <button className="text-sm font-bold uppercase tracking-widest px-4">Unirme</button>
-            </div>
-          </div>
-          <div className="col-span-12 pt-8 flex flex-col md:flex-row justify-between border-t border-outline-variant mt-8">
-            <p className="text-sm text-secondary mb-4 md:mb-0">© 2024 Cloe. Todos los derechos reservados.</p>
-            <div className="flex gap-8">
-              {["Privacidad", "Términos", "Accesibilidad"].map((l) => (<a key={l} href="#" className="text-sm text-secondary hover:text-primary transition-colors">{l}</a>))}
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
+

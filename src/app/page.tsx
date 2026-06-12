@@ -124,7 +124,7 @@ export default async function HomePage() {
               </p>
               <div className="flex gap-4">
                 <Link href={(banners['limited_edition']?.link_url as string) || "/handbags"} className="bg-primary text-white px-8 py-4 text-sm font-medium hover:bg-primary-container transition-all uppercase tracking-widest">{banners['limited_edition']?.link_text as string || "Ver Colección"}</Link>
-                <button className="border border-primary text-primary px-8 py-4 text-sm font-medium hover:bg-primary hover:text-white transition-all uppercase tracking-widest">Saber Más</button>
+                <Link href="/search" className="border border-primary text-primary px-8 py-4 text-sm font-medium hover:bg-primary hover:text-white transition-all uppercase tracking-widest">Ver Catálogo</Link>
               </div>
             </div>
           </div>

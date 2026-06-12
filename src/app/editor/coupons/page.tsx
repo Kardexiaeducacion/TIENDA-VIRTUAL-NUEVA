@@ -1,10 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { useRouter } from "next/navigation";
 
 export default function CouponsPage() {
-  const router = useRouter();
   const supabase = createClient();
   const [coupons, setCoupons] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);

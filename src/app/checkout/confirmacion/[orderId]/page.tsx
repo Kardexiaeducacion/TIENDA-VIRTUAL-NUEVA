@@ -21,7 +21,8 @@ export default function ConfirmacionPage({ params }: { params: { orderId: string
   const collectionStatus = searchParams.get("collection_status") || searchParams.get("status") || "";
   const mpPaymentId = searchParams.get("payment_id") || "";
   const isPending = searchParams.get("pending") === "true" || collectionStatus === "pending";
-  const orderId = params.orderId;
+  // Next.js 15: use React.use() para params en client components o leer directamente
+  const orderId = (params as { orderId: string }).orderId;
 
   const supabase = createClient();
   const fileInputRef = useRef<HTMLInputElement>(null);

@@ -2,9 +2,10 @@ import { createClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 
-export default async function CustomPage({ params }: { params: { slug: string } }) {
+export default async function CustomPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
   const supabase = await createClient();
-  const { data: page } = await supabase.from("custom_pages").select("*").eq("slug", params.slug).single();
+  const { data: page } = await supabase.from("custom_pages").select("*").eq("slug", slug).single();
 
   if (!page) {
     notFound();

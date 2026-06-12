@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
@@ -7,7 +7,7 @@ import Link from "next/link";
 import FavoriteButton from "@/components/FavoriteButton";
 import { useCart } from "@/context/CartContext";
 
-import { Suspense } from "react";
+
 
 function SearchContent() {
   const searchParams = useSearchParams();

@@ -2,12 +2,9 @@
 import { useCart } from "@/context/CartContext";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 
 export default function CartPage() {
-  const { items, updateQuantity, removeFromCart, totalPrice, totalItems, totalShipping, totalIva, totalIsr, clearCart } = useCart();
-  const router = useRouter();
+  const { items, updateQuantity, removeFromCart, totalPrice, totalItems, totalIva, totalIsr } = useCart();
 
   if (items.length === 0) {
     return (

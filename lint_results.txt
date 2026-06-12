@@ -1,0 +1,291 @@
+
+> cloe-app@0.1.0 lint
+> next lint
+
+`next lint` is deprecated and will be removed in Next.js 16.
+For new projects, use create-next-app to choose your preferred linter.
+For existing projects, migrate to the ESLint CLI:
+npx @next/codemod@canary next-lint-to-eslint-cli .
+
+
+./src/app/account/addresses/page.tsx
+8:46  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+26:24  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+33:30  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/account/favorites/page.tsx
+10:46  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/account/orders/page.tsx
+26:40  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+65:6  Warning: React Hook useEffect has a missing dependency: 'fetchOrders'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+109:17  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+152:129  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+152:141  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+217:74  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+301:52  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+383:41  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/api/auth/mercadopago/callback/route.ts
+56:14  Warning: '_' is defined but never used.  @typescript-eslint/no-unused-vars
+80:17  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/api/auth/mercadopago/disconnect/route.ts
+25:16  Warning: '_' is defined but never used.  @typescript-eslint/no-unused-vars
+45:17  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/api/chat/messages/route.ts
+32:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/api/chat/route.ts
+5:27  Warning: 'req' is defined but never used.  @typescript-eslint/no-unused-vars
+42:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/api/checkout/route.ts
+132:32  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+134:63  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+142:42  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+175:73  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+182:21  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+193:9  Error: 'paymentStatus' is never reassigned. Use 'const' instead.  prefer-const
+194:9  Error: 'orderStatus' is never reassigned. Use 'const' instead.  prefer-const
+204:15  Warning: 'e' is defined but never used.  @typescript-eslint/no-unused-vars
+227:85  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+274:30  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+276:61  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+286:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/api/coupons/validate/route.ts
+70:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/api/help/route.ts
+19:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+40:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+59:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+75:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/api/orders/confirm-mp/route.ts
+44:15  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/api/qa/route.ts
+27:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+64:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+93:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/api/reviews/can-review/route.ts
+47:49  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+68:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/api/reviews/route.ts
+20:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+53:51  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+96:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/api/shipping/quote/route.ts
+32:14  Warning: 'e' is defined but never used.  @typescript-eslint/no-unused-vars
+150:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/api/webhooks/mercadopago/route.ts
+76:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/ayuda/page.tsx
+3:8  Warning: 'Navbar' is defined but never used.  @typescript-eslint/no-unused-vars
+6:44  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/cart/page.tsx
+6:10  Warning: 'useState' is defined but never used.  @typescript-eslint/no-unused-vars
+9:74  Warning: 'totalShipping' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+9:109  Warning: 'clearCart' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+10:9  Warning: 'router' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/category/[slug]/page.tsx
+190:70  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+196:61  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+204:44  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+209:49  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+211:46  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/checkout/confirmacion/[orderId]/page.tsx
+50:28  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+57:6  Warning: React Hook useEffect has missing dependencies: 'collectionStatus', 'isPending', 'mpPaymentId', and 'supabase'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+85:23  Warning: 'uploadData' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+123:17  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+254:19  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+269:23  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+364:21  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/checkout/page.tsx
+41:40  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+47:54  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+74:6  Warning: React Hook useEffect has a missing dependency: 'fetchLocationAndQuote'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+84:14  Warning: 'e' is defined but never used.  @typescript-eslint/no-unused-vars
+115:36  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+150:17  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+204:17  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+304:19  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+361:39  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+367:31  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/editor/AdminSidebar.tsx
+20:6  Warning: React Hook useEffect has a missing dependency: 'supabase'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+71:25  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+73:29  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/editor/categories/page.tsx
+23:9  Warning: 'router' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+49:6  Warning: React Hook useEffect has a missing dependency: 'fetchData'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/editor/coupons/page.tsx
+7:9  Warning: 'router' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+9:42  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+25:6  Warning: React Hook useEffect has a missing dependency: 'fetchCoupons'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/editor/help-center/page.tsx
+6:44  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+13:9  Warning: 'supabase' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+43:17  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+54:17  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/editor/orders/page.tsx
+24:39  Warning: React Hook useEffect has a missing dependency: 'fetchOrders'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+33:35  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+33:59  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+34:26  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+71:35  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+71:59  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+87:17  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+105:42  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+107:22  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+108:102  Warning: 'e' is defined but never used.  @typescript-eslint/no-unused-vars
+135:34  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+137:28  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+138:108  Warning: 'e' is defined but never used.  @typescript-eslint/no-unused-vars
+231:48  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+233:27  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+325:35  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/editor/pages/page.tsx
+8:38  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+10:52  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+34:35  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/editor/payments/page.tsx
+31:10  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+49:10  Warning: 'urlNotif' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+53:6  Warning: React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+67:6  Warning: React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+141:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+248:25  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+345:25  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+454:39  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+524:63  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+528:63  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+598:56  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+621:25  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/editor/products/edit/[id]/page.tsx
+97:17  Warning: 'model' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+98:17  Warning: 'material' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+99:17  Warning: 'color' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+100:17  Warning: 'peso' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+106:47  Warning: 'pw' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+106:62  Warning: 'ph' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+106:77  Warning: 'pl' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+113:47  Warning: 'sw' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+113:62  Warning: 'sh' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+113:77  Warning: 'sl' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+120:57  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/editor/products/page.tsx
+12:44  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+24:6  Warning: React Hook useEffect has a missing dependency: 'fetchProducts'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/editor/qa/page.tsx
+6:46  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+14:6  Warning: React Hook useEffect has a missing dependency: 'fetchQuestions'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+44:17  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/editor/shipping/page.tsx
+29:59  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+30:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+39:25  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+107:21  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+198:56  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+198:71  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+
+./src/app/editor/stores/page.tsx
+7:40  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+35:30  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/editor/support/page.tsx
+6:38  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+7:48  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+8:44  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+26:6  Warning: React Hook useEffect has missing dependencies: 'fetchChats' and 'supabase'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+50:6  Warning: React Hook useEffect has missing dependencies: 'fetchMessages' and 'supabase'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/app/layout.tsx
+55:9  Warning: Custom fonts not added in `pages/_document.js` will only load for a single page. This is discouraged. See: https://nextjs.org/docs/messages/no-page-custom-font  @next/next/no-page-custom-font
+56:9  Warning: Custom fonts not added in `pages/_document.js` will only load for a single page. This is discouraged. See: https://nextjs.org/docs/messages/no-page-custom-font  @next/next/no-page-custom-font
+
+./src/app/product/[id]/layout.tsx
+19:11  Warning: 'e' is defined but never used.  @typescript-eslint/no-unused-vars
+57:13  Warning: 'e' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./src/app/product/[id]/page.tsx
+7:8  Warning: 'Navbar' is defined but never used.  @typescript-eslint/no-unused-vars
+35:58  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+36:42  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+82:14  Warning: 'e' is defined but never used.  @typescript-eslint/no-unused-vars
+88:23  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+93:14  Warning: 'e' is defined but never used.  @typescript-eslint/no-unused-vars
+186:61  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+200:50  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+209:48  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/app/search/page.tsx
+2:31  Warning: 'use' is defined but never used.  @typescript-eslint/no-unused-vars
+89:21  Warning: 'isInCart' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+89:47  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+101:66  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+107:57  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+115:40  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+120:45  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+122:42  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/FloatingChatWidget.tsx
+8:36  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+9:44  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+21:6  Warning: React Hook useEffect has a missing dependency: 'chat'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+44:6  Warning: React Hook useEffect has missing dependencies: 'fetchMessages' and 'supabase'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+
+./src/components/Footer.tsx
+7:48  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+19:61  Warning: 'e' is defined but never used.  @typescript-eslint/no-unused-vars
+28:18  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/ProductQA.tsx
+6:46  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+11:42  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+18:6  Warning: React Hook useEffect has missing dependencies: 'fetchQuestions' and 'supabase.auth'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+45:17  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/ProductReviews.tsx
+7:42  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+15:42  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+27:6  Warning: React Hook useEffect has missing dependencies: 'checkEligibility', 'fetchReviews', and 'supabase.auth'. Either include them or remove the dependency array.  react-hooks/exhaustive-deps
+98:17  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/components/TrendingCarousel.tsx
+9:68  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+52:60  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+58:51  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+66:34  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+71:39  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+73:36  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./src/context/CartContext.tsx
+20:24  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+57:31  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules

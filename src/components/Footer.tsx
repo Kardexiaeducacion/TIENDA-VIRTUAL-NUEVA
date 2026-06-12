@@ -110,7 +110,7 @@ export default function Footer() {
 
       </div>
       <div className="max-w-[1440px] mx-auto px-20 pt-8 border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-4">
-        <span className="text-sm text-secondary">© 2024 Cloe. Todos los derechos reservados.</span>
+        <span className="text-sm text-secondary">© 2026 Cloe. Todos los derechos reservados.</span>
         <div className="flex gap-8">
           {["Privacidad", "Términos", "Ayuda", "Contacto"].map((l) => (
             <a key={l} href="#" className="text-sm text-secondary hover:text-primary transition-colors">{l}</a>

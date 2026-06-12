@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { useRouter } from "next/navigation";
 
 type Category = {
   id: string;
@@ -20,7 +19,6 @@ type Subcategory = {
 
 export default function CategoriesPage() {
   const supabase = createClient();
-  const router = useRouter();
   
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
