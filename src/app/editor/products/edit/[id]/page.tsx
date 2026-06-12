@@ -46,6 +46,7 @@ export default function EditProductPage() {
 
   const [freeShipping, setFreeShipping] = useState(false);
 
+  const [totalStock, setTotalStock] = useState("1");
   const [variants, setVariants] = useState<{ id: string; name: string; stock: string }[]>([]);
   const [features, setFeatures] = useState<{ key: string; value: string }[]>([]);
   const [files, setFiles] = useState<File[]>([]);
@@ -78,6 +79,7 @@ export default function EditProductPage() {
 
         if (product.condition) setCondition(product.condition);
         if (product.variants) setVariants(product.variants);
+        if (product.stock !== undefined) setTotalStock(product.stock.toString());
 
         setTaxes({
           applyIva: Number(product.iva_percentage || 0) > 0,
@@ -218,9 +220,16 @@ export default function EditProductPage() {
         stock: parseInt(v.stock) || 0
       })).filter(v => v.name.trim() !== "");
 
-      const totalStock = cleanVariants.length > 0 
-        ? cleanVariants.reduce((sum, v) => sum + v.stock, 0)
-        : 1; // Default to 1 if no variants
+      const parsedTotalStock = parseInt(totalStock) || 1;
+
+      if (cleanVariants.length > 0) {
+        const sumVariants = cleanVariants.reduce((sum, v) => sum + v.stock, 0);
+        if (sumVariants !== parsedTotalStock) {
+          alert(`La suma del stock de las variantes (${sumVariants}) debe ser igual al stock total (${parsedTotalStock}).`);
+          setLoading(false);
+          return;
+        }
+      }
 
       const imageUrls: string[] = [...existingImages];
 
@@ -250,7 +259,7 @@ export default function EditProductPage() {
         subcategory_id: formData.subcategory_id || null,
         condition: condition,
         variants: cleanVariants.length > 0 ? cleanVariants : null,
-        stock: totalStock,
+        stock: parsedTotalStock,
         iva_percentage: taxes.applyIva ? taxes.ivaPercentage : 0,
         isr_percentage: taxes.applyIsr ? taxes.isrPercentage : 0
       }).eq("id", id);
@@ -370,10 +379,17 @@ export default function EditProductPage() {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-gray-700 uppercase">Descripción</label>
-            <textarea required rows={4} className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none resize-none" 
-              value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Describe el producto detalladamente..." />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-700 uppercase">Descripción</label>
+              <textarea required rows={4} className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none resize-none" 
+                value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Describe el producto detalladamente..." />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gray-700 uppercase">Stock Total (Piezas)</label>
+              <input required type="number" min="1" className="w-full bg-[#F5F5F5] border border-[#EAEAEA] rounded-md p-3 text-sm focus:ring-1 focus:ring-black outline-none h-[116px] text-4xl text-center font-black" 
+                value={totalStock} onChange={e => setTotalStock(e.target.value)} placeholder="Ej. 100" />
+            </div>
           </div>
         </div>
 
@@ -382,7 +398,12 @@ export default function EditProductPage() {
           <div className="flex items-center justify-between border-b border-[#EAEAEA] pb-4">
             <div>
               <h2 className="text-lg font-bold text-black">Inventario por Variantes</h2>
-              <p className="text-xs text-gray-500">Añade stock separado por Talla, Color o Diseño. (Si dejas esto vacío, el stock general será 1).</p>
+              <p className="text-xs text-gray-500">Añade stock separado por Talla o Color. El stock total asignado debe coincidir con el Stock Total.</p>
+              {variants.length > 0 && (
+                <p className={`text-xs mt-2 font-bold ${Number(totalStock) === variants.reduce((s,v) => s + (parseInt(v.stock)||0), 0) ? 'text-green-600' : 'text-red-500'}`}>
+                  Asignado: {variants.reduce((s,v) => s + (parseInt(v.stock)||0), 0)} de {totalStock} piezas.
+                </p>
+              )}
             </div>
             <button type="button" onClick={addVariant} className="text-xs font-bold text-white bg-black px-4 py-2 rounded-md uppercase flex items-center gap-1">
               <span className="material-symbols-outlined text-[16px]">add</span> Añadir Variante
