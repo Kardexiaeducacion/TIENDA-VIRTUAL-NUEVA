@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
+import Image from "next/image";
 
 const BBVA_LOGO = "https://logodownload.org/wp-content/uploads/2019/10/bbva-logo.png";
 
@@ -252,7 +253,7 @@ export default function ConfirmacionPage({ params }: { params: { orderId: string
                 <div className={`flex items-center gap-3 px-5 py-3 rounded-xl border-2 font-bold text-sm ${
                   method === "spei" ? "border-[#004A97] bg-blue-50 text-[#004A97]" : "border-gray-200 text-gray-400"
                 }`}>
-                  <img src={settings?.bank_logo_url || BBVA_LOGO} alt="BBVA" className="h-5 object-contain" />
+                  <Image src={settings?.bank_logo_url || BBVA_LOGO} alt="BBVA" width={80} height={20} className="h-5 w-auto object-contain" unoptimized />
                   Transferencia SPEI
                 </div>
                 <div className={`flex items-center gap-3 px-5 py-3 rounded-xl border-2 font-bold text-sm ${
@@ -267,7 +268,7 @@ export default function ConfirmacionPage({ params }: { params: { orderId: string
                 <div>
                   <div className="flex items-center gap-4 mb-5">
                     <div className="w-16 h-16 bg-white border border-gray-100 rounded-xl p-2 flex items-center justify-center shadow-sm">
-                      <img src={settings?.bank_logo_url || BBVA_LOGO} alt="Banco" className="w-full h-full object-contain" />
+                      <Image src={settings?.bank_logo_url || BBVA_LOGO} alt="Banco" fill className="object-contain" unoptimized />
                     </div>
                     <div>
                       <p className="font-bold text-lg">Transferencia SPEI</p>
@@ -362,7 +363,7 @@ export default function ConfirmacionPage({ params }: { params: { orderId: string
               >
                 {preview ? (
                   <div className="relative">
-                    <img src={preview} alt="preview" className="max-h-48 mx-auto rounded-lg object-contain" />
+                    <Image src={preview} alt="preview" width={300} height={200} className="max-h-48 w-auto mx-auto rounded-lg object-contain" unoptimized />
                     <p className="text-xs text-gray-400 mt-2">{file?.name}</p>
                   </div>
                 ) : (

@@ -301,7 +301,7 @@ export default function CheckoutPage() {
                     paymentMethod === "spei" ? "border-[#004A97] bg-blue-50 text-[#004A97]" : "border-[#EAEAEA] text-gray-500 hover:border-gray-300"
                   }`}
                 >
-                  <img src={BBVA_LOGO} alt="BBVA" className="h-5 object-contain" />
+                  <Image src={BBVA_LOGO} alt="BBVA" width={80} height={20} className="h-5 w-auto object-contain" unoptimized />
                   Transferencia SPEI
                 </button>
                 <button
@@ -364,7 +364,7 @@ export default function CheckoutPage() {
                           <input type="radio" name="shippingOpt" className="w-4 h-4 accent-black" checked={selectedOptionId === opt.option_id} onChange={() => handleSelectOption(opt)} />
                           {CARRIER_LOGOS[opt.carrier.toUpperCase()] && (
                             <div className="w-16 h-8 relative flex-shrink-0">
-                              <img src={CARRIER_LOGOS[opt.carrier.toUpperCase()]} alt={opt.carrier} className="w-full h-full object-contain" />
+                              <Image src={CARRIER_LOGOS[opt.carrier.toUpperCase()]} alt={opt.carrier} fill className="object-contain" unoptimized />
                             </div>
                           )}
                           <div>

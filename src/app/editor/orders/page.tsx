@@ -2,7 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { sendNotification } from "@/app/actions/notifications";
-
+import Image from "next/image";
 const PAYMENT_STATUS: Record<string, { label: string; color: string }> = {
   pending:        { label: "Sin comprobante",       color: "bg-gray-100 text-gray-500" },
   proof_uploaded: { label: "Comprobante subido",    color: "bg-amber-100 text-amber-700" },
@@ -230,7 +230,7 @@ export default function AdminOrdersPage() {
                     <div className="space-y-3 max-h-[280px] overflow-y-auto pr-1">
                       {order.items?.map((item: any, idx: number) => (
                         <div key={idx} className="flex gap-3 items-center bg-white p-3 border border-[#EAEAEA] rounded-md">
-                          <img src={item.image || "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800"} alt={item.name} className="w-12 h-12 object-cover rounded-md" />
+                          <Image src={item.image || "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800"} alt={item.name} width={48} height={48} className="w-12 h-12 object-cover rounded-md" unoptimized />
                           <div className="flex-1">
                             <p className="font-bold text-sm">{item.name}</p>
                             {item.variantName && <p className="text-xs text-gray-500 mt-0.5">{item.variantName}</p>}
@@ -322,7 +322,7 @@ export default function AdminOrdersPage() {
                               <div>
                                 <p className="text-xs font-bold text-gray-400 uppercase mb-2">Baucher subido por el cliente</p>
                                 <a href={order.payment_proof_url} target="_blank" rel="noopener noreferrer">
-                                  <img src={order.payment_proof_url} alt="Comprobante" className="w-full rounded-lg border border-gray-200 hover:opacity-90 transition-opacity cursor-zoom-in max-h-40 object-contain" />
+                                  <Image src={order.payment_proof_url} alt="Comprobante" width={300} height={160} className="w-full h-auto rounded-lg border border-gray-200 hover:opacity-90 transition-opacity cursor-zoom-in max-h-40 object-contain" unoptimized />
                                   <p className="text-xs text-blue-500 text-center mt-1">Ver imagen completa ↗</p>
                                 </a>
                               </div>
