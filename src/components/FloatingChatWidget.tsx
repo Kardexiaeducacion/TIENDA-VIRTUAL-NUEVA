@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { usePathname } from "next/navigation";
+import { useStoreInfo } from "@/context/StoreInfoContext";
 
 export default function FloatingChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,6 +14,7 @@ export default function FloatingChatWidget() {
   
   const supabase = createClient();
   const pathname = usePathname();
+  const { storeName } = useStoreInfo();
 
   const scrollToBottom = () => {
     setTimeout(() => {
@@ -118,7 +120,7 @@ export default function FloatingChatWidget() {
         {/* Header */}
         <div className="bg-primary text-white p-4 flex justify-between items-center shrink-0">
           <div>
-            <h3 className="font-bold uppercase tracking-widest text-sm">Soporte Cloe</h3>
+            <h3 className="font-bold uppercase tracking-widest text-sm">Soporte {storeName}</h3>
             <p className="text-[10px] opacity-80">Generalmente respondemos en minutos</p>
           </div>
           <button onClick={() => setIsOpen(false)} className="material-symbols-outlined hover:text-gray-300">close</button>
@@ -136,7 +138,7 @@ export default function FloatingChatWidget() {
           ) : messages.length === 0 ? (
             <div className="flex-1 flex flex-col justify-end text-center p-4">
               <p className="text-xs text-secondary bg-white p-3 rounded-lg border border-[#EAEAEA] shadow-sm inline-block self-center mb-4">
-                ¡Hola! 👋 Soy un asesor de Cloe. ¿En qué puedo ayudarte hoy?
+                ¡Hola! 👋 Soy un asesor de {storeName}. ¿En qué puedo ayudarte hoy?
               </p>
             </div>
           ) : (

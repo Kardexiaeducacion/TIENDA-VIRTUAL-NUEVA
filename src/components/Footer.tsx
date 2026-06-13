@@ -2,10 +2,12 @@
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { useEffect, useState } from "react";
+import { useStoreInfo } from "@/context/StoreInfoContext";
 
 export default function Footer() {
   const [categories, setCategories] = useState<{ id: string; name: string; slug: string }[]>([]);
   const [socials, setSocials] = useState<Record<string, string>>({});
+  const { storeName, contactEmail } = useStoreInfo();
   const supabase = createClient();
 
   useEffect(() => {
@@ -40,9 +42,9 @@ export default function Footer() {
 
   return (
     <footer className="bg-surface-container py-20 border-t border-outline-variant mt-auto">
-      <div className="max-w-[1440px] mx-auto px-20 grid grid-cols-12 gap-8 mb-20">
+      <div className="max-w-[1440px] mx-auto px-8 md:px-20 grid grid-cols-1 md:grid-cols-12 gap-8 mb-20">
         <div className="col-span-12 md:col-span-3">
-          <Link href="/" className="text-2xl font-bold text-primary uppercase mb-6 block tracking-tighter">Cloe</Link>
+          <Link href="/" className="text-2xl font-bold text-primary uppercase mb-6 block tracking-tighter">{storeName}</Link>
           <p className="text-base text-secondary mb-6 pr-4 leading-relaxed">Accesorios de alta gama y equipaje para el mundo moderno. Precisión artesanal se encuentra con la elegancia atemporal.</p>
           <div className="flex gap-3">
             {Object.keys(socials).some(k => socials[k]) ? (
@@ -55,7 +57,6 @@ export default function Footer() {
           </div>
         </div>
         
-        {/* TIENDA */}
         <div className="col-span-6 md:col-span-2">
           <h5 className="text-sm font-semibold text-primary mb-6 uppercase tracking-widest">Tienda</h5>
           <ul className="space-y-3">
@@ -70,7 +71,6 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* COMPAÑÍA */}
         <div className="col-span-6 md:col-span-2">
           <h5 className="text-sm font-semibold text-primary mb-6 uppercase tracking-widest">Compañía</h5>
           <ul className="space-y-3">
@@ -80,17 +80,13 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* SOPORTE */}
-        <div className="col-span-6 md:col-span-2">
+        <div className="col-span-6 md:col-span-3">
           <h5 className="text-sm font-semibold text-primary mb-6 uppercase tracking-widest">Soporte</h5>
           <ul className="space-y-3">
             <li>
-              <button 
-                onClick={() => document.getElementById('chat-widget-btn')?.click()} 
-                className="text-sm text-secondary hover:text-primary transition-colors text-left"
-              >
-                Contáctanos
-              </button>
+              <a href={`mailto:${contactEmail}`} className="text-sm text-secondary hover:text-primary transition-colors">
+                {contactEmail}
+              </a>
             </li>
             <li><Link href="/pages/envios" className="text-sm text-secondary hover:text-primary transition-colors">Envíos</Link></li>
             <li><Link href="/pages/devoluciones" className="text-sm text-secondary hover:text-primary transition-colors">Devoluciones</Link></li>
@@ -98,7 +94,6 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* CUENTA */}
         <div className="col-span-6 md:col-span-2">
           <h5 className="text-sm font-semibold text-primary mb-6 uppercase tracking-widest">Cuenta</h5>
           <ul className="space-y-3">
@@ -110,7 +105,7 @@ export default function Footer() {
 
       </div>
       <div className="max-w-[1440px] mx-auto px-20 pt-8 border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-4">
-        <span className="text-sm text-secondary">© 2026 Cloe. Todos los derechos reservados.</span>
+        <span className="text-sm text-secondary">&copy; {new Date().getFullYear()} {storeName}. Todos los derechos reservados.</span>
         <div className="flex gap-8">
           {["Privacidad", "Términos", "Ayuda", "Contacto"].map((l) => (
             <a key={l} href="#" className="text-sm text-secondary hover:text-primary transition-colors">{l}</a>

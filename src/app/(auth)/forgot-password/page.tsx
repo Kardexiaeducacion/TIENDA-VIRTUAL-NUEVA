@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
+import { useStoreInfo } from "@/context/StoreInfoContext";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -9,6 +10,7 @@ export default function ForgotPasswordPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const supabase = createClient();
+  const { storeName } = useStoreInfo();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +39,7 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col font-sans">
       <header className="h-20 border-b border-outline-variant flex items-center px-8 md:px-20 bg-surface">
-        <Link href="/" className="text-3xl font-extrabold text-primary uppercase tracking-tighter">Cloe</Link>
+        <Link href="/" className="text-3xl font-extrabold text-primary uppercase tracking-tighter">{storeName}</Link>
       </header>
 
       <main className="flex-1 flex items-center justify-center py-20 px-4">

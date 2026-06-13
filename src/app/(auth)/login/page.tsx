@@ -4,6 +4,7 @@ import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useStoreInfo } from "@/context/StoreInfoContext";
 // ... (I will need to restructure the component)
 
 function LoginForm() {
@@ -90,17 +91,19 @@ function LoginForm() {
 }
 
 export default function LoginPage() {
+  const { storeName } = useStoreInfo();
+  
   return (
     <div className="min-h-screen bg-background flex flex-col font-sans">
       <header className="h-20 border-b border-outline-variant flex items-center px-8 md:px-20 bg-surface">
-        <Link href="/" className="text-3xl font-extrabold text-primary uppercase tracking-tighter">Cloe</Link>
+        <Link href="/" className="text-3xl font-extrabold text-primary uppercase tracking-tighter">{storeName}</Link>
       </header>
 
       <main className="flex-1 flex items-center justify-center py-20 px-4">
         <div className="w-full max-w-md bg-surface-container-lowest border border-outline-variant p-8 md:p-12 shadow-sm">
           <div className="mb-10 text-center">
             <h1 className="text-3xl font-bold text-primary mb-2">Iniciar Sesión</h1>
-            <p className="text-sm text-secondary">Bienvenido de vuelta a Cloe.</p>
+            <p className="text-sm text-secondary">Bienvenido de vuelta a {storeName}.</p>
           </div>
           <Suspense fallback={<div>Cargando...</div>}>
             <LoginForm />

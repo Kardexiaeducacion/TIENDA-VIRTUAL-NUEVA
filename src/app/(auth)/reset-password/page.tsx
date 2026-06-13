@@ -3,6 +3,7 @@ import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
+import { useStoreInfo } from "@/context/StoreInfoContext";
 
 function ResetPasswordForm() {
   const [password, setPassword] = useState("");
@@ -182,11 +183,13 @@ function ResetPasswordForm() {
 }
 
 export default function ResetPasswordPage() {
+  const { storeName } = useStoreInfo();
+
   return (
     <div className="min-h-screen bg-background flex flex-col font-sans">
       <header className="h-20 border-b border-outline-variant flex items-center px-8 md:px-20 bg-surface">
         <Link href="/" className="text-3xl font-extrabold text-primary uppercase tracking-tighter">
-          Cloe
+          {storeName}
         </Link>
       </header>
 

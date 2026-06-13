@@ -4,12 +4,17 @@ import { usePathname } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { useStoreInfo } from "@/context/StoreInfoContext";
 
 export default function AdminSidebar({ profile, email }: { profile: Record<string, unknown> | null, email: string | undefined }) {
   const pathname = usePathname();
   const supabase = createClient();
   const router = useRouter();
   const [pendingPayments, setPendingPayments] = useState(0);
+  const { storeName } = useStoreInfo();
+  
+  const firstName = storeName.split(" ")[0];
+  const secondName = storeName.split(" ").slice(1).join(" ") || "Studio";
 
   useEffect(() => {
     supabase
@@ -48,7 +53,7 @@ export default function AdminSidebar({ profile, email }: { profile: Record<strin
       {/* LOGO */}
       <div className="p-8 pb-6">
         <Link href="/editor" className="block text-3xl font-extrabold uppercase tracking-tighter leading-none text-black">
-          Cloe<br/>Studio
+          {firstName}<br/>{secondName}
         </Link>
       </div>
 

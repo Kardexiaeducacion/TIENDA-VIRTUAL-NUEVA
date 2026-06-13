@@ -13,17 +13,33 @@ export default function EditorSettingsPage() {
     facebook: "",
     x: ""
   });
+  
+  // Store info state
+  const [storeInfo, setStoreInfo] = useState({
+    storeName: "Cloe Studio",
+    contactEmail: "contacto@cloe.com"
+  });
 
   useEffect(() => {
     async function loadSettings() {
       setLoading(true);
-      const { data } = await supabase.from("custom_pages").select("content").eq("slug", "social_links").single();
-      if (data && data.content) {
+      const { data: socialData } = await supabase.from("custom_pages").select("content").eq("slug", "social_links").single();
+      if (socialData && socialData.content) {
         try {
-          const parsed = JSON.parse(data.content);
+          const parsed = JSON.parse(socialData.content);
           setSocials(parsed);
         } catch (e) {
           console.error("Error parsing social links", e);
+        }
+      }
+
+      const { data: storeData } = await supabase.from("custom_pages").select("content").eq("slug", "store_info").single();
+      if (storeData && storeData.content) {
+        try {
+          const parsed = JSON.parse(storeData.content);
+          setStoreInfo(parsed);
+        } catch (e) {
+          console.error("Error parsing store info", e);
         }
       }
       setLoading(false);
@@ -34,21 +50,32 @@ export default function EditorSettingsPage() {
 
   const handleSave = async () => {
     // Save to custom_pages with slug='social_links'
-    const payload = JSON.stringify(socials);
+    const socialPayload = JSON.stringify(socials);
+    const storePayload = JSON.stringify(storeInfo);
     
-    // Check if it exists
-    const { data: existing } = await supabase.from("custom_pages").select("id").eq("slug", "social_links").single();
+    // Check if they exist
+    const { data: existingSocial } = await supabase.from("custom_pages").select("id").eq("slug", "social_links").single();
+    const { data: existingStore } = await supabase.from("custom_pages").select("id").eq("slug", "store_info").single();
     
-    let error;
-    if (existing) {
-      const res = await supabase.from("custom_pages").update({ content: payload }).eq("slug", "social_links");
-      error = res.error;
+    let hasError = false;
+
+    if (existingSocial) {
+      const { error } = await supabase.from("custom_pages").update({ content: socialPayload }).eq("slug", "social_links");
+      if (error) hasError = true;
     } else {
-      const res = await supabase.from("custom_pages").insert([{ slug: "social_links", title: "Social Links", content: payload }]);
-      error = res.error;
+      const { error } = await supabase.from("custom_pages").insert([{ slug: "social_links", title: "Social Links", content: socialPayload }]);
+      if (error) hasError = true;
     }
 
-    if (error) {
+    if (existingStore) {
+      const { error } = await supabase.from("custom_pages").update({ content: storePayload }).eq("slug", "store_info");
+      if (error) hasError = true;
+    } else {
+      const { error } = await supabase.from("custom_pages").insert([{ slug: "store_info", title: "Store Info", content: storePayload }]);
+      if (error) hasError = true;
+    }
+
+    if (hasError) {
       alert("Error al guardar la configuración.");
     } else {
       alert("Configuración guardada exitosamente.");
@@ -121,23 +148,35 @@ export default function EditorSettingsPage() {
             )}
           </section>
 
-          {/* STORE INFO (Static for now) */}
-          <section className="bg-white p-8 border border-[#EAEAEA] rounded-lg shadow-sm opacity-50 pointer-events-none">
+          {/* STORE INFO */}
+          <section className="bg-white p-8 border border-[#EAEAEA] rounded-lg shadow-sm">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500">Información de la Tienda (Próximamente)</h3>
+              <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500">Información de la Tienda</h3>
             </div>
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-gray-700 uppercase">Nombre de la Tienda</label>
-                  <input className="w-full bg-[#F5F5F5] border border-[#EAEAEA] p-3 text-sm focus:border-black outline-none rounded-md" defaultValue="Cloe Studio" />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-gray-700 uppercase">Correo de Contacto</label>
-                  <input className="w-full bg-[#F5F5F5] border border-[#EAEAEA] p-3 text-sm focus:border-black outline-none rounded-md" defaultValue="contacto@cloe.com" />
+            {loading ? (
+              <p className="text-sm text-gray-500">Cargando...</p>
+            ) : (
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-700 uppercase">Nombre de la Tienda</label>
+                    <input 
+                      value={storeInfo.storeName}
+                      onChange={e => setStoreInfo({...storeInfo, storeName: e.target.value})}
+                      className="w-full bg-[#F5F5F5] border border-[#EAEAEA] p-3 text-sm focus:border-black outline-none rounded-md" 
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-gray-700 uppercase">Correo de Contacto</label>
+                    <input 
+                      value={storeInfo.contactEmail}
+                      onChange={e => setStoreInfo({...storeInfo, contactEmail: e.target.value})}
+                      className="w-full bg-[#F5F5F5] border border-[#EAEAEA] p-3 text-sm focus:border-black outline-none rounded-md" 
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </section>
 
           {/* BANNERS */}

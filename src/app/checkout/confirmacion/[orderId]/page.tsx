@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
 import Image from "next/image";
+import { useStoreInfo } from "@/context/StoreInfoContext";
 
 const BBVA_LOGO = "https://logodownload.org/wp-content/uploads/2019/10/bbva-logo.png";
 
@@ -18,15 +19,15 @@ type PaymentSettings = {
 
 export default function ConfirmacionPage({ params }: { params: { orderId: string } }) {
   const searchParams = useSearchParams();
+  const { orderId } = useParams() as { orderId: string };
   const method = searchParams.get("method") || "spei";
   const collectionStatus = searchParams.get("collection_status") || searchParams.get("status") || "";
   const mpPaymentId = searchParams.get("payment_id") || "";
   const isPending = searchParams.get("pending") === "true" || collectionStatus === "pending";
-  // Next.js 15: use React.use() para params en client components o leer directamente
-  const orderId = (params as { orderId: string }).orderId;
-
+  
   const supabase = createClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { storeName, contactEmail } = useStoreInfo();
 
   const [settings, setSettings] = useState<PaymentSettings | null>(null);
   const [step, setStep] = useState<"payment" | "upload" | "success">("payment");
@@ -37,7 +38,7 @@ export default function ConfirmacionPage({ params }: { params: { orderId: string
   const [reference, setReference] = useState("");
 
   useEffect(() => {
-    const ref = "CLOE-" + orderId.substring(0, 8).toUpperCase();
+    const ref = (storeName?.substring(0, 4).toUpperCase() || "PAY") + "-" + orderId.substring(0, 8).toUpperCase();
     setReference(ref);
 
     supabase
@@ -56,7 +57,7 @@ export default function ConfirmacionPage({ params }: { params: { orderId: string
       if (mpPaymentId) updatePayload.payment_tracking_key = mpPaymentId;
       supabase.from("orders").update(updatePayload).eq("id", orderId).then(() => {});
     }
-  }, [orderId, method]);
+  }, [orderId, method, storeName]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
@@ -275,7 +276,7 @@ export default function ConfirmacionPage({ params }: { params: { orderId: string
                       <p className="text-sm text-gray-500">{settings?.bank_name || "BBVA Bancomer"}</p>
                       <div className="flex items-center gap-1 mt-1">
                         <span className="material-symbols-outlined text-green-500 text-[16px]">verified</span>
-                        <span className="text-xs text-green-600 font-bold">Cuenta verificada CLOE</span>
+                        <span className="text-xs text-green-600 font-bold">Cuenta verificada {storeName}</span>
                       </div>
                     </div>
                   </div>
@@ -301,7 +302,7 @@ export default function ConfirmacionPage({ params }: { params: { orderId: string
                       <p className="text-sm text-gray-500">Paga en cualquier tienda OXXO</p>
                       <div className="flex items-center gap-1 mt-1">
                         <span className="material-symbols-outlined text-green-500 text-[16px]">verified</span>
-                        <span className="text-xs text-green-600 font-bold">Cuenta verificada CLOE</span>
+                        <span className="text-xs text-green-600 font-bold">Cuenta verificada {storeName}</span>
                       </div>
                     </div>
                   </div>
@@ -333,8 +334,8 @@ export default function ConfirmacionPage({ params }: { params: { orderId: string
         {step === "upload" && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-xl font-bold mb-2">Confirma tu pago</h2>
-            <p className="text-sm text-gray-500 mb-6">
-              Sube la clave de rastreo o una foto de tu comprobante para que podamos verificar tu pago.
+            <p className="text-sm text-secondary mb-8">
+              Hemos enviado un correo con los detalles de tu pedido. Si pagaste mediante transferencia, por favor envía tu comprobante a <a href={`mailto:${contactEmail}`} className="font-bold text-primary hover:underline">{contactEmail}</a> o a nuestro WhatsApp, incluyendo tu número de pedido.
             </p>
 
             {/* Tracking Key */}

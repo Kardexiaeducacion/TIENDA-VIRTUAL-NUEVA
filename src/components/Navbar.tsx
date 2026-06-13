@@ -8,6 +8,7 @@ type Category = { id: string; name: string; slug: string };
 type Subcategory = { id: string; category_id: string; name: string; slug: string };
 
 import { useCart } from "@/context/CartContext";
+import { useStoreInfo } from "@/context/StoreInfoContext";
 import NotificationBell from "./NotificationBell";
 
 export default function Navbar() {
@@ -15,6 +16,7 @@ export default function Navbar() {
   const router = useRouter();
   const supabase = createClient();
   const { totalItems } = useCart();
+  const { storeName } = useStoreInfo();
   
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -64,7 +66,7 @@ export default function Navbar() {
     <nav className="fixed top-0 w-full h-20 bg-surface border-b border-outline-variant z-50 transition-all duration-200">
       <div className="max-w-[1440px] mx-auto px-20 flex items-center justify-between h-full">
         <div className="flex items-center gap-10">
-          <Link href="/" className="text-3xl font-extrabold text-primary uppercase tracking-tighter">Cloe</Link>
+          <Link href="/" className="text-3xl font-extrabold text-primary uppercase tracking-tighter">{storeName}</Link>
           <div className="hidden lg:flex items-center gap-8 relative h-full">
             <Link href="/" className={`text-sm font-medium tracking-widest uppercase transition-all duration-300 relative py-2 flex flex-col items-center justify-center ${pathname === "/" ? "text-primary -translate-y-[3px]" : "text-secondary hover:text-primary"}`}>
               Inicio

@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { createClient } from '@/utils/supabase/server';
+import { getStoreInfo } from '@/utils/storeInfo';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -18,21 +19,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
   } catch {}
   
+  const storeInfo = await getStoreInfo();
+  
   return {
-    title: `${product.name} | Cloe`,
-    description: String(product.description || `Compra ${product.name} en Cloe.`).substring(0, 160),
+    title: `${product.name} | ${storeInfo.storeName}`,
+    description: String(product.description || `Compra ${product.name} en ${storeInfo.storeName}.`).substring(0, 160),
     openGraph: {
-      title: `${product.name} | Cloe`,
-      description: String(product.description || `Compra ${product.name} en Cloe.`).substring(0, 160),
+      title: `${product.name} | ${storeInfo.storeName}`,
+      description: String(product.description || `Compra ${product.name} en ${storeInfo.storeName}.`).substring(0, 160),
       url: `https://cloe-app.vercel.app/product/${id}`,
-      siteName: "Cloe",
+      siteName: storeInfo.storeName,
       images: images.length > 0 ? [{ url: images[0] }] : [],
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
-      title: `${product.name} | Cloe`,
-      description: String(product.description || `Compra ${product.name} en Cloe.`).substring(0, 160),
+      title: `${product.name} | ${storeInfo.storeName}`,
+      description: String(product.description || `Compra ${product.name} en ${storeInfo.storeName}.`).substring(0, 160),
       images: images.length > 0 ? [images[0]] : [],
     }
   }
