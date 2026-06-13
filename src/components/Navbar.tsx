@@ -26,6 +26,18 @@ export default function Navbar() {
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
 
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(false);
+
+  const checkScroll = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      setShowLeftArrow(scrollLeft > 0);
+      setShowRightArrow(Math.ceil(scrollLeft + clientWidth) < scrollWidth);
+    }
+  };
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       setUserId(data.user?.id || null);
@@ -48,6 +60,33 @@ export default function Navbar() {
     };
   }, [supabase]);
 
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (container) {
+      // Check immediately and on every re-render/resize/scroll
+      checkScroll();
+      container.addEventListener('scroll', checkScroll);
+      window.addEventListener('resize', checkScroll);
+      return () => {
+        container.removeEventListener('scroll', checkScroll);
+        window.removeEventListener('resize', checkScroll);
+      };
+    }
+  }, [categories]);
+
+  // Check scroll when fonts or layout might have fully loaded
+  useEffect(() => {
+    const timer = setTimeout(checkScroll, 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = 250;
+      scrollContainerRef.current.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
+    }
+  };
+
   // Hide Navbar in editor, login, register, etc.
   if (pathname.startsWith("/editor") || pathname === "/login" || pathname === "/register") {
     return null;
@@ -64,11 +103,29 @@ export default function Navbar() {
 
   return (
     <nav className="fixed top-0 w-full h-20 bg-surface border-b border-outline-variant z-50 transition-all duration-200">
-      <div className="max-w-[1440px] mx-auto px-20 flex items-center justify-between h-full">
-        <div className="flex items-center gap-10">
-          <Link href="/" className="text-3xl font-extrabold text-primary uppercase tracking-tighter">{storeName}</Link>
-          <div className="hidden lg:flex items-center gap-8 relative h-full">
-            <Link href="/" className={`text-sm font-medium tracking-widest uppercase transition-all duration-300 relative py-2 flex flex-col items-center justify-center ${pathname === "/" ? "text-primary -translate-y-[3px]" : "text-secondary hover:text-primary"}`}>
+      <div className="max-w-[1440px] mx-auto px-4 md:px-10 xl:px-20 flex items-center justify-between h-full gap-4 lg:gap-8">
+        
+        {/* LOGO */}
+        <Link href="/" className="text-xl md:text-2xl lg:text-3xl font-extrabold text-primary uppercase tracking-tighter shrink-0">
+          {storeName}
+        </Link>
+        
+        {/* CATEGORIES */}
+        <div className="hidden lg:flex flex-1 min-w-0 items-center justify-center relative h-full">
+          {showLeftArrow && (
+            <button 
+              onClick={() => scroll('left')} 
+              className="absolute left-0 z-10 p-1 bg-white/90 hover:bg-white text-gray-400 hover:text-black transition-colors rounded-full shadow-md flex items-center justify-center"
+            >
+              <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+            </button>
+          )}
+          
+          <div 
+            ref={scrollContainerRef} 
+            className="flex items-center gap-8 overflow-x-auto hide-scrollbar scroll-smooth h-full px-4"
+          >
+            <Link href="/" className={`shrink-0 text-sm font-medium tracking-widest uppercase transition-all duration-300 relative py-2 flex flex-col items-center justify-center ${pathname === "/" ? "text-primary -translate-y-[3px]" : "text-secondary hover:text-primary"}`}>
               Inicio
               {pathname === "/" && <span className="absolute -bottom-1 left-0 w-full h-[1px] bg-primary rounded-full"></span>}
             </Link>
@@ -78,14 +135,14 @@ export default function Navbar() {
               const isActive = pathname === `/category/${cat.slug}` || pathname.startsWith(`/category/${cat.slug}/`);
               
               return (
-                <div key={cat.id} className="group relative flex items-center h-full">
+                <div key={cat.id} className="group/nav relative flex items-center h-full shrink-0">
                   <Link href={`/category/${cat.slug}`} className={`text-sm font-medium tracking-widest uppercase transition-all duration-300 relative py-2 flex flex-col items-center justify-center ${isActive ? "text-primary -translate-y-[3px]" : "text-secondary hover:text-primary"}`}>
                     {cat.name}
                     {isActive && <span className="absolute -bottom-1 left-0 w-full h-[1px] bg-primary rounded-full"></span>}
                   </Link>
                   
                   {subs.length > 0 && (
-                    <div className="absolute top-16 left-0 mt-2 w-48 bg-white border border-outline-variant shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 flex flex-col">
+                    <div className="absolute top-16 left-0 mt-2 w-48 bg-white border border-outline-variant shadow-lg opacity-0 invisible group-hover/nav:opacity-100 group-hover/nav:visible transition-all duration-200 z-50 flex flex-col">
                       {subs.map(sub => (
                         <Link key={sub.id} href={`/category/${cat.slug}?sub=${sub.slug}`} className="px-4 py-3 text-sm text-secondary hover:text-primary hover:bg-surface-container transition-colors uppercase tracking-widest">
                           {sub.name}
@@ -97,20 +154,30 @@ export default function Navbar() {
               );
             })}
           </div>
+
+          {showRightArrow && (
+            <button 
+              onClick={() => scroll('right')} 
+              className="absolute right-0 z-10 p-1 bg-white/90 hover:bg-white text-gray-400 hover:text-black transition-colors rounded-full shadow-md flex items-center justify-center"
+            >
+              <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+            </button>
+          )}
         </div>
-        <div className="flex items-center gap-5">
+
+        {/* ICONS */}
+        <div className="flex items-center gap-3 md:gap-5 shrink-0">
           {isSearchOpen ? (
             <form onSubmit={handleSearchSubmit} className="flex items-center bg-surface-container rounded-full px-4 py-1 animate-in fade-in slide-in-from-right-4 duration-300">
               <input 
                 ref={searchInputRef}
                 type="text" 
-                placeholder="Buscar productos, ID, categorías..." 
-                className="bg-transparent text-sm outline-none w-48 lg:w-64"
+                placeholder="Buscar..." 
+                className="bg-transparent text-sm outline-none w-32 lg:w-48 xl:w-64"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 autoFocus
                 onBlur={() => {
-                  // Pequeño delay para permitir el click en el botón de buscar
                   setTimeout(() => setIsSearchOpen(false), 200);
                 }}
               />
