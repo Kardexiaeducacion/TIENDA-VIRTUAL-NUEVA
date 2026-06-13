@@ -9,10 +9,6 @@ export default function AdminQAPage() {
   const [replyText, setReplyText] = useState("");
   const [supabase] = useState(() => createClient());
 
-  useEffect(() => {
-    fetchQuestions();
-  }, [fetchQuestions]);
-
   const fetchQuestions = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase
@@ -25,6 +21,10 @@ export default function AdminQAPage() {
     }
     setLoading(false);
   }, [supabase]);
+
+  useEffect(() => {
+    fetchQuestions();
+  }, [fetchQuestions]);
 
   const handleReply = async (id: string) => {
     if (!replyText.trim()) return;
