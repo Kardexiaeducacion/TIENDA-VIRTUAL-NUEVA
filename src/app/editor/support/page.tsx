@@ -12,6 +12,29 @@ export default function AdminSupportChat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
 
+  const fetchChats = useCallback(async () => {
+    const { data } = await supabase
+      .from('support_chats')
+      .select('*')
+      .order('last_message_at', { ascending: false });
+    
+    if (data) setChats(data);
+    setLoadingChats(false);
+  }, [supabase]);
+
+  const fetchMessages = useCallback(async (chatId: string) => {
+    const { data } = await supabase
+      .from('chat_messages')
+      .select('*')
+      .eq('chat_id', chatId)
+      .order('created_at', { ascending: true });
+    
+    if (data) {
+      setMessages(data);
+      scrollToBottom();
+    }
+  }, [supabase]);
+
   useEffect(() => {
     fetchChats();
     
@@ -48,29 +71,6 @@ export default function AdminSupportChat() {
       return () => { supabase.removeChannel(channel); };
     }
   }, [activeChat, fetchMessages, supabase]);
-
-  const fetchChats = useCallback(async () => {
-    const { data } = await supabase
-      .from('support_chats')
-      .select('*')
-      .order('last_message_at', { ascending: false });
-    
-    if (data) setChats(data);
-    setLoadingChats(false);
-  }, [supabase]);
-
-  const fetchMessages = useCallback(async (chatId: string) => {
-    const { data } = await supabase
-      .from('chat_messages')
-      .select('*')
-      .eq('chat_id', chatId)
-      .order('created_at', { ascending: true });
-    
-    if (data) {
-      setMessages(data);
-      scrollToBottom();
-    }
-  }, [supabase]);
 
   const scrollToBottom = () => {
     setTimeout(() => {
