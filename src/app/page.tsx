@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/server";
 import TrendingCarousel from "@/components/TrendingCarousel";
@@ -24,19 +23,21 @@ export default async function HomePage() {
         {/* HERO */}
         <section className="relative w-full h-[90vh] overflow-hidden bg-surface-container">
           <div className="absolute inset-0">
-            <Image
-              alt={banners['hero']?.title as string || "Campaign Hero"}
+            <img
+              alt={banners['hero']?.title as string || "COLECCIÓN ICÓNICA"}
               src={banners['hero']?.image_url as string || "https://lh3.googleusercontent.com/aida/ADBb0ui2sG7W4QW_Ljn_heyx-0-p7qNeJm6B-6JnxUbYdWEdkY7Zskp4lA4lsye2Vzeb6I-JyvyxEOkcY8Bpht9cRqNipnV0JSE8UnV45g7Prlm6ENDG8UWeD9tTaOsdmcX_N1_UfKMQ__ybTxv8wW7QuTN10axNgkD1A11zw_jtGdEEybg3V_aYRzCPZ2sR5qoUSTdvvTmuF1kUf7j5OvdZScqPbipqF4aau9kgQOtH1LoRijE1mPM3jU9Qzuwh"}
-              fill className="object-cover object-center" priority
+              className="absolute inset-0 w-full h-full object-cover object-center" 
+              fetchpriority="high"
+              decoding="async"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-white/40 via-transparent to-transparent" />
           </div>
           <div className="relative h-full max-w-[1440px] mx-auto px-6 lg:px-20 flex flex-col justify-center items-start">
             <div className="max-w-2xl">
-              <span className="text-xs font-semibold text-primary tracking-[0.2em] uppercase mb-4 block">{banners['hero']?.subtitle as string || "Eleva tu estilo. Descuentos exclusivos por tiempo limitado."}</span>
+              <span className="text-xs font-semibold text-primary tracking-[0.2em] uppercase mb-4 block">{banners['hero']?.subtitle as string || "Lujo que perdura"}</span>
               <h1 className="text-7xl lg:text-8xl font-medium text-primary leading-none mb-6 tracking-tighter">{banners['hero']?.title as string || "COLECCIÓN ICÓNICA"}</h1>
               <p className="text-xl text-on-surface mb-12 max-w-md leading-relaxed">
-                Descuentos finales en nuestras colecciones más codiciadas. Una vez que se van, se van para siempre.
+                {banners['hero']?.description as string || "Descuentos finales en nuestras piezas más codiciadas. Asegura la tuya antes de que se agoten."}
               </p>
               <Link href={(banners['hero']?.link_url as string) || "/handbags"} className="inline-block bg-primary text-white px-10 py-4 text-sm font-semibold hover:bg-primary-container transition-colors uppercase tracking-widest">
                 {banners['hero']?.link_text as string || "LO QUIERO"}
@@ -60,10 +61,12 @@ export default async function HomePage() {
             {/* Handbags - Large */}
             <Link href="/handbags" className="col-span-12 md:col-span-8 group cursor-pointer overflow-hidden border border-outline-variant">
               <div className="relative h-[600px] overflow-hidden">
-                <Image
+                <img
                   alt="Premium Handbags Collection"
                   src={banners['category_handbags']?.image_url as string || "https://lh3.googleusercontent.com/aida/ADBb0ugjbPyixeRauJe0OfGwmJdqgCnX56IqvPi5JiTtdLvDvexhkoOfZ36Xr42zEkMIAU4jgLHboIyk3jFUTizTaeptdsTj2a4CI9mmF7x5UNj4JBcqQE83GZo6eyuX4YFr6Tfk0D9Y1HaK9JvvRPZ5AwhPpR5FdGiNYrmX08ZCvPb_IzZfR-TDZ0DgvRMMUWncPgH1AlXpFE9hjMrqgjCqZTmNPACcpaNo0eaD9GBC7tqy94iYRV8SfGjigmM9"}
-                  fill className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  loading="lazy"
+                  decoding="async"
                 />
                 <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-colors duration-300" />
                 <div className="absolute bottom-10 left-10 text-white">
@@ -76,10 +79,12 @@ export default async function HomePage() {
             <div className="col-span-12 md:col-span-4 flex flex-col gap-8">
               <div className="group cursor-pointer border border-outline-variant flex-1 overflow-hidden">
                 <div className="relative h-[284px] overflow-hidden">
-                  <Image
+                  <img
                     alt="Durable Designer Luggage"
                     src={banners['category_luggage']?.image_url as string || "https://lh3.googleusercontent.com/aida/ADBb0uhc8GHbds5co_BPboOA41MvSYlGWiz3-S2jDikp7i9ez_pr9LacPUzeNv_pGP_CK8l3btrH8Ow1zffApzbqQhjjkHVIbLU4Qv9Y8pxmRHc4-nXN0pbmXzUx9yiJi4mCBuc3F9Aw5MpMNsk9VYV175Hney7iq__3VQxdr_z_6CK6UJ2AIc_tOOcE18fewEPciyKER-Al4UuBvThkX-i6rHgTyns-fcs7YqA-DxzENeE2IXPar3ZXIBPb4N0"}
-                    fill className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    loading="lazy"
+                    decoding="async"
                   />
                   <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
                   <div className="absolute bottom-6 left-6">
@@ -91,10 +96,12 @@ export default async function HomePage() {
               <div className="group cursor-pointer border border-outline-variant flex-1 overflow-hidden bg-surface-container-low">
                 <div className="relative h-[284px] flex flex-col items-center justify-center p-6 text-center">
                   <div className="w-full h-full absolute inset-0 opacity-20">
-                    <Image
+                    <img
                       alt="Luxury Accessories"
                       src={banners['category_accessories']?.image_url as string || "https://lh3.googleusercontent.com/aida/ADBb0uj_fTD_OOrWfu1JL-xzC26MivraWGMoUPCYuSORArNGFjvViUz6re7pFhmmIjWLsC3Gbsdvd5y7zCChkLy0ZPh5iVJrDAH6zLxTC57wV-SDKXslLLUy3-91RxZAm3cjXfL00Q-2UqbxvwIb_QvVuD1UzVV7Tt8zyPn6dLLBPreVTDrNpeYb_e-n8-fVZpR-zL7FVndZT-DwbIaFcCll-YAEVm5vBZ8vEkXPUBFiuoja3Ra0G643SiPTvW4"}
-                      fill className="object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-110"
+                      className="absolute inset-0 w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-110"
+                      loading="lazy"
+                      decoding="async"
                     />
                   </div>
                   <div className="relative z-10">
@@ -111,10 +118,12 @@ export default async function HomePage() {
         {/* LIMITED EDITION */}
         <section className="relative w-full min-h-[600px] flex items-center bg-surface-container overflow-hidden">
           <div className="absolute inset-0 z-0">
-            <Image
+            <img
               alt="Whimsical Limited Edition"
               src={banners['limited_edition']?.image_url as string || "https://lh3.googleusercontent.com/aida/ADBb0ugCvuL3sSd2ER-Tf66oGRNrOBGuaInCYGxlud7suG51GxsXeCoCxAgExKoXXVLhwB9CVQ7rtnkdjrmCgMZvbm8Z37RSuQEwSmrPaj99rToyyPTYrjnMi8QijNgqtH0KgKb6G_GOtg4TTFO8nP03HlB2Paq0VmrFKqFr2iW6vWMuTw5ZnRGCpGV-Ou1x5P8ZvR7yez3-0aojdQ84ck_aR3C41LcvLCtoTL09P4-H5-Q2Ci9c3PaNZUiXyWKD"}
-              fill className="object-cover"
+              className="absolute inset-0 w-full h-full object-cover"
+              loading="lazy"
+              decoding="async"
             />
             <div className="absolute inset-0 bg-gradient-to-l from-white/60 via-transparent to-transparent" />
           </div>

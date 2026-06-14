@@ -55,5 +55,30 @@ export default async function ProductPage({ params }: { params: { id: string } }
     if (catData) categoryName = catData.name;
   }
 
-  return <ProductClient product={product} categoryName={categoryName} id={params.id} />;
+  const schemaOrg = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": product.name,
+    "image": product.images?.[0] || "https://cloe-app.vercel.app/logo.png",
+    "description": product.description || product.name,
+    "sku": product.id,
+    "offers": {
+      "@type": "Offer",
+      "url": `https://cloe-app.vercel.app/product/${product.id}`,
+      "priceCurrency": "MXN",
+      "price": product.price,
+      "itemCondition": "https://schema.org/NewCondition",
+      "availability": product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock"
+    }
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrg) }}
+      />
+      <ProductClient product={product} categoryName={categoryName} id={params.id} />
+    </>
+  );
 }

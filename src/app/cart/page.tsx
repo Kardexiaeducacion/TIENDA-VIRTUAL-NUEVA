@@ -1,6 +1,5 @@
 "use client";
 import { useCart } from "@/context/CartContext";
-import Image from "next/image";
 import Link from "next/link";
 
 export default function CartPage() {
@@ -45,7 +44,7 @@ export default function CartPage() {
                 {/* Product Info */}
                 <div className="md:col-span-6 flex gap-6">
                   <Link href={`/product/${item.productId}`} className="w-24 h-32 relative bg-surface-container shrink-0 block hover:opacity-80 transition-opacity">
-                    <Image src={item.image} alt={item.name} fill className="object-cover" />
+                    <img src={item.image} alt={item.name} className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" />
                   </Link>
                   <div className="flex flex-col justify-center">
                     <Link href={`/product/${item.productId}`} className="text-lg font-bold hover:underline mb-1">
@@ -147,9 +146,9 @@ export default function CartPage() {
                   <span className="text-green-700">Checkout 100% Seguro</span>
                 </div>
                 <div className="flex items-center justify-center gap-6 opacity-80 mix-blend-multiply">
-                  <Image src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" alt="Visa" width={45} height={15} className="object-contain" />
-                  <Image src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" width={35} height={20} className="object-contain" />
-                  <Image src="https://http2.mlstatic.com/frontend-assets/ui-navigation/5.19.5/mercadopago/logo__large.png" alt="Mercado Pago" width={70} height={20} className="object-contain" />
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" alt="Visa" width="45" height="15" className="object-contain" loading="lazy" decoding="async" />
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" width="35" height="20" className="object-contain" loading="lazy" decoding="async" />
+                  <img src="https://http2.mlstatic.com/frontend-assets/ui-navigation/5.19.5/mercadopago/logo__large.png" alt="Mercado Pago" width="70" height="20" className="object-contain" loading="lazy" decoding="async" />
                 </div>
                 <div className="flex flex-col items-center text-[10px] text-secondary text-center gap-1 uppercase tracking-wider mt-2">
                   <div className="flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">local_shipping</span> Envío Gratis desde $1,500</div>

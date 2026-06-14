@@ -1,5 +1,5 @@
 "use client";
-import Image from "next/image";
+
 import Link from "next/link";
 import { useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -40,10 +40,12 @@ export default function TrendingCarousel({ products }: { products: Record<string
         {products.map((product) => (
           <Link href={`/product/${product.id}`} key={product.id as string} className="group shrink-0 snap-start w-[80%] md:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)]">
             <div className="aspect-[3/4] relative overflow-hidden bg-surface-container-low mb-3">
-              <Image
+              <img
                 alt={product.name as string}
                 src={(product.images as string[])?.[0] || "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800"}
-                fill className="object-cover transition-transform duration-500 group-hover:scale-105"
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
+                decoding="async"
               />
               <FavoriteButton productId={product.id as string} />
               <button 
@@ -69,7 +71,7 @@ export default function TrendingCarousel({ products }: { products: Record<string
                 }`}
               >
                 {(product.variants as Record<string, unknown>[])?.length > 0
-                  ? "VER DETALLES"
+                  ? "LO QUIERO"
                   : items.some((i: { id: string }) => i.id === `${product.id}_base`) 
                     ? "QUITAR DEL CARRITO" 
                     : "AGREGAR AL CARRITO"}

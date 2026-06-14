@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 
@@ -303,7 +302,7 @@ export default function CheckoutPage() {
                     paymentMethod === "spei" ? "border-[#004A97] bg-blue-50 text-[#004A97]" : "border-[#EAEAEA] text-gray-500 hover:border-gray-300"
                   }`}
                 >
-                  <Image src={BBVA_LOGO} alt="BBVA" width={80} height={20} className="h-5 w-auto object-contain" unoptimized />
+                  <img src={BBVA_LOGO} alt="BBVA" width="80" height="20" className="h-5 w-auto object-contain" loading="lazy" decoding="async" />
                   Transferencia SPEI
                 </button>
                 <button
@@ -366,7 +365,7 @@ export default function CheckoutPage() {
                           <input type="radio" name="shippingOpt" className="w-4 h-4 accent-black" checked={selectedOptionId === opt.option_id} onChange={() => handleSelectOption(opt)} />
                           {CARRIER_LOGOS[opt.carrier.toUpperCase()] && (
                             <div className="w-16 h-8 relative flex-shrink-0">
-                              <Image src={CARRIER_LOGOS[opt.carrier.toUpperCase()]} alt={opt.carrier} fill className="object-contain" unoptimized />
+                              <img src={CARRIER_LOGOS[opt.carrier.toUpperCase()]} alt={opt.carrier} className="absolute inset-0 w-full h-full object-contain" loading="lazy" decoding="async" />
                             </div>
                           )}
                           <div>
@@ -394,7 +393,7 @@ export default function CheckoutPage() {
                 {items.map(item => (
                   <div key={item.id} className="flex gap-4 items-center">
                     <Link href={`/product/${item.productId}`} className="w-16 h-20 relative bg-surface-container shrink-0 border border-outline-variant block hover:opacity-80 transition-opacity">
-                      <Image src={item.image} alt={item.name} fill className="object-cover" />
+                      <img src={item.image} alt={item.name} className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" />
                       <span className="absolute -top-2 -right-2 bg-black text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold z-10">{item.quantity}</span>
                     </Link>
                     <div className="flex-1">
@@ -504,9 +503,9 @@ export default function CheckoutPage() {
                   <span className="text-green-700">Transacción Segura</span>
                 </div>
                 <div className="flex items-center justify-center gap-6 opacity-80 mix-blend-multiply">
-                  <Image src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" alt="Visa" width={45} height={15} className="object-contain" />
-                  <Image src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" width={35} height={20} className="object-contain" />
-                  <Image src="https://http2.mlstatic.com/frontend-assets/ui-navigation/5.19.5/mercadopago/logo__large.png" alt="Mercado Pago" width={70} height={20} className="object-contain" />
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" alt="Visa" width="45" height="15" className="object-contain" loading="lazy" decoding="async" />
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" width="35" height="20" className="object-contain" loading="lazy" decoding="async" />
+                  <img src="https://http2.mlstatic.com/frontend-assets/ui-navigation/5.19.5/mercadopago/logo__large.png" alt="Mercado Pago" width="70" height="20" className="object-contain" loading="lazy" decoding="async" />
                 </div>
                 <div className="flex flex-col items-center text-[10px] text-secondary text-center gap-1 uppercase tracking-wider mt-2">
                   <div className="flex items-center gap-1"><span className="material-symbols-outlined text-[12px]">lock</span> Datos Encriptados por SSL/TLS</div>
