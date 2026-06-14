@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/utils/supabase/client";
-import Image from "next/image";
 
 export default function ProductReviews({ productId }: { productId: string }) {
   const [reviews, setReviews] = useState<Record<string, unknown>[]>([]);
@@ -167,7 +166,7 @@ export default function ProductReviews({ productId }: { productId: string }) {
                       />
                       {preview && (
                         <div className="mt-4 relative w-32 h-32">
-                          <Image src={preview} alt="Preview" fill className="object-cover border border-outline-variant" />
+                          <img src={preview} alt="Preview" className="absolute inset-0 w-full h-full object-cover border border-outline-variant" loading="lazy" decoding="async" />
                           <button 
                             type="button" 
                             onClick={() => { setImageFile(null); setPreview(""); }}
@@ -245,7 +244,7 @@ export default function ProductReviews({ productId }: { productId: string }) {
                 
                 {r.image_url && (
                   <div className="mt-4 relative w-32 h-32 border border-outline-variant cursor-pointer group">
-                    <Image src={r.image_url} alt="Review" fill className="object-cover group-hover:opacity-90 transition-opacity" />
+                    <img src={r.image_url} alt="Review" className="absolute inset-0 w-full h-full object-cover group-hover:opacity-90 transition-opacity" loading="lazy" decoding="async" />
                   </div>
                 )}
               </div>
