@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import Image from "next/image";
+
 import { createClient } from "@/utils/supabase/client";
 type PaymentSettings = {
   id: string;
@@ -49,25 +49,6 @@ export default function PaymentsAdminPage() {
   const [verifying, setVerifying] = useState(false);
   const [urlNotif, setUrlNotif] = useState<{type: 'success'|'error', msg: string}|null>(null);
 
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const params = new URLSearchParams(window.location.search);
-    const err = params.get('error');
-    const success = params.get('success');
-    const msg = params.get('msg');
-    if (success === 'mp_connected') {
-      setUrlNotif({ type: 'success', msg: 'Cuenta de Mercado Pago vinculada exitosamente.' });
-      loadData();
-    } else if (err) {
-      setUrlNotif({ type: 'error', msg: msg ? decodeURIComponent(msg) : ('Error: ' + err) });
-    }
-  }, [loadData]);
-
-
   const loadData = useCallback(async () => {
 
     // Load payment settings
@@ -95,6 +76,24 @@ export default function PaymentsAdminPage() {
     }
     setLoadingOrders(false);
   }, [supabase]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const err = params.get('error');
+    const success = params.get('success');
+    const msg = params.get('msg');
+    if (success === 'mp_connected') {
+      setUrlNotif({ type: 'success', msg: 'Cuenta de Mercado Pago vinculada exitosamente.' });
+      loadData();
+    } else if (err) {
+      setUrlNotif({ type: 'error', msg: msg ? decodeURIComponent(msg) : ('Error: ' + err) });
+    }
+  }, [loadData]);
 
   const handleSaveSettings = async (method: "spei" | "oxxo" | "mercadopago") => {
     const data = method === "spei" ? speiSettings : method === "oxxo" ? oxxoSettings : mpSettings;
@@ -255,7 +254,7 @@ export default function PaymentsAdminPage() {
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0 relative">
                       {speiSettings.bank_logo_url ? (
-                        <Image src={speiSettings.bank_logo_url} alt="Bank Logo" fill className="object-contain p-1" unoptimized />
+                        <img src={speiSettings.bank_logo_url} alt="Bank Logo" className="w-full h-full object-contain p-1" />
                       ) : (
                         <span className="material-symbols-outlined text-blue-500">account_balance</span>
                       )}
@@ -352,7 +351,7 @@ export default function PaymentsAdminPage() {
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0 relative">
                       {oxxoSettings.bank_logo_url ? (
-                        <Image src={oxxoSettings.bank_logo_url} alt="OXXO Logo" fill className="object-contain bg-white" unoptimized />
+                        <img src={oxxoSettings.bank_logo_url} alt="OXXO Logo" className="w-full h-full object-contain bg-white" />
                       ) : (
                         <span className="text-white text-xs font-black">OXXO</span>
                       )}
@@ -532,11 +531,11 @@ export default function PaymentsAdminPage() {
                               order.payment_method === "spei" ? "bg-blue-50" : order.payment_method === "mercadopago" ? "bg-[#009EE3]/10" : "bg-red-600"
                             }`}>
                               {order.payment_method === "spei" ? (
-                                speiSettings?.bank_logo_url ? <Image src={speiSettings.bank_logo_url} alt="SPEI" fill className="object-contain p-1" unoptimized /> : <span className="material-symbols-outlined text-blue-500">account_balance</span>
+                                speiSettings?.bank_logo_url ? <img src={speiSettings.bank_logo_url} alt="SPEI" className="w-full h-full object-contain p-1" /> : <span className="material-symbols-outlined text-blue-500">account_balance</span>
                               ) : order.payment_method === "mercadopago" ? (
                                 <span className="material-symbols-outlined text-[#009EE3] text-[20px]">credit_card</span>
                               ) : (
-                                oxxoSettings?.bank_logo_url ? <Image src={oxxoSettings.bank_logo_url} alt="OXXO" fill className="object-contain bg-white" unoptimized /> : <span className="text-white text-[10px] font-black">OXXO</span>
+                                oxxoSettings?.bank_logo_url ? <img src={oxxoSettings.bank_logo_url} alt="OXXO" className="w-full h-full object-contain bg-white" /> : <span className="text-white text-[10px] font-black">OXXO</span>
                               )}
                             </div>
                             <div>
@@ -629,12 +628,10 @@ export default function PaymentsAdminPage() {
                     <div className="mb-5">
                       <p className="text-xs font-bold text-gray-400 uppercase mb-2">Comprobante de pago</p>
                       <a href={selectedOrder.payment_proof_url} target="_blank" rel="noopener noreferrer" className="block relative w-full h-48">
-                        <Image
+                        <img
                           src={selectedOrder.payment_proof_url}
                           alt="Comprobante"
-                          fill
-                          unoptimized
-                          className="rounded-xl border border-gray-200 hover:opacity-90 transition-opacity cursor-zoom-in object-cover"
+                          className="w-full rounded-xl border border-gray-200 hover:opacity-90 transition-opacity cursor-zoom-in"
                         />
                         <p className="text-xs text-blue-500 text-center mt-1">Ver imagen completa</p>
                       </a>
