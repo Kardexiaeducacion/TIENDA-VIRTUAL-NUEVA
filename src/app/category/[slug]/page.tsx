@@ -97,7 +97,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
 
       <main className="pt-20 min-h-screen">
         {/* HERO TITLE */}
-        <section className="max-w-[1440px] mx-auto px-20 py-20">
+        <section className="max-w-[1440px] mx-auto px-6 lg:px-20 py-10 lg:py-20">
           <div className="border-b border-outline-variant pb-6">
             <h1 className="text-6xl font-bold text-primary uppercase mb-3 tracking-tighter">{category.name}</h1>
             <p className="text-xl text-secondary max-w-2xl leading-relaxed">Explora nuestra colección exclusiva de {category.name.toLowerCase()}.</p>
@@ -105,9 +105,9 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
         </section>
 
         {/* PRODUCT LISTING */}
-        <section className="max-w-[1440px] mx-auto px-20 grid grid-cols-12 gap-8 mb-20">
+        <section className="max-w-[1440px] mx-auto px-6 lg:px-20 grid grid-cols-12 gap-8 mb-20">
           {/* SIDEBAR */}
-          <aside className="col-span-3 border-r border-outline-variant pr-8 sticky top-28 h-fit">
+          <aside className="hidden lg:block col-span-3 border-r border-outline-variant pr-8 sticky top-28 h-fit">
             <div className="space-y-10">
               {subcategories.length > 0 && (
                 <div>
@@ -153,7 +153,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
           </aside>
 
           {/* PRODUCT GRID */}
-          <div className="col-span-9">
+          <div className="col-span-12 lg:col-span-9">
             <div className="flex justify-between items-center mb-8">
               <span className="text-xs text-secondary uppercase tracking-wide">{processedProducts.length} productos</span>
               <div className="flex items-center gap-3">
@@ -175,7 +175,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                 No se encontraron productos en esta categoría.
               </div>
             ) : (
-              <div className="grid grid-cols-3 gap-x-8 gap-y-16">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12">
                 {processedProducts.map((product) => {
                   const productImages = product.images as string[] | undefined;
                   const firstImage = productImages?.[0] || "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800";
@@ -187,13 +187,13 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                         <button 
                           onClick={(e) => {
                             e.preventDefault();
-                            const hasVariants = (product.variants as any[])?.length > 0;
+                            const hasVariants = (product.variants as Record<string, unknown>[])?.length > 0;
                             if (hasVariants) {
                               router.push(`/product/${product.id}`);
                               return;
                             }
                             const cartItemId = `${product.id}_base`;
-                            const isInCart = items.some((i: any) => i.id === cartItemId);
+                            const isInCart = items.some((i: { id: string }) => i.id === cartItemId);
                             if (isInCart) {
                               removeFromCart(cartItemId);
                             } else {
@@ -201,21 +201,21 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                             }
                           }}
                           className={`absolute bottom-0 left-0 w-full py-4 text-center text-xs font-semibold uppercase tracking-widest translate-y-full group-hover:translate-y-0 transition-all duration-300 ${
-                            items.some((i: any) => i.id === `${product.id}_base`)
+                            items.some((i: { id: string }) => i.id === `${product.id}_base`)
                               ? "bg-primary text-white"
                               : "bg-white/90 backdrop-blur-sm hover:bg-primary hover:text-on-primary"
                           }`}
                         >
-                          {(product.variants as any[])?.length > 0
-                            ? "VER OPCIONES"
-                            : items.some((i: any) => i.id === `${product.id}_base`) 
-                              ? "EN CARRITO (QUITAR)" 
-                              : "VISTA RÁPIDA / AGREGAR"}
+                          {(product.variants as Record<string, unknown>[])?.length > 0
+                            ? "VER DETALLES"
+                            : items.some((i: { id: string }) => i.id === `${product.id}_base`) 
+                              ? "QUITAR DEL CARRITO" 
+                              : "AGREGAR AL CARRITO"}
                         </button>
                       </div>
-                      <h4 className="text-lg font-semibold text-primary mb-1">{product.name as string}</h4>
+                      <h4 className="text-lg font-medium text-primary/70 mb-1 line-clamp-2">{product.name as string}</h4>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-secondary">${Number(product.price).toFixed(2)}</span>
+                        <span className="text-base font-bold text-primary">${Number(product.price).toFixed(2)}</span>
                       </div>
                     </Link>
                   );

@@ -32,11 +32,11 @@ export default function AdminPhysicalStores() {
     setMapUrl("");
   };
 
-  const handleEdit = (store: any) => {
-    setEditingId(store.id);
-    setName(store.name);
-    setAddress(store.address);
-    setMapUrl(store.map_url || "");
+  const handleEdit = (store: Record<string, unknown>) => {
+    setEditingId(store.id as string);
+    setName(store.name as string);
+    setAddress(store.address as string);
+    setMapUrl((store.map_url as string) || "");
   };
 
   const handleDelete = async (id: string) => {

@@ -53,7 +53,7 @@ export async function GET(request: Request) {
         mpEmail = userData.email || '';
         mpNickname = userData.nickname || userData.first_name || '';
       }
-    } catch (_) {}
+    } catch {}
 
     // 3. Save to Supabase with service role (bypasses RLS)
     const supabase = createClient(

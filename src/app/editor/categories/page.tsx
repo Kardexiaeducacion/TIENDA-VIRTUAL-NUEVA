@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/utils/supabase/client";
 
 type Category = {
@@ -32,7 +32,7 @@ export default function CategoriesPage() {
   const [newSubSlug, setNewSubSlug] = useState("");
   const [selectedCatId, setSelectedCatId] = useState("");
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     const { data: cats } = await supabase.from("categories").select("*").order("created_at", { ascending: true });
     const { data: subs } = await supabase.from("subcategories").select("*").order("created_at", { ascending: true });
@@ -40,11 +40,11 @@ export default function CategoriesPage() {
     if (cats) setCategories(cats);
     if (subs) setSubcategories(subs);
     setLoading(false);
-  };
+  }, [supabase]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const handleCreateCategory = async (e: React.FormEvent) => {
     e.preventDefault();

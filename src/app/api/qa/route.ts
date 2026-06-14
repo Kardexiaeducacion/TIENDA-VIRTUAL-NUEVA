@@ -24,8 +24,8 @@ export async function GET(req: Request) {
     if (error) throw error;
     
     return NextResponse.json({ success: true, questions: data });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
 }
 
@@ -61,8 +61,8 @@ export async function POST(req: Request) {
     await notifyAdmins('qa', 'Nueva Pregunta', `${userName} ha preguntado: "${question.substring(0, 50)}..."`);
 
     return NextResponse.json({ success: true, question: data });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
 }
 
@@ -90,7 +90,7 @@ export async function PATCH(req: Request) {
     }
 
     return NextResponse.json({ success: true, question: data });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
 }

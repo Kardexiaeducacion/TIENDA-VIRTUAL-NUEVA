@@ -201,7 +201,7 @@ export async function POST(req: Request) {
           const addr = JSON.parse(settings.sender_address);
           sender = { ...sender, phone: addr.phone || sender.phone, street: addr.street || sender.street, colony: addr.city || sender.colony, city: addr.city || sender.city, state: addr.state || sender.state, cp: addr.zip_code || sender.cp };
         }
-      } catch(e) {}
+      } catch {}
 
       const indeliRes = await fetch("https://indeli-guias-prepagadas.vercel.app/guide/create", {
         method: "POST",

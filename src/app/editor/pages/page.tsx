@@ -31,11 +31,12 @@ export default function AdminCustomPages() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supabase]);
 
-  const handleSelectPage = (page: any) => {
+  // Handler para cargar una página en el formulario
+  const handleSelectPage = (page: Record<string, unknown>) => {
     setSelectedPage(page);
-    setTitle(page.title || "");
-    setContent(page.content || "");
-    setImageUrl(page.image_url || "");
+    setTitle(page.title as string || "");
+    setContent(page.content as string || "");
+    setImageUrl(page.image_url as string || "");
   };
 
   const handleSave = async (e: React.FormEvent) => {

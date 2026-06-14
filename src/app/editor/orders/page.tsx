@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { sendNotification } from "@/app/actions/notifications";
 import Image from "next/image";
@@ -21,17 +21,17 @@ export default function AdminOrdersPage() {
   const labelFileRefs = useRef<Record<string, HTMLInputElement | null>>({});
   const [trackingInputs, setTrackingInputs] = useState<Record<string, { num: string; url: string }>>({});
 
-  useEffect(() => { fetchOrders(); }, []);
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     const { data } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
     setOrders(data || []);
     setLoading(false);
-  };
+  }, [supabase]);
+
+  useEffect(() => { fetchOrders(); }, [fetchOrders]);
 
   const updateStatus = async (id: string, newStatus: string, paymentMethod?: string) => {
-    const order = orders.find((o: any) => o.id === id) as any;
-    const updatePayload: any = { status: newStatus };
+    const order = orders.find((o: Record<string, unknown>) => o.id === id) as Record<string, unknown>;
+    const updatePayload: Record<string, unknown> = { status: newStatus };
     // For MP orders being confirmed manually, also mark payment as verified
     if (paymentMethod === "mercadopago" && newStatus === "confirmado") {
       updatePayload.payment_status = "verified";
@@ -68,7 +68,7 @@ export default function AdminOrdersPage() {
   };
 
   const uploadShippingLabel = async (id: string, file: File) => {
-    const order = orders.find((o: any) => o.id === id) as any;
+    const order = orders.find((o: Record<string, unknown>) => o.id === id) as Record<string, unknown>;
     setUploadingLabel(id);
     try {
       const ext = file.name.split(".").pop();
@@ -84,8 +84,8 @@ export default function AdminOrdersPage() {
 
       await fetchOrders();
       alert("Etiqueta subida correctamente");
-    } catch (e: any) {
-      alert("Error: " + e.message);
+    } catch (e: unknown) {
+      alert("Error: " + (e as Error).message);
     } finally {
       setUploadingLabel(null);
     }
@@ -102,9 +102,9 @@ export default function AdminOrdersPage() {
     }
   };
 
-  const filtered = orders.filter((order: any) => {
+  const filtered = orders.filter((order: Record<string, unknown>) => {
     const idStr = (order.id as string).split("-")[0].toUpperCase();
-    let addressInfo: any = null;
+    let addressInfo: Record<string, unknown> | null = null;
     try { addressInfo = order.shipping_address ? JSON.parse(order.shipping_address) : null; } catch {}
     const nameStr = (addressInfo?.contact || "").toLowerCase();
     const q = searchQuery.toLowerCase();
@@ -132,10 +132,10 @@ export default function AdminOrdersPage() {
             <span className="material-symbols-outlined text-4xl mb-2 text-gray-300">receipt_long</span>
             <p className="text-sm">No se encontraron ventas.</p>
           </div>
-        ) : filtered.map((order: any) => {
+        ) : filtered.map((order: Record<string, unknown>) => {
           const isExpanded = expandedOrderId === order.id;
-          let addressInfo: any = null;
-          try { addressInfo = order.shipping_address ? JSON.parse(order.shipping_address) : null; } catch {}
+          let addressInfo: Record<string, unknown> | null = null;
+          try { addressInfo = order.shipping_address ? JSON.parse(order.shipping_address as string) : null; } catch {}
           const ps = PAYMENT_STATUS[order.payment_status] || PAYMENT_STATUS.pending;
           const hasProof = order.payment_tracking_key || order.payment_proof_url;
 
@@ -228,7 +228,7 @@ export default function AdminOrdersPage() {
                   <div>
                     <h3 className="font-bold text-sm uppercase tracking-widest border-b border-[#EAEAEA] pb-2 mb-4">Productos</h3>
                     <div className="space-y-3 max-h-[280px] overflow-y-auto pr-1">
-                      {order.items?.map((item: any, idx: number) => (
+                      {Array.isArray(order.items) && order.items.map((item: Record<string, unknown>, idx: number) => (
                         <div key={idx} className="flex gap-3 items-center bg-white p-3 border border-[#EAEAEA] rounded-md">
                           <Image src={item.image || "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800"} alt={item.name} width={48} height={48} className="w-12 h-12 object-cover rounded-md" unoptimized />
                           <div className="flex-1">

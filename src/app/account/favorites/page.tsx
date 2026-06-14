@@ -103,13 +103,13 @@ export default function FavoritesPage() {
                         </button>
                       </div>
                       <Link href={`/product/${product.id}`}>
-                        <h4 className="text-sm font-bold text-primary mb-1 line-clamp-1">{product.name}</h4>
+                        <h4 className="text-sm font-medium text-primary/70 mb-1 line-clamp-1">{product.name}</h4>
                         <div className="flex items-center justify-between">
-                          <p className="text-base text-secondary">${Number(product.price).toFixed(2)}</p>
+                          <p className="text-base font-bold text-primary">${Number(product.price).toFixed(2)}</p>
                         </div>
                       </Link>
                       <button className="w-full mt-4 py-3 bg-primary text-white text-xs font-bold uppercase tracking-widest hover:bg-black transition-colors rounded-lg">
-                        Añadir al Carrito
+                        AGREGAR AL CARRITO
                       </button>
                     </div>
                   );

@@ -29,6 +29,7 @@ export default function Navbar() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const checkScroll = () => {
     if (scrollContainerRef.current) {
@@ -105,10 +106,13 @@ export default function Navbar() {
     <nav className="fixed top-0 w-full h-20 bg-surface border-b border-outline-variant z-50 transition-all duration-200">
       <div className="max-w-[1440px] mx-auto px-4 md:px-10 xl:px-20 flex items-center justify-between h-full gap-4 lg:gap-8">
         
-        {/* LOGO */}
-        <Link href="/" className="text-xl md:text-2xl lg:text-3xl font-extrabold text-primary uppercase tracking-tighter shrink-0">
-          {storeName}
-        </Link>
+        {/* MOBILE MENU BUTTON & LOGO */}
+        <div className="flex items-center gap-3 lg:gap-0 shrink-0">
+          <button onClick={() => setIsMobileMenuOpen(true)} className="lg:hidden material-symbols-outlined text-primary">menu</button>
+          <Link href="/" className="text-xl md:text-2xl lg:text-3xl font-extrabold text-primary uppercase tracking-tighter">
+            {storeName}
+          </Link>
+        </div>
         
         {/* CATEGORIES */}
         <div className="hidden lg:flex flex-1 min-w-0 items-center justify-center relative h-full">
@@ -199,6 +203,55 @@ export default function Navbar() {
           </Link>
         </div>
       </div>
+
+      {/* MOBILE DRAWER */}
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-[60] flex lg:hidden">
+          <div className="fixed inset-0 bg-black/50" onClick={() => setIsMobileMenuOpen(false)} />
+          <div className="relative w-4/5 max-w-sm bg-surface h-full shadow-xl flex flex-col animate-in slide-in-from-left duration-300">
+            <div className="flex items-center justify-between p-4 border-b border-outline-variant">
+              <span className="font-extrabold text-primary text-xl uppercase tracking-tighter">{storeName}</span>
+              <button onClick={() => setIsMobileMenuOpen(false)} className="material-symbols-outlined text-primary">close</button>
+            </div>
+            <div className="p-4 border-b border-outline-variant">
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                if (searchQuery.trim()) {
+                  router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+                  setIsMobileMenuOpen(false);
+                  setSearchQuery("");
+                }
+              }} className="flex items-center bg-surface-container rounded-full px-4 py-2">
+                <input 
+                  type="text" 
+                  placeholder="Buscar..." 
+                  className="bg-transparent text-sm outline-none flex-1"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <button type="submit" className="material-symbols-outlined text-primary text-[18px]">search</button>
+              </form>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-2">
+              <Link href="/" onClick={() => setIsMobileMenuOpen(false)} className={`text-sm font-medium tracking-widest uppercase py-3 border-b border-outline-variant ${pathname === "/" ? "text-primary" : "text-secondary"}`}>Inicio</Link>
+              {categories.map(cat => (
+                <div key={cat.id} className="flex flex-col">
+                  <Link href={`/category/${cat.slug}`} onClick={() => setIsMobileMenuOpen(false)} className={`text-sm font-medium tracking-widest uppercase py-3 border-b border-outline-variant ${pathname.includes(cat.slug) ? "text-primary" : "text-secondary"}`}>{cat.name}</Link>
+                  {subcategories.filter(s => s.category_id === cat.id).map(sub => (
+                    <Link key={sub.id} href={`/category/${cat.slug}?sub=${sub.slug}`} onClick={() => setIsMobileMenuOpen(false)} className="text-xs text-secondary pl-4 py-2 border-b border-outline-variant border-dashed hover:text-primary uppercase tracking-widest">
+                      - {sub.name}
+                    </Link>
+                  ))}
+                </div>
+              ))}
+            </div>
+            <div className="p-4 border-t border-outline-variant">
+              <Link href="/account" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 py-2 text-primary hover:text-secondary uppercase text-sm font-medium tracking-widest"><span className="material-symbols-outlined">person</span> Mi cuenta</Link>
+              <Link href="/account/favorites" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 py-2 text-primary hover:text-secondary uppercase text-sm font-medium tracking-widest"><span className="material-symbols-outlined">favorite</span> Favoritos</Link>
+            </div>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

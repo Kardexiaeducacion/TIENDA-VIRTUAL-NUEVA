@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { createClient } from "@/utils/supabase/client";
 
 export default function ProductQA({ productId }: { productId: string }) {
@@ -8,26 +8,26 @@ export default function ProductQA({ productId }: { productId: string }) {
   const [loading, setLoading] = useState(false);
   const supabase = createClient();
 
-  const [session, setSession] = useState<Record<string, unknown> | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-    fetchQuestions();
-  }, [productId]);
-
-  const fetchQuestions = async () => {
+  const fetchQuestions = useCallback(async () => {
     const res = await fetch(`/api/qa?productId=${productId}`);
     const data = await res.json();
     if (data.success) {
       setQuestions(data.questions);
     }
-  };
+  }, [productId]);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAuthenticated(!!session);
+    });
+    fetchQuestions();
+  }, [fetchQuestions, supabase.auth]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newQuestion.trim() || !session) return;
+    if (!newQuestion.trim() || !isAuthenticated) return;
 
     setLoading(true);
     try {
@@ -54,7 +54,7 @@ export default function ProductQA({ productId }: { productId: string }) {
       <h3 className="text-xl font-bold uppercase mb-6">Preguntas y Respuestas</h3>
       
       {/* Formulario de nueva pregunta */}
-      {session ? (
+      {isAuthenticated ? (
         <form onSubmit={handleSubmit} className="mb-8">
           <label className="block text-sm font-bold text-secondary mb-2 uppercase">¿Tienes alguna duda sobre este producto?</label>
           <div className="flex flex-col sm:flex-row gap-4">

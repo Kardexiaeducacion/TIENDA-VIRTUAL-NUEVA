@@ -17,8 +17,8 @@ export async function GET(req: Request) {
     if (error) throw error;
     
     return NextResponse.json({ success: true, reviews: data });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
 }
 
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
       for (const order of orders) {
         if (order.status === 'concluida') {
           if (order.items && Array.isArray(order.items)) {
-            const found = order.items.find((item: any) => item.productId === productId);
+            const found = order.items.find((item: { productId: string }) => item.productId === productId);
             if (found) {
               hasPurchased = true;
               break;
@@ -93,7 +93,7 @@ export async function POST(req: Request) {
     if (error) throw error;
 
     return NextResponse.json({ success: true, review: data });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
 }

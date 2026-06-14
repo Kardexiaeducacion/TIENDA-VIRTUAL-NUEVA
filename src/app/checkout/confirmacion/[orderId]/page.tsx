@@ -17,9 +17,8 @@ type PaymentSettings = {
   bank_logo_url?: string;
 };
 
-export default function ConfirmacionPage({ params }: { params: { orderId: string } }) {
+export default function ConfirmacionPage({ params: { orderId } }: { params: { orderId: string } }) {
   const searchParams = useSearchParams();
-  const { orderId } = useParams() as { orderId: string };
   const method = searchParams.get("method") || "spei";
   const collectionStatus = searchParams.get("collection_status") || searchParams.get("status") || "";
   const mpPaymentId = searchParams.get("payment_id") || "";
@@ -50,14 +49,14 @@ export default function ConfirmacionPage({ params }: { params: { orderId: string
 
     // If coming back from MP with approved payment, mark order as verified
     if (method === "mercadopago" && (collectionStatus === "approved" || (!isPending && collectionStatus !== "rejected"))) {
-      const updatePayload: any = {
+      const updatePayload: Record<string, unknown> = {
         payment_status: "verified",
         status: "confirmado",
       };
       if (mpPaymentId) updatePayload.payment_tracking_key = mpPaymentId;
       supabase.from("orders").update(updatePayload).eq("id", orderId).then(() => {});
     }
-  }, [orderId, method, storeName]);
+  }, [orderId, method, storeName, collectionStatus, isPending, mpPaymentId, supabase]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
@@ -85,7 +84,7 @@ export default function ConfirmacionPage({ params }: { params: { orderId: string
       if (file) {
         const ext = file.name.split(".").pop();
         const fileName = `${orderId}-${Date.now()}.${ext}`;
-        const { data: uploadData, error: uploadError } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from("payment-proofs")
           .upload(fileName, file, { cacheControl: "3600", upsert: true });
 
@@ -123,8 +122,8 @@ export default function ConfirmacionPage({ params }: { params: { orderId: string
       }
 
       setStep("success");
-    } catch (e: any) {
-      alert("Error al subir el comprobante: " + e.message);
+    } catch (e: unknown) {
+      alert("Error al subir el comprobante: " + (e as Error).message);
     } finally {
       setUploading(false);
     }

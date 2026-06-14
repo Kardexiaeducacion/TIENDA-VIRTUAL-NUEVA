@@ -31,22 +31,22 @@ export default async function HomePage() {
             />
             <div className="absolute inset-0 bg-gradient-to-r from-white/40 via-transparent to-transparent" />
           </div>
-          <div className="relative h-full max-w-[1440px] mx-auto px-20 flex flex-col justify-center items-start">
+          <div className="relative h-full max-w-[1440px] mx-auto px-6 lg:px-20 flex flex-col justify-center items-start">
             <div className="max-w-2xl">
-              <span className="text-xs font-semibold text-primary tracking-[0.2em] uppercase mb-4 block">{banners['hero']?.subtitle as string || "Liquidación de Verano"}</span>
-              <h1 className="text-7xl lg:text-8xl font-medium text-primary leading-none mb-6 tracking-tighter">{banners['hero']?.title as string || "ÚLTIMA OPORTUNIDAD"}</h1>
+              <span className="text-xs font-semibold text-primary tracking-[0.2em] uppercase mb-4 block">{banners['hero']?.subtitle as string || "Eleva tu estilo. Descuentos exclusivos por tiempo limitado."}</span>
+              <h1 className="text-7xl lg:text-8xl font-medium text-primary leading-none mb-6 tracking-tighter">{banners['hero']?.title as string || "COLECCIÓN ICÓNICA"}</h1>
               <p className="text-xl text-on-surface mb-12 max-w-md leading-relaxed">
                 Descuentos finales en nuestras colecciones más codiciadas. Una vez que se van, se van para siempre.
               </p>
               <Link href={(banners['hero']?.link_url as string) || "/handbags"} className="inline-block bg-primary text-white px-10 py-4 text-sm font-semibold hover:bg-primary-container transition-colors uppercase tracking-widest">
-                {banners['hero']?.link_text as string || "COMPRAR AHORA"}
+                {banners['hero']?.link_text as string || "LO QUIERO"}
               </Link>
             </div>
           </div>
         </section>
 
         {/* SHOP BY CATEGORY */}
-        <section className="max-w-[1440px] mx-auto px-20 py-20">
+        <section className="max-w-[1440px] mx-auto px-6 lg:px-20 py-10 lg:py-20">
           <div className="flex items-end justify-between mb-12">
             <div>
               <span className="text-xs font-semibold text-secondary uppercase tracking-[0.2em] block mb-2">Colecciones</span>
@@ -118,14 +118,14 @@ export default async function HomePage() {
             />
             <div className="absolute inset-0 bg-gradient-to-l from-white/60 via-transparent to-transparent" />
           </div>
-          <div className="relative z-10 max-w-[1440px] mx-auto px-20 flex justify-end w-full">
-            <div className="max-w-xl bg-white/80 backdrop-blur-md p-20 border border-outline-variant shadow-lg">
+          <div className="relative z-10 max-w-[1440px] mx-auto px-6 lg:px-20 flex justify-end w-full">
+            <div className="max-w-xl bg-white/80 backdrop-blur-md p-8 lg:p-20 border border-outline-variant shadow-lg">
               <h2 className="text-5xl font-medium tracking-normal text-primary leading-tight mb-4">{banners['limited_edition']?.title as string || "Edición Limitada"}</h2>
               <p className="text-xl text-secondary mb-8 leading-relaxed">
                 {banners['limited_edition']?.subtitle as string || "Experimenta nuestra última colaboración. Una fusión de encanto nostálgico y artesanía de lujo moderna."}
               </p>
-              <div className="flex gap-4">
-                <Link href={(banners['limited_edition']?.link_url as string) || "/handbags"} className="bg-primary text-white px-8 py-4 text-sm font-medium hover:bg-primary-container transition-all uppercase tracking-widest">{banners['limited_edition']?.link_text as string || "Ver Colección"}</Link>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link href={(banners['limited_edition']?.link_url as string) || "/handbags"} className="bg-primary text-white px-8 py-4 text-sm font-medium hover:bg-primary-container transition-all uppercase tracking-widest">{banners['limited_edition']?.link_text as string || "LO QUIERO"}</Link>
                 <Link href="/search" className="border border-primary text-primary px-8 py-4 text-sm font-medium hover:bg-primary hover:text-white transition-all uppercase tracking-widest">Ver Catálogo</Link>
               </div>
             </div>

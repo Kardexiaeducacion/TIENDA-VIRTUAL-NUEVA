@@ -26,8 +26,8 @@ export default function ShippingSettingsPage() {
     phone: ""
   });
 
-  const handleZipCodeChange = async (val: string, setter: any) => {
-    setter((prev: any) => ({ ...prev, zip_code: val }));
+  const handleZipCodeChange = async (val: string, setter: React.Dispatch<React.SetStateAction<Record<string, unknown>>>) => {
+    setter((prev: Record<string, unknown>) => ({ ...prev, zip_code: val }));
     if (val.length === 5) {
       try {
         const res = await fetch(`https://api.zippopotam.us/mx/${val}`);
@@ -36,7 +36,7 @@ export default function ShippingSettingsPage() {
           const state = data.places[0]?.state || "";
           // Zippopotam API primarily returns "state" and "place name" (neighborhood). 
           // We autocomplete the state. The user can type the city/municipality.
-          setter((prev: any) => ({ ...prev, state }));
+          setter((prev: Record<string, unknown>) => ({ ...prev, state }));
         }
       } catch (err) {
         console.error("Error fetching CP", err);
@@ -104,8 +104,8 @@ export default function ShippingSettingsPage() {
         if (data) setSettings({ ...settings, id: data.id });
       }
       alert("Configuración guardada correctamente");
-    } catch (error: any) {
-      alert("Error al guardar: " + error.message);
+    } catch (error: unknown) {
+      alert("Error al guardar: " + (error as Error).message);
     } finally {
       setSaving(false);
     }

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/utils/supabase/client";
 
 export default function CouponsPage() {
@@ -18,18 +18,18 @@ export default function CouponsPage() {
     expires_at: "",
   });
 
-  useEffect(() => {
-    fetchCoupons();
-  }, []);
-
-  const fetchCoupons = async () => {
+  const fetchCoupons = useCallback(async () => {
     setLoading(true);
     const { data, error } = await supabase.from("coupons").select("*").order("created_at", { ascending: false });
     if (!error && data) {
       setCoupons(data);
     }
     setLoading(false);
-  };
+  }, [supabase]);
+
+  useEffect(() => {
+    fetchCoupons();
+  }, [fetchCoupons]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();

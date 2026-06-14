@@ -29,7 +29,7 @@ export async function POST(req: Request) {
         const addr = JSON.parse(settings.sender_address);
         originZip = addr.zip_code;
       }
-    } catch (e) {
+    } catch {
       // Fallback
     }
 
@@ -147,7 +147,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true, quote: data });
 
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
 }

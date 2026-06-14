@@ -38,7 +38,8 @@ export default function CheckoutPage() {
     reference: ""
   });
 
-  const [quotes, setQuotes] = useState<Record<string, unknown>[]>([]);
+  type ShippingOption = { option_id: string; carrier: string; service: string; price_mxn: number; estimated_days: string | number };
+  const [quotes, setQuotes] = useState<ShippingOption[]>([]);
   const [selectedQuoteId, setSelectedQuoteId] = useState("");
   const [selectedOptionId, setSelectedOptionId] = useState("");
   const [shippingCost, setShippingCost] = useState(0);
@@ -71,6 +72,7 @@ export default function CheckoutPage() {
     if (address.cp.length === 5) {
       fetchLocationAndQuote();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address.cp]);
 
   const fetchLocationAndQuote = async () => {
@@ -81,7 +83,7 @@ export default function CheckoutPage() {
         const data = await res.json();
         setAddress(prev => ({ ...prev, state: data.places[0]?.state || "" }));
       }
-    } catch (e) {
+    } catch {
       // ignore
     }
 
@@ -112,7 +114,7 @@ export default function CheckoutPage() {
     }
   };
 
-  const handleSelectOption = (opt: any) => {
+  const handleSelectOption = (opt: ShippingOption) => {
     setSelectedOptionId(opt.option_id);
     setShippingCost(opt.price_mxn);
   };
@@ -147,8 +149,8 @@ export default function CheckoutPage() {
       if (!res.ok) throw new Error(data.error || "Cupón inválido");
       
       setAppliedCoupon(data.coupon);
-    } catch (e: any) {
-      setCouponError(e.message);
+    } catch (e: unknown) {
+      setCouponError((e as Error).message);
       setAppliedCoupon(null);
     } finally {
       setApplyingCoupon(false);
@@ -201,8 +203,8 @@ export default function CheckoutPage() {
       }
 
       router.push(`/checkout/confirmacion/${data.orderId}?method=${paymentMethod}`);
-    } catch (e: any) {
-      alert(e.message);
+    } catch (e: unknown) {
+      alert((e as Error).message);
     } finally {
       setLoading(false);
     }
@@ -358,7 +360,7 @@ export default function CheckoutPage() {
                   </div>
                 ) : quotes.length > 0 ? (
                   <div className="space-y-4">
-                    {quotes.map((opt: any) => (
+                    {quotes.map((opt: ShippingOption) => (
                       <label key={opt.option_id} className={`flex items-center justify-between p-4 border rounded-lg cursor-pointer transition-colors ${selectedOptionId === opt.option_id ? 'border-black bg-gray-50' : 'border-[#EAEAEA] hover:border-gray-300'}`}>
                         <div className="flex items-center gap-4">
                           <input type="radio" name="shippingOpt" className="w-4 h-4 accent-black" checked={selectedOptionId === opt.option_id} onChange={() => handleSelectOption(opt)} />

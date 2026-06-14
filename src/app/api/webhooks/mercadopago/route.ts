@@ -73,8 +73,8 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ received: true });
-  } catch (error: any) {
-    console.error('[MP Webhook] Error:', error.message);
+  } catch (error: unknown) {
+    console.error('[MP Webhook] Error:', (error as Error).message);
     return NextResponse.json({ received: true }); // Always return 200 to MP
   }
 }

@@ -40,9 +40,9 @@ export default function AdminQAPage() {
 
       setReplyingTo(null);
       setReplyText("");
-      fetchQuestions();
-    } catch (e: any) {
-      alert(e.message);
+      setQuestions(questions.filter(a => a.id !== id));
+    } catch (e: unknown) {
+      alert("Error eliminando: " + (e as Error).message);
     }
   };
 

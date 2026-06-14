@@ -1,5 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import { createClient } from "@/utils/supabase/client";
 type PaymentSettings = {
   id: string;
@@ -28,7 +29,7 @@ type Order = {
   payment_tracking_key: string | null;
   payment_proof_url: string | null;
   shipping_address: string | null;
-  items: any[];
+  items: Record<string, unknown>[];
 };
 
 export default function PaymentsAdminPage() {
@@ -50,7 +51,7 @@ export default function PaymentsAdminPage() {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -64,10 +65,10 @@ export default function PaymentsAdminPage() {
     } else if (err) {
       setUrlNotif({ type: 'error', msg: msg ? decodeURIComponent(msg) : ('Error: ' + err) });
     }
-  }, []);
+  }, [loadData]);
 
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
 
     // Load payment settings
     const { data: settings } = await supabase.from("payment_settings").select("*");
@@ -93,7 +94,7 @@ export default function PaymentsAdminPage() {
       setPendingCount(ordersData.filter(o => o.payment_status === "proof_uploaded").length);
     }
     setLoadingOrders(false);
-  };
+  }, [supabase]);
 
   const handleSaveSettings = async (method: "spei" | "oxxo" | "mercadopago") => {
     const data = method === "spei" ? speiSettings : method === "oxxo" ? oxxoSettings : mpSettings;
@@ -138,8 +139,9 @@ export default function PaymentsAdminPage() {
       } else {
         setOxxoSettings(prev => prev ? { ...prev, bank_logo_url: urlData.publicUrl } : null);
       }
-    } catch (err: any) {
-      alert("Error subiendo logo: " + err.message);
+      alert("Logo subido correctamente");
+    } catch (err: unknown) {
+      alert("Error subiendo logo: " + (err as Error).message);
     } finally {
       setSaving(false);
     }
@@ -251,9 +253,9 @@ export default function PaymentsAdminPage() {
               <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
+                    <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0 relative">
                       {speiSettings.bank_logo_url ? (
-                        <img src={speiSettings.bank_logo_url} alt="Bank Logo" className="w-full h-full object-contain p-1" />
+                        <Image src={speiSettings.bank_logo_url} alt="Bank Logo" fill className="object-contain p-1" unoptimized />
                       ) : (
                         <span className="material-symbols-outlined text-blue-500">account_balance</span>
                       )}
@@ -348,9 +350,9 @@ export default function PaymentsAdminPage() {
               <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
+                    <div className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0 relative">
                       {oxxoSettings.bank_logo_url ? (
-                        <img src={oxxoSettings.bank_logo_url} alt="OXXO Logo" className="w-full h-full object-contain bg-white" />
+                        <Image src={oxxoSettings.bank_logo_url} alt="OXXO Logo" fill className="object-contain bg-white" unoptimized />
                       ) : (
                         <span className="text-white text-xs font-black">OXXO</span>
                       )}
@@ -458,9 +460,9 @@ export default function PaymentsAdminPage() {
                             const data = await res.json();
                             if (!res.ok) throw new Error(data.error || 'Error al desvincular');
                             setMpSettings({ ...mpSettings, mp_access_token: undefined, mp_refresh_token: undefined, mp_user_id: undefined, mp_account_email: undefined, enabled: false });
-                            setUrlNotif({ type: 'success', msg: 'Cuenta desvinculada exitosamente.' });
-                          } catch (e: any) {
-                            setUrlNotif({ type: 'error', msg: e.message });
+                            setUrlNotif({ type: 'success', msg: 'URL regenerada' });
+                          } catch (e: unknown) {
+                            setUrlNotif({ type: 'error', msg: (e as Error).message });
                           } finally {
                             setSaving(false);
                           }
@@ -525,15 +527,15 @@ export default function PaymentsAdminPage() {
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0 ${
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0 relative ${
                               order.payment_method === "spei" ? "bg-blue-50" : order.payment_method === "mercadopago" ? "bg-[#009EE3]/10" : "bg-red-600"
                             }`}>
                               {order.payment_method === "spei" ? (
-                                speiSettings?.bank_logo_url ? <img src={speiSettings.bank_logo_url} alt="SPEI" className="w-full h-full object-contain p-1" /> : <span className="material-symbols-outlined text-blue-500">account_balance</span>
+                                speiSettings?.bank_logo_url ? <Image src={speiSettings.bank_logo_url} alt="SPEI" fill className="object-contain p-1" unoptimized /> : <span className="material-symbols-outlined text-blue-500">account_balance</span>
                               ) : order.payment_method === "mercadopago" ? (
                                 <span className="material-symbols-outlined text-[#009EE3] text-[20px]">credit_card</span>
                               ) : (
-                                oxxoSettings?.bank_logo_url ? <img src={oxxoSettings.bank_logo_url} alt="OXXO" className="w-full h-full object-contain bg-white" /> : <span className="text-white text-[10px] font-black">OXXO</span>
+                                oxxoSettings?.bank_logo_url ? <Image src={oxxoSettings.bank_logo_url} alt="OXXO" fill className="object-contain bg-white" unoptimized /> : <span className="text-white text-[10px] font-black">OXXO</span>
                               )}
                             </div>
                             <div>
@@ -545,7 +547,7 @@ export default function PaymentsAdminPage() {
                           </div>
                           <div className="flex items-center gap-3">
                             <span className="font-bold">${order.total_amount?.toFixed(2)}</span>
-                            {statusBadge(order.payment_status, order.payment_method, order.status)}
+                            {statusBadge(order.payment_status, order.payment_method)}
                             {order.payment_status === "proof_uploaded" && (
                               <span className="material-symbols-outlined text-amber-500 text-[20px]">notifications_active</span>
                             )}
@@ -592,7 +594,7 @@ export default function PaymentsAdminPage() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-500">Estado</span>
-                      {statusBadge(selectedOrder.payment_status, selectedOrder.payment_method, selectedOrder.status)}
+                      {statusBadge(selectedOrder.payment_status, selectedOrder.payment_method)}
                     </div>
                     <div className="flex justify-between border-t border-gray-100 pt-3">
                       <span className="text-gray-500 font-bold">Total</span>
@@ -602,12 +604,12 @@ export default function PaymentsAdminPage() {
 
                   <div className="bg-gray-50 rounded-xl p-4 mb-5 text-sm border border-gray-100">
                     <p className="font-bold text-[10px] text-gray-400 uppercase tracking-widest mb-3">Productos Comprados</p>
-                    <div className="space-y-3 max-h-[150px] overflow-y-auto pr-1">
-                      {selectedOrder.items?.map((item: any, idx: number) => {
-                        const prodId = item.product_id || item.id || "";
+                    <div className="space-y-3 max-h-[280px] overflow-y-auto pr-1">
+                      {selectedOrder.items?.map((item: Record<string, unknown>, idx: number) => {
+                        const prodId = (item.product_id || item.id || "") as string;
                         return (
                           <div key={idx} className="flex flex-col gap-0.5 border-b border-gray-200 pb-2 last:border-0 last:pb-0">
-                            <p className="font-bold text-xs truncate">{item.quantity}x {item.name}</p>
+                            <p className="font-bold text-xs truncate">{item.quantity}x {item.name as string}</p>
                             <p className="text-[10px] font-mono text-gray-500">ID Prod: {prodId.split("-")[0].toUpperCase() || "N/A"}</p>
                           </div>
                         );
@@ -625,11 +627,13 @@ export default function PaymentsAdminPage() {
                   {selectedOrder.payment_proof_url && (
                     <div className="mb-5">
                       <p className="text-xs font-bold text-gray-400 uppercase mb-2">Comprobante de pago</p>
-                      <a href={selectedOrder.payment_proof_url} target="_blank" rel="noopener noreferrer">
-                        <img
+                      <a href={selectedOrder.payment_proof_url} target="_blank" rel="noopener noreferrer" className="block relative w-full h-48">
+                        <Image
                           src={selectedOrder.payment_proof_url}
                           alt="Comprobante"
-                          className="w-full rounded-xl border border-gray-200 hover:opacity-90 transition-opacity cursor-zoom-in"
+                          fill
+                          unoptimized
+                          className="rounded-xl border border-gray-200 hover:opacity-90 transition-opacity cursor-zoom-in object-cover"
                         />
                         <p className="text-xs text-blue-500 text-center mt-1">Ver imagen completa</p>
                       </a>

@@ -12,13 +12,13 @@ export default function ProductReviews({ productId }: { productId: string }) {
   const [preview, setPreview] = useState<string>("");
   const [errorMsg, setErrorMsg] = useState("");
   const supabase = createClient();
-  const [session, setSession] = useState<Record<string, unknown> | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [canReview, setCanReview] = useState(false);
   const [cannotReviewReason, setCannotReviewReason] = useState("");
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
+      setIsAuthenticated(!!session);
       if (session) {
         checkEligibility();
       }
@@ -59,7 +59,7 @@ export default function ProductReviews({ productId }: { productId: string }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!session) return;
+    if (!isAuthenticated) return;
     setLoading(true);
     setErrorMsg("");
     
@@ -122,7 +122,7 @@ export default function ProductReviews({ productId }: { productId: string }) {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         {/* Formulario */}
         <div className="lg:col-span-5">
-          {session ? (
+          {isAuthenticated ? (
             <div className="bg-surface-container p-6 rounded-lg border border-outline-variant">
               <h4 className="text-sm font-bold uppercase mb-4">Deja tu opinión</h4>
               

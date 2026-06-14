@@ -11,7 +11,7 @@ const defaultImages = [
   "https://images.unsplash.com/photo-1584916201218-f4242ceb4809?w=800",
 ];
 
-export default function ProductClient({ product, categoryName, id }: { product: any, categoryName: string, id: string }) {
+export default function ProductClient({ product, categoryName, id }: { product: Record<string, unknown>, categoryName: string, id: string }) {
   const supabase = createClient();
   const { items, addToCart, removeFromCart } = useCart();
   
@@ -19,11 +19,11 @@ export default function ProductClient({ product, categoryName, id }: { product: 
   const [detailsOpen, setDetailsOpen] = useState(true);
   const [shippingOpen, setShippingOpen] = useState(false);
   const [selectedVariant, setSelectedVariant] = useState<Record<string, unknown> | null>(null);
-  const [session, setSession] = useState<Record<string, unknown> | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
+      setIsAuthenticated(!!session);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -39,7 +39,7 @@ export default function ProductClient({ product, categoryName, id }: { product: 
   }
   const productImages = parsedImages;
 
-  let parsedVariants: any[] = [];
+  let parsedVariants: Record<string, unknown>[] = [];
   if (product.variants) {
     try {
       parsedVariants = typeof product.variants === 'string' ? JSON.parse(product.variants) : product.variants;
@@ -125,7 +125,7 @@ export default function ProductClient({ product, categoryName, id }: { product: 
                         </div>
                         <button 
                           onClick={() => {
-                            if (!session) {
+                            if (!isAuthenticated) {
                               window.location.href = "/login";
                               return;
                             }
@@ -136,7 +136,7 @@ export default function ProductClient({ product, categoryName, id }: { product: 
                             }
                             
                             const cartItemId = `${product.id}_${selectedVariant?.id || 'base'}`;
-                            const isInCart = items.some((i: any) => i.id === cartItemId);
+                            const isInCart = items.some((i: { id: string }) => i.id === cartItemId);
                             
                             if (isInCart) {
                               removeFromCart(cartItemId);
@@ -144,22 +144,22 @@ export default function ProductClient({ product, categoryName, id }: { product: 
                               addToCart(product, 1, selectedVariant);
                             }
                           }}
-                          disabled={isOutOfStock && !!session}
+                          disabled={isOutOfStock && !!isAuthenticated}
                           className={`w-full py-5 text-sm font-bold uppercase tracking-widest transition-all duration-300 border border-primary shadow-sm hover:shadow-md ${
-                            !session
+                            !isAuthenticated
                               ? "bg-primary text-white hover:bg-black"
                               : isOutOfStock 
                                 ? "bg-surface-container text-secondary border-outline-variant cursor-not-allowed opacity-50"
-                                : items.some((i: any) => i.id === `${product.id}_${selectedVariant?.id || 'base'}`)
+                                : items.some((i: { id: string }) => i.id === `${product.id}_${selectedVariant?.id || 'base'}`)
                                   ? "bg-transparent text-primary hover:bg-surface-container-low"
                                   : "bg-primary text-white hover:bg-black hover:-translate-y-1"
                           }`}
                         >
-                          {!session 
+                          {!isAuthenticated 
                             ? "Inicia Sesión para Comprar"
                             : isOutOfStock 
                               ? "Agotado"
-                              : items.some((i: any) => i.id === `${product.id}_${selectedVariant?.id || 'base'}`) 
+                              : items.some((i: { id: string }) => i.id === `${product.id}_${selectedVariant?.id || 'base'}`) 
                                 ? "Quitar del Carrito" 
                                 : "Añadir al Carrito"}
                         </button>

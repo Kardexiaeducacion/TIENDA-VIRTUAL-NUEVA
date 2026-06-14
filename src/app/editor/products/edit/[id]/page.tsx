@@ -109,7 +109,7 @@ export default function EditProductPage() {
           (typeof product.features === "object" && product.features !== null ? 
             Object.entries(product.features).map(([k, v]) => ({ key: k, value: String(v) })) : []);
 
-        const cleanFeatures = loadedFeatures.filter((f: any) => 
+        const cleanFeatures = loadedFeatures.filter((f: { key: string }) => 
           f.key !== "Modelo" && f.key !== "Material" && f.key !== "Color" && f.key !== "Peso" && f.key !== "Medidas de Envío" && f.key !== "Medidas del Producto" && f.key !== "Envío Gratis"
         );
         setFeatures(cleanFeatures.length > 0 ? cleanFeatures : [{ key: "Marca", value: "Cloe" }]);

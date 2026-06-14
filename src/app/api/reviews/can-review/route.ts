@@ -44,7 +44,7 @@ export async function GET(req: Request) {
     if (orders && orders.length > 0) {
       for (const order of orders) {
         if (order.items && Array.isArray(order.items)) {
-          const found = order.items.find((item: any) => item.productId === productId);
+          const found = order.items.find((item: { productId: string }) => item.productId === productId);
           if (found) {
             if (order.status === 'concluida') {
               hasPurchasedAndCompleted = true;
@@ -65,7 +65,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ canReview: false, reason: "not_purchased" });
     }
 
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
 }

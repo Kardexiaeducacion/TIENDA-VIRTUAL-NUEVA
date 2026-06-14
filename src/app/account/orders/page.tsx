@@ -379,8 +379,8 @@ export default function MyOrdersPage() {
                                   {order.payment_proof_url && (
                                     <div>
                                       <p className="text-xs font-bold text-gray-400 uppercase mb-2">Tu comprobante</p>
-                                      <a href={order.payment_proof_url} target="_blank" rel="noopener noreferrer">
-                                        <img src={order.payment_proof_url} alt="Comprobante" className="max-h-40 rounded-lg border border-gray-200 hover:opacity-90 transition-opacity cursor-zoom-in" />
+                                      <a href={order.payment_proof_url} target="_blank" rel="noopener noreferrer" className="block relative h-40">
+                                        <Image src={order.payment_proof_url} alt="Comprobante" fill unoptimized className="rounded-lg border border-gray-200 hover:opacity-90 transition-opacity cursor-zoom-in object-contain" />
                                       </a>
                                     </div>
                                   )}

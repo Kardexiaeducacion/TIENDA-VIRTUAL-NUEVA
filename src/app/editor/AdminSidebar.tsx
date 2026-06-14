@@ -22,7 +22,7 @@ export default function AdminSidebar({ profile, email }: { profile: Record<strin
       .select("id", { count: "exact" })
       .eq("payment_status", "proof_uploaded")
       .then(({ count }) => setPendingPayments(count || 0));
-  }, []);
+  }, [supabase]);
 
   const menuItems = [
     { label: "Resumen", icon: "dashboard", href: "/editor" },

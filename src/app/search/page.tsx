@@ -118,16 +118,16 @@ function SearchContent() {
                       }`}
                     >
                       {(product.variants as Record<string, unknown>[])?.length > 0
-                        ? "VER OPCIONES"
+                        ? "VER DETALLES"
                         : items.some((i) => i.id === `${product.id}_base`) 
-                          ? "EN CARRITO (QUITAR)" 
-                          : "VISTA RÁPIDA / AGREGAR"}
+                          ? "QUITAR DEL CARRITO" 
+                          : "AGREGAR AL CARRITO"}
                     </button>
                   </div>
                   <Link href={`/product/${product.id}`}>
-                    <h4 className="text-sm font-semibold text-primary mb-1 line-clamp-1">{product.name as string}</h4>
+                    <h4 className="text-sm font-medium text-primary/70 mb-1 line-clamp-1">{product.name as string}</h4>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm font-semibold text-secondary">${Number(product.price).toFixed(2)}</span>
+                      <span className="text-base font-bold text-primary">${Number(product.price).toFixed(2)}</span>
                       <span className="text-[10px] font-mono text-gray-400 bg-gray-100 px-1 rounded">{product.sku as string || "Sin ID"}</span>
                     </div>
                   </Link>

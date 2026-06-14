@@ -38,8 +38,8 @@ export default function AdminHelpCenter() {
       setQuestion("");
       setAnswer("");
       fetchArticles();
-    } catch (e: any) {
-      alert(e.message);
+    } catch (e: unknown) {
+      alert((e as Error).message);
     }
   };
 
@@ -49,8 +49,8 @@ export default function AdminHelpCenter() {
       const res = await fetch(`/api/help?id=${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error("Error eliminando");
       fetchArticles();
-    } catch (e: any) {
-      alert(e.message);
+    } catch (e: unknown) {
+      alert("Error eliminando FAQ: " + (e as Error).message);
     }
   };
 
