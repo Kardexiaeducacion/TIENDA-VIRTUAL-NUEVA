@@ -515,7 +515,8 @@ export default function PaymentsAdminPage() {
               ) : (
                 <div className="space-y-3">
                   {orders.map(order => {
-                    const addr = order.shipping_address ? JSON.parse(order.shipping_address) : null;
+                    let addr = null;
+                    try { addr = order.shipping_address ? JSON.parse(order.shipping_address as string) : null; } catch {}
                     const isSelected = selectedOrder?.id === order.id;
                     return (
                       <button
@@ -546,7 +547,7 @@ export default function PaymentsAdminPage() {
                             </div>
                           </div>
                           <div className="flex items-center gap-3">
-                            <span className="font-bold">${order.total_amount?.toFixed(2)}</span>
+                            <span className="font-bold">${Number(order.total_amount || 0).toFixed(2)}</span>
                             {statusBadge(order.payment_status, order.payment_method)}
                             {order.payment_status === "proof_uploaded" && (
                               <span className="material-symbols-outlined text-amber-500 text-[20px]">notifications_active</span>
@@ -577,13 +578,13 @@ export default function PaymentsAdminPage() {
                     <div className="flex justify-between gap-4">
                       <span className="text-gray-500 whitespace-nowrap">Cliente</span>
                       <span className="font-bold text-right truncate">
-                        {selectedOrder.shipping_address ? JSON.parse(selectedOrder.shipping_address).contact : "N/A"}
+                        {selectedOrder.shipping_address ? (() => { try { return JSON.parse(selectedOrder.shipping_address as string).contact; } catch { return "N/A"; } })() : "N/A"}
                       </span>
                     </div>
                     <div className="flex justify-between gap-4">
                       <span className="text-gray-500 whitespace-nowrap">Correo</span>
                       <span className="font-bold text-right truncate">
-                        {selectedOrder.shipping_address && JSON.parse(selectedOrder.shipping_address).email ? JSON.parse(selectedOrder.shipping_address).email : "N/A"}
+                        {selectedOrder.shipping_address ? (() => { try { return JSON.parse(selectedOrder.shipping_address as string).email || "N/A"; } catch { return "N/A"; } })() : "N/A"}
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -598,7 +599,7 @@ export default function PaymentsAdminPage() {
                     </div>
                     <div className="flex justify-between border-t border-gray-100 pt-3">
                       <span className="text-gray-500 font-bold">Total</span>
-                      <span className="font-bold text-lg text-green-700">${selectedOrder.total_amount?.toFixed(2)}</span>
+                      <span className="font-bold text-lg text-green-700">${Number(selectedOrder.total_amount || 0).toFixed(2)}</span>
                     </div>
                   </div>
 
@@ -609,7 +610,7 @@ export default function PaymentsAdminPage() {
                         const prodId = (item.product_id || item.id || "") as string;
                         return (
                           <div key={idx} className="flex flex-col gap-0.5 border-b border-gray-200 pb-2 last:border-0 last:pb-0">
-                            <p className="font-bold text-xs truncate">{item.quantity}x {item.name as string}</p>
+                            <p className="font-bold text-xs truncate">{Number(item.quantity) || 1}x {item.name as string}</p>
                             <p className="text-[10px] font-mono text-gray-500">ID Prod: {prodId.split("-")[0].toUpperCase() || "N/A"}</p>
                           </div>
                         );
