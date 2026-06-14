@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import Image from "next/image";
+
 import { createClient } from "@/utils/supabase/client";
 import FavoriteTextButton from "@/components/FavoriteTextButton";
 import { useCart } from "@/context/CartContext";
@@ -59,7 +59,7 @@ export default function ProductClient({ product, categoryName, id }: { product: 
             <div className="col-span-12 lg:col-span-7">
               <div className="flex flex-col gap-6">
                 <div className="aspect-[4/5] bg-surface-container-low overflow-hidden border border-outline-variant relative group">
-                  <Image alt={product.name as string} src={productImages[activeImg]} fill className="object-cover transition-transform duration-700 group-hover:scale-105" unoptimized />
+                  <img alt={product.name as string} src={productImages[activeImg]} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" decoding="async" />
                 </div>
                 <div className="grid grid-cols-4 gap-4">
                   {productImages.map((img: string, i: number) => (
@@ -68,7 +68,7 @@ export default function ProductClient({ product, categoryName, id }: { product: 
                       onClick={() => setActiveImg(i)}
                       className={`aspect-square bg-surface-container overflow-hidden border-2 transition-colors ${i === activeImg ? "border-primary" : "border-outline-variant hover:border-primary"}`}
                     >
-                      <Image alt={`View ${i + 1}`} src={img} width={120} height={120} className="w-full h-full object-cover" unoptimized />
+                      <img alt={`View ${i + 1}`} src={img} width="120" height="120" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                     </button>
                   ))}
                 </div>
